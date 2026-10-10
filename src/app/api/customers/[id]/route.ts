@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
+import { isGender, parseBirthDate } from '@/src/lib/customer-fields';
 
 export async function GET(
   request: Request,
@@ -55,9 +56,10 @@ export async function GET(
           first_name, 
           last_name, 
           email, 
-          phone, 
+          phone,
           male,
-          address, 
+          to_char(birth_date, 'YYYY-MM-DD') AS birth_date,
+          address,
           status, 
           create_date, 
           update_date,
@@ -127,15 +129,26 @@ export async function PUT(
     } else {
       const { first_name, last_name, email, phone, male, address } = body;
 
+      if (!isGender(male)) {
+        return NextResponse.json(
+          { success: false, error: 'Хүйсээ сонгоно уу (Эрэгтэй эсвэл Эмэгтэй).' },
+          { status: 400 }
+        );
+      }
+      const birthDate = parseBirthDate(body.birth_date);
+      if ('error' in birthDate) {
+        return NextResponse.json({ success: false, error: birthDate.error }, { status: 400 });
+      }
+
       const updateQuery = `
-        UPDATE mt_customer 
-        SET first_name = $1, last_name = $2, email = $3, phone = $4, male = $5, address = $6, update_date = CURRENT_TIMESTAMP
-        WHERE customer_id = $7 AND company_id = $8
-        RETURNING customer_id, company_id, first_name, last_name, email, phone, male, address, status, create_date, update_date, 'individual' as customer_type
+        UPDATE mt_customer
+        SET first_name = $1, last_name = $2, email = $3, phone = $4, male = $5, address = $6, birth_date = $7::date, update_date = CURRENT_TIMESTAMP
+        WHERE customer_id = $8 AND company_id = $9
+        RETURNING customer_id, company_id, first_name, last_name, email, phone, male, to_char(birth_date, 'YYYY-MM-DD') AS birth_date, address, status, create_date, update_date, 'individual' as customer_type
       `;
 
       const { rows } = await pool.query(updateQuery, [
-        first_name, last_name, email, phone, male, address, customerId, companyId
+        first_name, last_name, email, phone, male, address, birthDate.value, customerId, companyId
       ]);
 
       if (rows.length === 0) {
