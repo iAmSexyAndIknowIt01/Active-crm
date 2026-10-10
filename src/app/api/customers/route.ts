@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/src/lib/session';
 import { pool } from '@/src/lib/db'; // Таны өөрийн db холболтын файл
+import { isGender, parseBirthDate } from '@/src/lib/customer-fields';
 
 // GET: Тухайн компанийн харилцагчдыг төрлөөр нь эсвэл бүгдийг нь татах
 export async function GET(request: Request) {
@@ -32,7 +33,8 @@ export async function GET(request: Request) {
           phone, 
           address,
           male,
-          status, 
+          to_char(birth_date, 'YYYY-MM-DD') AS birth_date,
+          status,
           create_date, 
           'individual' as customer_type 
         FROM mt_customer 
@@ -91,7 +93,6 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     
-    // 1. Энд male хувьсагчийг нэмж салгаж авна
     const { customer_type, name, first_name, last_name, email, phone, address, tax_number, male } = body;
 
     if (customer_type === 'individual') {
@@ -102,23 +103,33 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
+      // Хүйсийг заавал сонгоно (өмнө нь хоосон бол 'Эрэгтэй' гэж хадгалдаг байсан нь буруу өгөгдөл үүсгэж байв)
+      if (!isGender(male)) {
+        return NextResponse.json(
+          { success: false, error: 'Хүйсээ сонгоно уу (Эрэгтэй эсвэл Эмэгтэй).' },
+          { status: 400 }
+        );
+      }
+      const birthDate = parseBirthDate(body.birth_date);
+      if ('error' in birthDate) {
+        return NextResponse.json({ success: false, error: birthDate.error }, { status: 400 });
+      }
 
-      // 2. INSERT хүснэгтийн багана болон VALUES дээр male ($7) нэмнэ
       const insertIndividualQuery = `
-        INSERT INTO mt_customer (company_id, first_name, last_name, email, phone, address, male) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7) 
+        INSERT INTO mt_customer (company_id, first_name, last_name, email, phone, address, male, birth_date)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8::date)
         RETURNING *
       `;
-      
-      // 3. Массив дотор male утгыг ($7-д) дамжуулна
+
       await pool.query(insertIndividualQuery, [
-        companyId, 
-        first_name, 
-        last_name, 
-        email, 
-        phone, 
-        address, 
-        male || 'Эрэгтэй' // Хэрэв хоосон байвал 'Эрэгтэй' гэсэн default утга авна
+        companyId,
+        first_name,
+        last_name,
+        email,
+        phone,
+        address,
+        male,
+        birthDate.value,
       ]);
 
     } else if (customer_type === 'company') {

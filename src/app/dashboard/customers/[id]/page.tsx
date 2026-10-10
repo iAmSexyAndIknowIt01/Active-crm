@@ -2,9 +2,10 @@
 
 import { useEffect, useState, use } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Building2, User, Mail, Phone, MapPin, ArrowLeft, Calendar, ShieldCheck, FileText, RefreshCw, Edit3, Save, X } from 'lucide-react';
+import { Building2, User, Mail, Phone, MapPin, ArrowLeft, Calendar, ShieldCheck, FileText, RefreshCw, Edit3, Save, X, Cake } from 'lucide-react';
 import Loading from '@/src/app/components/loading';
 import CommonModal from '@/src/app/components/CommonModal';
+import { BIRTH_DATE_MIN, GENDERS, calcAge, isGender, todayIsoDate } from '@/src/lib/customer-fields';
 
 interface CustomerDetail {
   customer_id: string;
@@ -15,6 +16,7 @@ interface CustomerDetail {
   email: string | null;
   phone: string | null;
   male?: string | null;
+  birth_date?: string | null;
   address: string | null;
   tax_number?: string | null;
   status: string | null;
@@ -90,6 +92,15 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   };
 
   const handleSave = async () => {
+    if (customerType !== 'company' && !isGender(formData.male)) {
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        title: 'Хүйс сонгоогүй байна',
+        message: 'Хүйсээ сонгоно уу (Эрэгтэй эсвэл Эмэгтэй).',
+      });
+      return;
+    }
     try {
       setSaving(true);
       const res = await fetch(`/api/customers/${customerId}?type=${customerType}`, {
@@ -143,9 +154,14 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  const displayName = customer.customer_type === 'company' 
-    ? customer.name 
+  const displayName = customer.customer_type === 'company'
+    ? customer.name
     : `${customer.last_name || ''} ${customer.first_name || ''}`.trim();
+  const age = calcAge(customer.birth_date);
+  const formAge = calcAge(formData.birth_date);
+  const individualSummary = [isGender(customer.male) ? customer.male : null, age !== null ? `${age} нас` : null]
+    .filter(Boolean)
+    .join(', ');
 
   return (
     <div className="space-y-6 pb-20 max-w-4xl mx-auto text-slate-800 dark:text-slate-100">
@@ -212,7 +228,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
               <p className="text-xs text-slate-400 dark:text-slate-400 font-bold uppercase mt-1">
                 {customer.customer_type === 'company' 
                   ? `Байгууллага (ТТД: ${customer.tax_number || '-'})` 
-                  : `Хувь хүний харилцагч ${customer.male ? `(${customer.male})` : ''}`}
+                  : `Хувь хүний харилцагч ${individualSummary ? `(${individualSummary})` : ''}`}
               </p>
             </div>
           </div>
@@ -345,19 +361,58 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                 <div className="flex items-center gap-3 p-3 bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <User size={16} className="text-slate-400 dark:text-slate-500 shrink-0" />
                   <div className="w-full">
-                    <p className="text-[10px] text-slate-400 dark:text-slate-400 font-bold">Хүйс</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-400 font-bold">
+                      Хүйс {isEditing && <span className="text-red-500">*</span>}
+                    </p>
                     {isEditing ? (
-                      <select
-                        name="male"
-                        value={formData.male || 'Эрэгтэй'}
+                      <div role="radiogroup" aria-label="Хүйс" className="grid grid-cols-2 gap-2 mt-1">
+                        {GENDERS.map((gender) => (
+                          <button
+                            key={gender}
+                            type="button"
+                            role="radio"
+                            aria-checked={formData.male === gender}
+                            onClick={() => setFormData((prev) => ({ ...prev, male: gender }))}
+                            className={`py-1.5 rounded-xl font-bold border transition-all cursor-pointer ${
+                              formData.male === gender
+                                ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400'
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+                            }`}
+                          >
+                            {gender}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="font-bold text-slate-800 dark:text-slate-200">
+                        {isGender(customer.male) ? customer.male : 'Сонгоогүй'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                  <Cake size={16} className="text-slate-400 dark:text-slate-500 shrink-0" />
+                  <div className="w-full">
+                    <label htmlFor="customer-birth-date" className="block text-[10px] text-slate-400 dark:text-slate-400 font-bold">
+                      Төрсөн огноо
+                      {isEditing && formAge !== null && <span className="ml-1 font-semibold">({formAge} нас)</span>}
+                    </label>
+                    {isEditing ? (
+                      <input
+                        id="customer-birth-date"
+                        type="date"
+                        name="birth_date"
+                        min={BIRTH_DATE_MIN}
+                        max={todayIsoDate()}
+                        value={formData.birth_date || ''}
                         onChange={handleInputChange}
                         className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
-                      >
-                        <option value="Эрэгтэй">Эрэгтэй</option>
-                        <option value="Эмэгтэй">Эмэгтэй</option>
-                      </select>
+                      />
                     ) : (
-                      <p className="font-bold text-slate-800 dark:text-slate-200">{customer.male || 'Байхгүй'}</p>
+                      <p className="font-bold text-slate-800 dark:text-slate-200">
+                        {customer.birth_date ? `${customer.birth_date}${age !== null ? ` (${age} нас)` : ''}` : 'Байхгүй'}
+                      </p>
                     )}
                   </div>
                 </div>

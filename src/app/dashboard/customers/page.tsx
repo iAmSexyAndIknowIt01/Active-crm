@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Loading from '@/src/app/components/loading';
 import InfoTip from '@/src/app/components/InfoTip';
+import { BIRTH_DATE_MIN, GENDERS, calcAge, isGender, todayIsoDate, type Gender } from '@/src/lib/customer-fields';
 
 interface Customer {
   customer_id: string;
@@ -21,6 +22,28 @@ interface Customer {
   tax_number: string | null;
   status: string | null;
   male?: string | null;
+  birth_date?: string | null;
+}
+
+const EMPTY_FORM = {
+  customer_type: 'company' as 'company' | 'individual',
+  name: '',
+  first_name: '',
+  last_name: '',
+  email: '',
+  phone: '',
+  address: '',
+  tax_number: '',
+  male: '' as Gender | '',
+  birth_date: '',
+};
+
+// Хувь хүний товч мэдээлэл: "Эмэгтэй · 34 нас"
+function individualSummary(customer: Customer) {
+  const age = calcAge(customer.birth_date);
+  return [isGender(customer.male) ? customer.male : null, age !== null ? `${age} нас` : null]
+    .filter(Boolean)
+    .join(' · ');
 }
 
 function CustomersContent() {
@@ -43,18 +66,10 @@ function CustomersContent() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [genderMissing, setGenderMissing] = useState(false);
 
-  const [formData, setFormData] = useState({
-    customer_type: 'company' as 'company' | 'individual',
-    name: '',         
-    first_name: '',   
-    last_name: '',    
-    email: '',
-    phone: '',
-    address: '',
-    tax_number: '',
-    male: 'Эрэгтэй'
-  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const formAge = calcAge(formData.birth_date);
 
   const fetchCustomers = async () => {
     try {
@@ -100,6 +115,10 @@ function CustomersContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.customer_type === 'individual' && !formData.male) {
+      setGenderMissing(true);
+      return;
+    }
     try {
       setSaving(true);
       const res = await fetch('/api/customers', {
@@ -110,17 +129,8 @@ function CustomersContent() {
       const result = await res.json();
       if (result.success) {
         setIsModalOpen(false);
-        setFormData({ 
-          customer_type: 'company', 
-          name: '', 
-          first_name: '', 
-          last_name: '', 
-          email: '', 
-          phone: '', 
-          address: '', 
-          tax_number: '',
-          male: 'Эрэгтэй'
-        });
+        setFormData(EMPTY_FORM);
+        setGenderMissing(false);
         fetchCustomers();
       } else {
         alert(result.error || 'Хадгалахад алдаа гарлаа');
@@ -296,7 +306,9 @@ function CustomersContent() {
                           {customer.customer_type === 'company' ? 'Байгууллага' : 'Хувь хүн'}
                         </div>
                         <div className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase">
-                          {customer.customer_type === 'company' ? `ТТД: ${customer.tax_number || 'Байхгүй'}` : '-'}
+                          {customer.customer_type === 'company'
+                            ? `ТТД: ${customer.tax_number || 'Байхгүй'}`
+                            : individualSummary(customer) || '-'}
                         </div>
                       </td>
                       <td className="py-4 px-6 space-y-1">
@@ -352,7 +364,9 @@ function CustomersContent() {
                     <div>
                       <h3 className="font-black text-sm text-slate-900 dark:text-white">{displayName}</h3>
                       <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">
-                        {customer.customer_type === 'company' ? `ТТД: ${customer.tax_number || 'Байхгүй'}` : 'Хувь хүн'}
+                        {customer.customer_type === 'company'
+                          ? `ТТД: ${customer.tax_number || 'Байхгүй'}`
+                          : ['Хувь хүн', individualSummary(customer)].filter(Boolean).join(' · ')}
                       </p>
                     </div>
                   </div>
@@ -510,16 +524,55 @@ function CustomersContent() {
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Хүйс</label>
-                    <select
-                      value={formData.male}
-                      onChange={(e) => setFormData({ ...formData, male: e.target.value })}
-                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
-                    >
-                      <option value="Эрэгтэй">Эрэгтэй</option>
-                      <option value="Эмэгтэй">Эмэгтэй</option>
-                    </select>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Хүйс <span className="text-red-500">*</span>
+                      </label>
+                      <div role="radiogroup" aria-label="Хүйс" className="grid grid-cols-2 gap-2">
+                        {GENDERS.map((gender) => (
+                          <button
+                            key={gender}
+                            type="button"
+                            role="radio"
+                            aria-checked={formData.male === gender}
+                            onClick={() => {
+                              setFormData({ ...formData, male: gender });
+                              setGenderMissing(false);
+                            }}
+                            className={`py-3 rounded-xl font-bold border transition-all cursor-pointer ${
+                              formData.male === gender
+                                ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400'
+                                : genderMissing
+                                  ? 'border-red-300 dark:border-red-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                                  : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            }`}
+                          >
+                            {gender}
+                          </button>
+                        ))}
+                      </div>
+                      {genderMissing && (
+                        <p className="mt-1 text-[11px] font-bold text-red-500">Хүйсээ сонгоно уу.</p>
+                      )}
+                    </div>
+                    <div>
+                      <label htmlFor="new-customer-birth-date" className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Төрсөн огноо
+                        {formAge !== null && (
+                          <span className="ml-1.5 font-semibold text-slate-400 dark:text-slate-500">({formAge} нас)</span>
+                        )}
+                      </label>
+                      <input
+                        id="new-customer-birth-date"
+                        type="date"
+                        min={BIRTH_DATE_MIN}
+                        max={todayIsoDate()}
+                        value={formData.birth_date}
+                        onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                      />
+                    </div>
                   </div>
                 </>
               )}

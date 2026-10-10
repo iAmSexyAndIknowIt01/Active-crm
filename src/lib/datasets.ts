@@ -134,12 +134,13 @@ const DATASETS: DatasetDefinition[] = [
     description: 'Хувь хүн харилцагчдын холбоо барих мэдээлэл',
     summaryQuery: 'SELECT COUNT(*)::int AS count, MAX(create_date) AS last_updated FROM mt_customer WHERE company_id = $1',
     load: fromQuery(
-      `SELECT last_name, first_name, male, email, phone, address, status, create_date
+      `SELECT last_name, first_name, male, to_char(birth_date, 'YYYY-MM-DD') AS birth_date, email, phone, address, status, create_date
        FROM mt_customer WHERE company_id = $1 ORDER BY create_date DESC`,
       [
         { key: 'last_name', label: 'Овог' },
         { key: 'first_name', label: 'Нэр' },
         { key: 'male', label: 'Хүйс' },
+        { key: 'birth_date', label: 'Төрсөн огноо' },
         { key: 'email', label: 'Имэйл' },
         { key: 'phone', label: 'Утас' },
         { key: 'address', label: 'Хаяг' },
