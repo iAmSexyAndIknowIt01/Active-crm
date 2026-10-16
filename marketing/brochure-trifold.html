@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="hz:slide-selector" content=".slide">
+<title>Active CRM — Танилцуулах брошюр</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+  /* A4 хэвтээ (297 × 210 мм), гурван нугалаа. Хуудас 1 = гадна тал, хуудас 2 = дотор тал. */
+  @page { size: 297mm 210mm; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', Arial, sans-serif; background: #e5e7eb; color: #0f172a; }
+  .slide { width: 1123px; height: 794px; position: relative; overflow: hidden; display: flex; background: #fff;
+    page-break-after: always; break-after: page; }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  @media screen { .slide { margin: 24px auto; box-shadow: 0 8px 24px rgba(0,0,0,.15); } }
+  .panel { width: 374.33px; height: 100%; position: relative; padding: 52px 36px; overflow: hidden; }
+  .red { background: linear-gradient(150deg, #EF3B45 0%, #B71C25 100%); color: #fff; }
+  .soft { background: #FEF2F2; }
+
+  .eyebrow { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 2.4px; text-transform: uppercase;
+    color: #DC2626; background: #FEE2E2; padding: 6px 12px; border-radius: 999px; }
+  .red .eyebrow { color: #fff; background: rgba(255,255,255,.16); }
+  h2 { font-size: 28px; line-height: 1.18; font-weight: 800; margin-top: 16px; letter-spacing: -.2px; }
+  h2 em { font-style: normal; color: #DC2626; }
+  .red h2 em { color: #FECACA; }
+  .lead { font-size: 13px; line-height: 1.7; color: #475569; margin-top: 14px; }
+  .red .lead { color: rgba(255,255,255,.86); }
+
+  .item { display: flex; gap: 14px; margin-top: 30px; }
+  .num { flex: none; width: 34px; height: 34px; border-radius: 9px; background: #DC2626; color: #fff; font-weight: 800; font-size: 12px;
+    display: flex; align-items: center; justify-content: center; }
+  .x { background: #fff; color: #DC2626; border: 1.5px solid #FECACA; }
+  .item h3 { font-size: 14.5px; font-weight: 700; }
+  .item p { font-size: 12px; line-height: 1.6; color: #64748b; margin-top: 4px; }
+  .red .item p { color: rgba(255,255,255,.82); }
+  .red .num { background: #fff; color: #DC2626; }
+
+  .card { background: #fff; border: 1px solid #FEE2E2; border-radius: 16px; padding: 18px 16px; margin-top: 20px; display: flex; gap: 12px; }
+  .ic { flex: none; width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg,#EF3B45,#B71C25); display:flex; align-items:center; justify-content:center; }
+  .ic svg { width: 19px; height: 19px; }
+  .card h3 { font-size: 14px; font-weight: 700; }
+  .card p { font-size: 11.5px; line-height: 1.5; color: #64748b; margin-top: 3px; }
+
+  .mark { width: 92px; height: 92px; }
+  .brandname { font-size: 34px; font-weight: 800; letter-spacing: 2px; margin-top: 22px; line-height: 1; }
+  .brandtag { font-size: 9px; letter-spacing: 4.6px; margin-top: 10px; opacity: .85; font-weight: 500; }
+  .cover-title { font-size: 26px; line-height: 1.25; font-weight: 800; margin-top: 90px; }
+  .cover-sub { font-size: 13.5px; line-height: 1.6; margin-top: 14px; opacity: .88; }
+  .circle { position: absolute; border-radius: 50%; }
+  .stats { display: flex; gap: 10px; margin-top: 30px; }
+  .stat { flex: 1; background: #fff; border-radius: 14px; padding: 14px 10px; text-align: center; border: 1px solid #FEE2E2; }
+  .stat b { display: block; font-size: 20px; font-weight: 800; color: #DC2626; }
+  .stat span { font-size: 10px; color: #64748b; font-weight: 600; }
+  .contact-row { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; margin-top: 18px; color: #334155; }
+  .contact-row i { width: 30px; height: 30px; border-radius: 8px; background: #FEE2E2; display: flex; align-items: center; justify-content: center; }
+  .contact-row svg { width: 13px; height: 13px; }
+  .qr { width: 150px; height: 150px; border: 2px dashed #FCA5A5; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    text-align: center; font-size: 10px; color: #94a3b8; font-weight: 600; line-height: 1.4; margin-top: 40px; }
+  .cta { margin-top: 30px; background: #DC2626; color: #fff; border-radius: 14px; padding: 14px 16px; font-weight: 700; font-size: 13px; }
+  .cta small { display: block; font-weight: 500; font-size: 10.5px; opacity: .85; margin-top: 3px; }
+  .fold { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgba(148,163,184,.0); }
+  .foot { position: absolute; left: 36px; right: 36px; bottom: 30px; font-size: 9.5px; color: #94a3b8; font-weight: 600; }
+  .red .foot { color: rgba(255,255,255,.7); }
+</style>
+</head>
+<body>
+
+<!-- ХУУДАС 1 — ГАДНА ТАЛ: [дотогш нугалах хавтас] [арын хавтас] [нүүр хавтас] -->
+<section class="slide" data-canvas-width="1123" data-canvas-height="794">
+
+  <!-- Дотогш нугалах хавтас: асуудал -->
+  <div class="panel soft">
+    <span class="eyebrow">Яагаад хэрэгтэй вэ?</span>
+    <h2>Бизнесийн <em>алдаж буй</em> боломжууд</h2>
+    <p class="lead">Цаасан дэвтэр, санамсаргүй тэмдэглэл дээр тулгуурласан бүртгэл нь өдөр бүр орлого алдагдуулдаг.</p>
+    <div class="item"><span class="num x">1</span><div><h3>Дата алдагдах</h3><p>Үйлчлүүлэгчийн утасны дугаар цаасан дээр тэмдэглэгдээд хаягдаж, эргэж холбогдох боломжгүй болдог.</p></div></div>
+    <div class="item"><span class="num x">2</span><div><h3>Улирлын ачаалал</h3><p>Оргил саруудад хүн багтахгүй буцаж, дараа нь ажилгүй суудаг тэнцвэргүй урсгал.</p></div></div>
+    <div class="item"><span class="num x">3</span><div><h3>Эргэх холбоогүй байдал</h3><p>Байнгын үйлчлүүлэгчдийнхээ түүхийг мэдэхгүйгээс болж үнэнч хэрэглэгчээ алдах эрсдэлтэй.</p></div></div>
+    <div class="foot">Үр дүн: цаг хугацаа болон орлого алдах</div>
+  </div>
+
+  <!-- Арын хавтас: холбоо барих -->
+  <div class="panel">
+    <span class="eyebrow">Холбоо барих</span>
+    <h2>Өнөөдөр <em>үнэгүй</em> туршиж үзээрэй</h2>
+    <p class="lead">Бүртгүүлээд хэдхэн минутын дотор өөрийн бизнесийн QR анкетаа үүсгэж, харилцагчийн мэдээллээ цуглуулж эхлээрэй.</p>
+    <div class="contact-row"><i><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></i>+976 9900 0000</div>
+    <div class="contact-row"><i><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></i>info@activecrm.mn</div>
+    <div class="contact-row"><i><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></i>www.activecrm.mn</div>
+    <div class="contact-row"><i><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></i>Улаанбаатар хот, ... дүүрэг</div>
+    <div class="qr">Вэбсайт руу орох<br>QR код<br>байршуулах хэсэг</div>
+    <div class="foot">Active Intec Software Solutions</div>
+  </div>
+
+  <!-- Нүүр хавтас -->
+  <div class="panel red">
+    <div class="circle" style="right:-90px;top:-80px;width:300px;height:300px;background:rgba(255,255,255,.07)"></div>
+    <div class="circle" style="left:-120px;bottom:-140px;width:320px;height:320px;background:rgba(0,0,0,.08)"></div>
+    <div style="position:relative;margin-top:30px">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+        <rect width="100" height="100" rx="24" fill="#fff"/>
+        <path d="M15 84 L50 15 L85 84 Z M32 84 L50 47 L68 84 Z" fill="#DC2626" fill-rule="evenodd"/>
+        <path d="M41 79 L50 61 L59 79 Z" fill="#DC2626"/>
+      </svg>
+      <div class="brandname">ACTIVE CRM</div>
+      <div class="brandtag">ХАРИЛЦАГЧИЙН УХААЛАГ СИСТЕМ</div>
+      <div class="cover-title">Үйлчлүүлэгчийнхээ мэдээллийг алдаж, орлогоо бүү алд.</div>
+      <div class="cover-sub">Авто засвар, үсчин, худалдааны газруудад зориулсан шинэ үеийн CRM систем.</div>
+    </div>
+    <div class="foot">www.activecrm.mn</div>
+  </div>
+</section>
+
+<!-- ХУУДАС 2 — ДОТОР ТАЛ -->
+<section class="slide" data-canvas-width="1123" data-canvas-height="794">
+
+  <!-- Шийдэл -->
+  <div class="panel red">
+    <div class="circle" style="right:-110px;bottom:-110px;width:280px;height:280px;background:rgba(255,255,255,.07)"></div>
+    <span class="eyebrow">Active CRM шийдэл</span>
+    <h2>Ухаалаг бөгөөд <em>хялбар</em> менежмент</h2>
+    <p class="lead">Харилцагчийн бүртгэл, цаг захиалга, ажлын урсгалаа нэг дор удирдаарай.</p>
+    <div class="item"><span class="num">1</span><div><h3>QR анкетын систем</h3><p>Үйлчлүүлэгч үүдэнд ирээд утсаараа өөрийн мэдээллээ системд шууд үлдээнэ.</p></div></div>
+    <div class="item"><span class="num">2</span><div><h3>Excel болон дата байршуулалт</h3><p>Хуучин цаасан болон файлаар байсан датагаа нэг товчлуураар нэгтгэнэ.</p></div></div>
+    <div class="item"><span class="num">3</span><div><h3>Улирлын ачаалал зохицуулагч</h3><p>Оочер үүсэхээс өмнө захиалга авах сануулга илгээж орлогоо тогтворжуулна.</p></div></div>
+    <div class="foot">Үр дүн: тогтвортой өсөлт ба найдвартай дата</div>
+  </div>
+
+  <!-- Боломжууд -->
+  <div class="panel soft">
+    <span class="eyebrow">Боломжууд</span>
+    <h2>Нэг системд <em>бүгд</em></h2>
+    <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><div><h3>Харилцагчийн сан</h3><p>Хувь хүн, байгууллагын мэдээлэл, үйлчилгээний түүх нэг дор.</p></div></div>
+    <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4"/></svg></span><div><h3>Цаг захиалга</h3><p>Захиалгын төлөв, ажилтны хуваарийг хялбар хянана.</p></div></div>
+    <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></span><div><h3>Ажлын урсгал</h3><p>Захиалгаас ажил үүсгэж, гүйцэтгэлийг шат бүрээр хөтөлнө.</p></div></div>
+    <div class="card"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span><div><h3>Тайлан, шинжилгээ</h3><p>Орлого, эрэлт, ачааллыг графикаар харж шийдвэр гаргана.</p></div></div>
+  </div>
+
+  <!-- Хэнд зориулсан / сэтгэгдэл -->
+  <div class="panel">
+    <span class="eyebrow">Хэнд зориулсан бэ?</span>
+    <h2>Жижиг, дунд <em>бизнесүүдэд</em></h2>
+    <p class="lead">Авто засвар, үсчин, гоо сайхан, худалдаа, үйлчилгээний аль ч салбарт тохирно.</p>
+    <div class="stats">
+      <div class="stat"><b>24/7</b><span>Хаанаас ч</span></div>
+      <div class="stat"><b>1 мин</b><span>QR бүртгэл</span></div>
+      <div class="stat"><b>100%</b><span>Монгол хэл</span></div>
+    </div>
+    <div style="margin-top:30px;background:#FEF2F2;border-radius:16px;padding:18px;border-left:4px solid #DC2626">
+      <p style="font-size:11.5px;line-height:1.6;color:#334155;font-style:italic">“Өмнө нь дэвтэр дээр үйлчлүүлэгчдийнхээ нэрийг бичдэг байсан. Active CRM-д шилжсэнээр оргил үеийн оочерыг урьдчилан захиалгаар амархан зохицууллаа.”</p>
+      <p style="font-size:10.5px;font-weight:700;margin-top:10px;color:#0f172a">Харилцагчийн нэр<span style="font-weight:500;color:#64748b"> · Байгууллага</span></p>
+    </div>
+    <div class="cta">Үнэгүй туршиж эхлэх →<small>www.activecrm.mn · Бүртгүүлэхэд хэдхэн минут л шаардлагатай</small></div>
+  </div>
+</section>
+
+</body>
+</html>
