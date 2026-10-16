@@ -135,7 +135,7 @@ export default function SearchSelect({
   return (
     <div className="relative">
       <div
-        className={`w-full flex items-center gap-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus-within:border-blue-500 dark:focus-within:border-blue-400 transition-colors ${invalid ? invalidClass : ''} ${className}`}
+        className={`w-full flex items-center gap-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus-within:border-red-500 dark:focus-within:border-red-400 transition-colors ${invalid ? invalidClass : ''} ${className}`}
       >
         <Search size={14} className="text-slate-400 shrink-0" />
         <input
@@ -211,14 +211,14 @@ export default function SearchSelect({
                 }}
                 onMouseEnter={() => setHighlight(i)}
                 className={`flex items-center justify-between gap-2 px-3.5 py-2 cursor-pointer ${
-                  i === highlight ? 'bg-blue-50 dark:bg-slate-800' : ''
+                  i === highlight ? 'bg-red-50 dark:bg-slate-800' : ''
                 }`}
               >
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{o.label}</p>
                   {o.sub && <p className="text-[11px] text-slate-400 truncate">{o.sub}</p>}
                 </div>
-                {o.value === value && <Check size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />}
+                {o.value === value && <Check size={14} className="text-red-600 dark:text-red-400 shrink-0" />}
               </li>
             ))
           )}

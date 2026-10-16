@@ -13,7 +13,7 @@ export default function InfoTip({ text, size = 13, className = '' }: { text: Rea
         type="button"
         aria-label="Тайлбар"
         onClick={(e) => e.stopPropagation()}
-        className="inline-flex text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300 focus-visible:text-blue-600 outline-none rounded-full cursor-help normal-case tracking-normal"
+        className="inline-flex text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-300 focus-visible:text-red-600 outline-none rounded-full cursor-help normal-case tracking-normal"
       >
         <Info size={size} aria-hidden />
       </button>

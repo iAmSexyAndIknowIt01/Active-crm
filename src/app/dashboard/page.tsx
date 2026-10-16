@@ -33,10 +33,10 @@ interface DashboardOverview {
 
 const TZ = 'Asia/Ulaanbaatar';
 const WEEKDAYS = ['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'];
-const AVATAR_COLORS = ['bg-blue-600', 'bg-indigo-600', 'bg-emerald-600', 'bg-amber-600', 'bg-purple-600'];
+const AVATAR_COLORS = ['bg-red-600', 'bg-rose-600', 'bg-emerald-600', 'bg-amber-600', 'bg-purple-600'];
 
-// Графикийн өнгө: dataviz validator-оор цайвар (#2563eb) болон бараан (#3b82f6, slate-900 дээр) горимд шалгасан
-const BAR_FILL = 'bg-blue-600 dark:bg-blue-500';
+// Графикийн өнгө: dataviz validator-оор цайвар (#dc2626) болон бараан (#ef4444, slate-900 дээр) горимд шалгасан
+const BAR_FILL = 'bg-red-600 dark:bg-red-500';
 
 function formatMoney(value: number) {
   if (value >= 1e9) return `${(value / 1e9).toFixed(1)} тэрбум ₮`;
@@ -271,10 +271,10 @@ export default function DashboardPage() {
 
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs relative overflow-hidden">
-        <div className="absolute -right-10 -top-10 w-48 h-48 bg-blue-50/80 dark:bg-blue-950/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -right-10 -top-10 w-48 h-48 bg-red-50/80 dark:bg-red-950/20 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="space-y-2 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-extrabold tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 text-xs font-extrabold tracking-wider uppercase">
             <Sparkles size={13} /> Хяналтын самбар
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -287,7 +287,7 @@ export default function DashboardPage() {
 
         {/* Company Badge */}
         <div className="flex items-center gap-3.5 bg-slate-50/90 dark:bg-slate-800/80 px-4 py-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-700 shadow-xs self-start md:self-auto relative z-10">
-          <div className="w-11 h-11 bg-linear-to-tr from-blue-600 to-indigo-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20">
+          <div className="w-11 h-11 bg-linear-to-tr from-red-600 to-rose-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-sm shadow-red-500/20">
             <User size={20} />
           </div>
           <div className="space-y-0.5">
@@ -300,8 +300,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Alert Banner */}
-      <div className="bg-linear-to-r from-slate-900 via-blue-950 to-slate-900 p-5 sm:p-6 rounded-3xl text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg relative overflow-hidden">
-        <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-56 h-56 bg-blue-500/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="bg-linear-to-r from-slate-900 via-red-950 to-slate-900 p-5 sm:p-6 rounded-3xl text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg relative overflow-hidden">
+        <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-56 h-56 bg-red-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="flex items-start gap-3.5 relative z-10">
           <div
@@ -313,7 +313,7 @@ export default function DashboardPage() {
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold tracking-wide text-blue-300 uppercase">
+              <span className="text-xs font-bold tracking-wide text-red-300 uppercase">
                 {hasUrgent ? 'Анхаарах шаардлагатай' : 'Шуурхай мэдээлэл'}
               </span>
               <span className={`w-2 h-2 rounded-full animate-pulse ${hasUrgent ? 'bg-amber-400' : 'bg-emerald-400'}`}></span>
@@ -334,7 +334,7 @@ export default function DashboardPage() {
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <div className="bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs hover:shadow-md transition-all space-y-4 group">
           <div className="flex items-center justify-between">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
               <Briefcase size={22} />
             </div>
             {alerts.overdue > 0 && (
@@ -406,7 +406,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="pt-4 flex items-center justify-end text-xs border-t border-slate-100 dark:border-slate-800">
-            <Link href="/dashboard/analytics" className="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1">
+            <Link href="/dashboard/analytics" className="font-bold text-red-600 dark:text-red-400 hover:underline inline-flex items-center gap-1">
               Дэлгэрэнгүй аналитик <ArrowRight size={12} />
             </Link>
           </div>
@@ -417,10 +417,10 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <h2 className="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
-                <FileText size={18} className="text-blue-600 dark:text-blue-400" /> Сүүлийн анкетууд
+                <FileText size={18} className="text-red-600 dark:text-red-400" /> Сүүлийн анкетууд
               </h2>
               <Tooltip text="Сүүлийн 7 хоногт (7 × 24 цаг) ирсэн анкетын тоо. Доорх жагсаалтад хамгийн сүүлийн 5-ыг харуулна.">
-                <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-extrabold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/60 px-2.5 py-1 rounded-full">
                   7 хоногт {data.submissionsLastWeek}
                 </span>
               </Tooltip>
@@ -448,7 +448,7 @@ export default function DashboardPage() {
                         </div>
                         {isNew && (
                           <Tooltip text="Сүүлийн 24 цагт ирсэн анкет" className="shrink-0">
-                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300">
                               Шинэ
                             </span>
                           </Tooltip>
@@ -466,7 +466,7 @@ export default function DashboardPage() {
 
           <Link
             href="/dashboard/data"
-            className="w-full py-3.5 bg-slate-900 dark:bg-slate-800 hover:bg-blue-600 dark:hover:bg-blue-600 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm"
+            className="w-full py-3.5 bg-slate-900 dark:bg-slate-800 hover:bg-red-600 dark:hover:bg-red-600 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm"
           >
             Бүх хариултыг харах <ArrowRight size={14} />
           </Link>
@@ -478,7 +478,7 @@ export default function DashboardPage() {
       <section className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-[11px] font-black uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 text-[11px] font-black uppercase tracking-wider mb-2">
               <BarChart3 size={13} /> Гүйцэтгэлийн статистик
             </div>
             <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">Энэ сард дуусгасан ажил <InfoTip size={15} text="Энэ сарын 1-нээс хойш “Дууссан” төлөвт орсон, ажилтанд хуваарилагдсан ажлуудыг тоолно. Эрэмбэ: дуусгасан ажлын тоо, тэнцвэл орлогоор." /></h2>
@@ -486,7 +486,7 @@ export default function DashboardPage() {
           </div>
           <Link
             href="/dashboard/employees"
-            className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-1.5 rounded-xl border border-slate-200/60 dark:border-slate-700 self-start sm:self-auto inline-flex items-center gap-1"
+            className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 hover:text-red-600 dark:hover:text-red-400 px-3 py-1.5 rounded-xl border border-slate-200/60 dark:border-slate-700 self-start sm:self-auto inline-flex items-center gap-1"
           >
             Бүх ажилчид <ArrowRight size={12} />
           </Link>
@@ -526,7 +526,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2 self-end sm:self-auto">
                       <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase">Дуусгасан:</span>
                       <span className="text-base sm:text-lg font-black text-slate-900 dark:text-white bg-white dark:bg-slate-900 px-3.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700 shadow-2xs flex items-center gap-1.5">
-                        <CheckCheck size={16} className="text-blue-600 dark:text-blue-400" /> {emp.completed}
+                        <CheckCheck size={16} className="text-red-600 dark:text-red-400" /> {emp.completed}
                       </span>
                     </div>
                   </div>

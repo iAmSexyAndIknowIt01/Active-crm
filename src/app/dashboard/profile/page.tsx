@@ -138,7 +138,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-100">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600 dark:text-blue-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-red-600 dark:text-red-400" />
       </div>
     );
   }
@@ -159,7 +159,7 @@ export default function ProfilePage() {
             onClick={handleEditClick}
             className="flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs transition-all text-sm cursor-pointer self-start sm:self-auto"
           >
-            <Edit3 size={16} className="text-blue-600 dark:text-blue-400" /> Засах
+            <Edit3 size={16} className="text-red-600 dark:text-red-400" /> Засах
           </button>
         )}
       </div>
@@ -180,7 +180,7 @@ export default function ProfilePage() {
         <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800 gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-linear-to-tr from-blue-600 to-sky-400 text-white rounded-2xl flex items-center justify-center font-black text-lg sm:text-xl shadow-md shrink-0">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-linear-to-tr from-red-600 to-red-400 text-white rounded-2xl flex items-center justify-center font-black text-lg sm:text-xl shadow-md shrink-0">
                 {formData.firstName ? formData.firstName.substring(0, 2).toUpperCase() : 'ХӨ'}
               </div>
               <div className="min-w-0">
@@ -220,7 +220,7 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-sm transition-all ${
                     isEditing 
-                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900' 
+                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900' 
                       : 'bg-slate-100/60 dark:bg-slate-800/60 border-slate-100 dark:border-slate-800 cursor-not-allowed text-slate-600 dark:text-slate-400'
                   }`}
                 />
@@ -236,7 +236,7 @@ export default function ProfilePage() {
                     onChange={handleChange}
                     autoComplete="current-password"
                     placeholder="••••••••"
-                    className="w-full pl-4 pr-11 py-3 bg-amber-50/50 dark:bg-slate-800 border border-amber-200 dark:border-amber-900 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900"
+                    className="w-full pl-4 pr-11 py-3 bg-amber-50/50 dark:bg-slate-800 border border-amber-200 dark:border-amber-900 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900"
                   />
                 </div>
               )}
@@ -254,7 +254,7 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-sm transition-all ${
                     isEditing 
-                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900' 
+                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900' 
                       : 'bg-slate-100/60 dark:bg-slate-800/60 border-slate-100 dark:border-slate-800 cursor-not-allowed text-slate-600 dark:text-slate-400'
                   }`}
                 />
@@ -273,7 +273,7 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-sm transition-all ${
                     isEditing 
-                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900' 
+                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900' 
                       : 'bg-slate-100/60 dark:bg-slate-800/60 border-slate-100 dark:border-slate-800 cursor-not-allowed text-slate-600 dark:text-slate-400'
                   }`}
                 />
@@ -292,7 +292,7 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-sm transition-all ${
                     isEditing 
-                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900' 
+                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900' 
                       : 'bg-slate-100/60 dark:bg-slate-800/60 border-slate-100 dark:border-slate-800 cursor-not-allowed text-slate-600 dark:text-slate-400'
                   }`}
                 />
@@ -311,7 +311,7 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-sm transition-all ${
                     isEditing 
-                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900' 
+                      ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900' 
                       : 'bg-slate-100/60 dark:bg-slate-800/60 border-slate-100 dark:border-slate-800 cursor-not-allowed text-slate-600 dark:text-slate-400'
                   }`}
                 />
@@ -325,7 +325,7 @@ export default function ProfilePage() {
           <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <Shield className="text-blue-600 dark:text-blue-400 shrink-0" size={20} />
+                <Shield className="text-red-600 dark:text-red-400 shrink-0" size={20} />
                 <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">Аюулгүй байдал</h3>
               </div>
 
@@ -333,7 +333,7 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setIsChangingPassword(true)}
-                  className="flex items-center gap-2 text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 hover:bg-blue-100 dark:hover:bg-blue-900 px-3.5 py-2 rounded-xl transition-all cursor-pointer"
+                  className="flex items-center gap-2 text-xs font-bold bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-900 px-3.5 py-2 rounded-xl transition-all cursor-pointer"
                 >
                   <KeyRound size={14} /> Нууц үг солих
                 </button>
@@ -360,7 +360,7 @@ export default function ProfilePage() {
                     value={formData.currentPassword}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="w-full pl-4 pr-11 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900"
+                    className="w-full pl-4 pr-11 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900"
                   />
                 </div>
 
@@ -371,7 +371,7 @@ export default function ProfilePage() {
                     value={formData.newPassword}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="w-full pl-4 pr-11 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900"
+                    className="w-full pl-4 pr-11 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900"
                   />
                 </div>
 
@@ -382,7 +382,7 @@ export default function ProfilePage() {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="w-full pl-4 pr-11 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900"
+                    className="w-full pl-4 pr-11 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900"
                   />
                 </div>
               </div>
@@ -401,7 +401,7 @@ export default function ProfilePage() {
             </button>
             <button 
               type="submit"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-blue-500/20 transition-all text-sm cursor-pointer"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-red-500/20 transition-all text-sm cursor-pointer"
             >
               <Save size={18} /> Өөрчлөлтийг хадгалах
             </button>

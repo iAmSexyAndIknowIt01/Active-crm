@@ -181,7 +181,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-2xl shadow-sm shadow-blue-500/20 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-5 py-2.5 rounded-2xl shadow-sm shadow-red-500/20 transition-all cursor-pointer"
           >
             <Edit3 size={16} /> Засах
           </button>
@@ -204,11 +204,11 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
       <form onSubmit={handleSave} className="space-y-6">
         {/* Profile Header Card */}
         <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs relative overflow-hidden space-y-6">
-          <div className="absolute -right-10 -top-10 w-48 h-48 bg-blue-50/80 dark:bg-blue-950/40 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute -right-10 -top-10 w-48 h-48 bg-red-50/80 dark:bg-red-950/40 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center font-black text-2xl shadow-md shrink-0">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-red-600 dark:bg-red-500 text-white flex items-center justify-center font-black text-2xl shadow-md shrink-0">
                 {user.first_name ? user.first_name.charAt(0) : 'U'}
               </div>
               <div className="space-y-1">
@@ -255,7 +255,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
                   />
                 )}
                 {user.company_name && (
-                  <p className="text-xs text-blue-600 dark:text-blue-400 font-bold">Компани: {user.company_name}</p>
+                  <p className="text-xs text-red-600 dark:text-red-400 font-bold">Компани: {user.company_name}</p>
                 )}
               </div>
             </div>
@@ -264,7 +264,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
           {/* Main Details Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-slate-100 dark:border-slate-800 relative z-10 text-xs sm:text-sm">
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <Mail size={18} className="text-blue-600 dark:text-blue-400 shrink-0" />
+              <Mail size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div className="w-full">
                 <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Имэйл хаяг</p>
                 {!isEditing ? (
@@ -281,7 +281,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
             </div>
 
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <Phone size={18} className="text-blue-600 dark:text-blue-400 shrink-0" />
+              <Phone size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div className="w-full">
                 <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Утасны дугаар</p>
                 {!isEditing ? (
@@ -298,7 +298,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
             </div>
 
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <MapPin size={18} className="text-blue-600 dark:text-blue-400 shrink-0" />
+              <MapPin size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div className="w-full">
                 <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Хаяг</p>
                 {!isEditing ? (
@@ -315,7 +315,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
             </div>
 
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-              <Calendar size={18} className="text-blue-600 dark:text-blue-400 shrink-0" />
+              <Calendar size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div>
                 <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Үүсгэсэн огноо</p>
                 <p className="font-bold text-slate-800 dark:text-slate-200">
@@ -333,7 +333,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
               <h3 className="font-black text-base text-slate-900 dark:text-white">mt_user хүснэгтийн бүрэн мэдээлэл</h3>
               <p className="text-xs text-slate-400 dark:text-slate-400">Өгөгдлийн санд хадгалагдсан бүх талбарууд</p>
             </div>
-            <span className="text-[10px] font-black px-2.5 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-lg uppercase border border-blue-100 dark:border-blue-900">
+            <span className="text-[10px] font-black px-2.5 py-1 bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 rounded-lg uppercase border border-red-100 dark:border-red-900">
               Database Table Data
             </span>
           </div>
@@ -424,7 +424,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer inline-flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+                className="px-6 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-sm shadow-red-500/20 cursor-pointer inline-flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
               >
                 {saving ? <Loader size={16} className="animate-spin" /> : <Save size={16} />} Өөрчлөлтийг хадгалах
               </button>

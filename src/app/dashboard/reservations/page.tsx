@@ -204,9 +204,9 @@ const emptyForm = () => ({
 });
 
 const inputClass =
-  'w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500';
+  'w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500';
 const filterClass =
-  'w-full text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none focus:border-blue-500 transition-all';
+  'w-full text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none focus:border-red-500 transition-all';
 const labelClass = 'text-[10px] font-extrabold text-slate-400 uppercase tracking-wider';
 
 function ReservationsContent() {
@@ -642,7 +642,7 @@ function ReservationsContent() {
         </div>
         <button
           onClick={() => openCreate()}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl sm:rounded-2xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl sm:rounded-2xl text-xs font-bold transition-all shadow-md shadow-red-500/20 active:scale-95 cursor-pointer"
         >
           <Plus size={16} /> Шинэ захиалга
         </button>
@@ -665,7 +665,7 @@ function ReservationsContent() {
                   <button
                     type="button"
                     onClick={() => openEdit(todayStats.next!)}
-                    className="font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                    className="font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer"
                   >
                     {todayStats.next.start_time} · {todayStats.next.customer_name}
                   </button>
@@ -728,8 +728,8 @@ function ReservationsContent() {
               <button
                 onClick={() => showToday(s.status)}
                 aria-pressed={active}
-                className={`group w-full text-left bg-white dark:bg-slate-900 p-4 rounded-2xl border shadow-2xs transition-all cursor-pointer hover:border-blue-300 dark:hover:border-slate-600 flex flex-col ${
-                  active ? 'border-blue-500 ring-2 ring-blue-500/15' : 'border-slate-100 dark:border-slate-800'
+                className={`group w-full text-left bg-white dark:bg-slate-900 p-4 rounded-2xl border shadow-2xs transition-all cursor-pointer hover:border-red-300 dark:hover:border-slate-600 flex flex-col ${
+                  active ? 'border-red-500 ring-2 ring-red-500/15' : 'border-slate-100 dark:border-slate-800'
                 }`}
               >
                 <span className="flex items-center justify-between gap-2">
@@ -737,7 +737,7 @@ function ReservationsContent() {
                     <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} aria-hidden />
                     {s.label}
                   </span>
-                  <ChevronRight size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors" aria-hidden />
+                  <ChevronRight size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-red-500 transition-colors" aria-hidden />
                 </span>
                 <span className={`text-2xl font-black mt-1 tabular-nums ${s.color}`}>{loading ? '–' : s.value}</span>
                 {'progress' in s && s.progress !== undefined && (
@@ -756,7 +756,7 @@ function ReservationsContent() {
       {/* Шүүлтүүр */}
       <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4">
         {/* Хайлт */}
-        <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/60 px-3.5 py-3 rounded-xl border border-slate-200/70 dark:border-slate-700 focus-within:border-blue-500 focus-within:bg-white dark:focus-within:bg-slate-900 transition-all">
+        <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/60 px-3.5 py-3 rounded-xl border border-slate-200/70 dark:border-slate-700 focus-within:border-red-500 focus-within:bg-white dark:focus-within:bg-slate-900 transition-all">
           <Search size={16} className="text-slate-400 shrink-0" />
           <input
             ref={searchInputRef}
@@ -786,8 +786,8 @@ function ReservationsContent() {
                   onClick={() => applyPreset(p.key)}
                   className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                     activePreset === p.key
-                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-500/20'
-                      : 'bg-slate-50/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300 dark:hover:border-slate-500'
+                      ? 'bg-red-600 border-red-600 text-white shadow-sm shadow-red-500/20'
+                      : 'bg-slate-50/70 dark:bg-slate-800/60 border-slate-200/70 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-red-300 dark:hover:border-slate-500'
                   }`}
                 >
                   {p.label}
@@ -799,7 +799,7 @@ function ReservationsContent() {
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className={`${filterClass} xl:w-40 ${!activePreset ? 'border-blue-500!' : ''}`}
+                className={`${filterClass} xl:w-40 ${!activePreset ? 'border-red-500!' : ''}`}
                 aria-label="Эхлэх огноо"
               />
               <ArrowRight size={14} className="text-slate-400 shrink-0" />
@@ -808,7 +808,7 @@ function ReservationsContent() {
                 value={dateTo}
                 min={dateFrom || undefined}
                 onChange={(e) => setDateTo(e.target.value)}
-                className={`${filterClass} xl:w-40 ${!activePreset ? 'border-blue-500!' : ''}`}
+                className={`${filterClass} xl:w-40 ${!activePreset ? 'border-red-500!' : ''}`}
                 aria-label="Дуусах огноо"
               />
             </div>
@@ -869,10 +869,10 @@ function ReservationsContent() {
             {activeChips.map((chip) => (
               <span
                 key={chip.label}
-                className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-[11px] font-bold"
+                className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-[11px] font-bold"
               >
                 {chip.label}
-                <button onClick={chip.clear} className="p-0.5 rounded hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer" aria-label="Шүүлтүүр арилгах">
+                <button onClick={chip.clear} className="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900 cursor-pointer" aria-label="Шүүлтүүр арилгах">
                   <X size={12} />
                 </button>
               </span>
@@ -939,7 +939,7 @@ function ReservationsContent() {
             )}
             <button
               onClick={() => openCreate(rangeStart && rangeStart === rangeEnd ? rangeStart : undefined)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
             >
               <Plus size={12} /> Шинэ захиалга
             </button>
@@ -955,7 +955,7 @@ function ReservationsContent() {
           {grouped.map(([date, items]) => (
             <section key={date} className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <h2 className={`flex items-center gap-2 text-xs font-black ${date === today ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                <h2 className={`flex items-center gap-2 text-xs font-black ${date === today ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`}>
                   <CalendarDays size={14} /> {formatDateHeading(date)}
                   <Tooltip text="Энэ өдрийн захиалгын тоо (шүүлтүүрийн дагуу)">
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">{items.length}</span>
@@ -964,7 +964,7 @@ function ReservationsContent() {
                 {date >= today && (
                   <button
                     onClick={() => openCreate(date)}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
                   >
                     <Plus size={12} /> Нэмэх
                   </button>
@@ -975,12 +975,12 @@ function ReservationsContent() {
                   <div
                     key={r.reservation_id}
                     onClick={() => openEdit(r)}
-                    className={`group flex flex-col md:flex-row md:items-center gap-3 md:gap-5 p-4 border-l-4 cursor-pointer hover:bg-blue-50/40 dark:hover:bg-slate-800/60 transition-colors ${
+                    className={`group flex flex-col md:flex-row md:items-center gap-3 md:gap-5 p-4 border-l-4 cursor-pointer hover:bg-red-50/40 dark:hover:bg-slate-800/60 transition-colors ${
                       r.status === 'cancelled' || r.status === 'no_show' ? 'opacity-60' : ''
                     } ${STATUS_META[r.status].bar}`}
                   >
                     <div className="flex items-center gap-2 md:w-32 shrink-0">
-                      <Clock size={15} className="text-blue-500" />
+                      <Clock size={15} className="text-red-500" />
                       <span className="text-sm font-black text-slate-900 dark:text-white tabular-nums">
                         {r.start_time}{r.end_time ? `–${r.end_time}` : ''}
                       </span>
@@ -993,7 +993,7 @@ function ReservationsContent() {
                         ) : (
                           <User size={14} className="text-slate-400 shrink-0" />
                         )}
-                        <span className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        <span className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
                           {r.customer_name}
                         </span>
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
@@ -1005,7 +1005,7 @@ function ReservationsContent() {
                           <a
                             href={`tel:${r.customer_phone}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-1 hover:text-blue-600 hover:underline"
+                            className="inline-flex items-center gap-1 hover:text-red-600 hover:underline"
                           >
                             <Phone size={11} /> {r.customer_phone}
                           </a>
@@ -1083,7 +1083,7 @@ function ReservationsContent() {
                       </Tooltip>
                       <button
                         onClick={() => openEdit(r)}
-                        className="p-2 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                        className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                         aria-label="Засах"
                       >
                         <Pencil size={15} />
@@ -1135,7 +1135,7 @@ function ReservationsContent() {
                       onClick={() => setFormData({ ...formData, customer_type: t, customer_id: '' })}
                       className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                         formData.customer_type === t
-                          ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs'
+                          ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-2xs'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                       }`}
                     >
@@ -1201,7 +1201,7 @@ function ReservationsContent() {
                         Нийт{servicesDuration > 0 && <> · <span className="text-slate-800 dark:text-slate-200">{formatDuration(servicesDuration)}</span></>}{' '}
                         <InfoTip size={12} text="Сонгосон үйлчилгээнүүдийн үнэ болон үргэлжлэх хугацааны нийлбэр. Хугацаа нь каталогт тохируулсан үйлчилгээ бүрийн минутаас бодогдоно." />
                       </span>
-                      <span className="text-sm font-black text-blue-600 dark:text-blue-400 tabular-nums">{servicesPrice.toLocaleString()} ₮</span>
+                      <span className="text-sm font-black text-red-600 dark:text-red-400 tabular-nums">{servicesPrice.toLocaleString()} ₮</span>
                     </div>
                   </div>
                 )}
@@ -1349,7 +1349,7 @@ function ReservationsContent() {
                   <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer">
                     Цуцлах
                   </button>
-                  <button type="submit" disabled={saving} className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all cursor-pointer">
+                  <button type="submit" disabled={saving} className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 transition-all cursor-pointer">
                     {saving ? 'Хадгалж байна...' : 'Хадгалах'}
                   </button>
                 </div>

@@ -156,7 +156,7 @@ export default function MyAnketPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide uppercase border border-blue-100 dark:border-blue-900">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 text-xs font-bold tracking-wide uppercase border border-red-100 dark:border-red-900">
             <Sparkles size={12} /> Анкет тохиргоо
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Үйлчлүүлэгчийн анкет загвар</h1>
@@ -170,7 +170,7 @@ export default function MyAnketPage() {
               onClick={() => setActiveTab('editor')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'editor' 
-                  ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/50 dark:border-slate-700' 
+                  ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-sm border border-slate-200/50 dark:border-slate-700' 
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -181,7 +181,7 @@ export default function MyAnketPage() {
               onClick={() => setActiveTab('preview')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === 'preview' 
-                  ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/50 dark:border-slate-700' 
+                  ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-sm border border-slate-200/50 dark:border-slate-700' 
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -193,7 +193,7 @@ export default function MyAnketPage() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-md shadow-blue-500/20 cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 active:scale-98 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-md shadow-red-500/20 cursor-pointer disabled:opacity-50"
           >
             <Save size={16} />
             Өөрчлөлтийг хадгалах
@@ -221,7 +221,7 @@ export default function MyAnketPage() {
             {/* Form Details */}
             <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-5">
               <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-500 ring-4 ring-blue-50 dark:ring-blue-950"></span> Ерөнхий мэдээлэл
+                <span className="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-500 ring-4 ring-red-50 dark:ring-red-950"></span> Ерөнхий мэдээлэл
               </h2>
               
               <div className="space-y-4">
@@ -231,7 +231,7 @@ export default function MyAnketPage() {
                     type="text"
                     value={formTitle}
                     onChange={(e) => setFormTitle(e.target.value)}
-                    className="w-full px-4.5 py-3.5 bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm font-semibold focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                    className="w-full px-4.5 py-3.5 bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm font-semibold focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-red-500/10 transition-all"
                   />
                 </div>
 
@@ -241,7 +241,7 @@ export default function MyAnketPage() {
                     rows={2}
                     value={formDescription}
                     onChange={(e) => setFormDescription(e.target.value)}
-                    className="w-full px-4.5 py-3.5 bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm font-medium leading-relaxed focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                    className="w-full px-4.5 py-3.5 bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm font-medium leading-relaxed focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-red-500/10 transition-all"
                   />
                 </div>
               </div>
@@ -252,14 +252,14 @@ export default function MyAnketPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div>
                   <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-500 ring-4 ring-blue-50 dark:ring-blue-950"></span> Асуултуудын жагсаалт
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-500 ring-4 ring-red-50 dark:ring-red-950"></span> Асуултуудын жагсаалт
                   </h2>
                   <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Үйлчлүүлэгчээс асуух талбаруудыг удирдах</p>
                 </div>
                 <button
                   type="button"
                   onClick={handleAddQuestion}
-                  className="flex items-center gap-2 text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 hover:bg-blue-100 dark:hover:bg-blue-900 px-4 py-2.5 rounded-xl transition-all cursor-pointer"
+                  className="flex items-center gap-2 text-xs font-bold bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-900 px-4 py-2.5 rounded-xl transition-all cursor-pointer"
                 >
                   <Plus size={16} /> Асуулт нэмэх
                 </button>
@@ -278,7 +278,7 @@ export default function MyAnketPage() {
                         value={q.label}
                         onChange={(e) => handleQuestionChange(q.id, 'label', e.target.value)}
                         placeholder="Асуултын нэр..."
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 transition-all"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:border-red-600 transition-all"
                       />
                     </div>
 
@@ -286,7 +286,7 @@ export default function MyAnketPage() {
                       <select
                         value={q.type}
                         onChange={(e) => handleQuestionChange(q.id, 'type', e.target.value)}
-                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-600 cursor-pointer"
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-red-600 cursor-pointer"
                       >
                         <option value="text">Текст</option>
                         <option value="number">Тоо</option>
@@ -298,7 +298,7 @@ export default function MyAnketPage() {
                         onClick={() => handleQuestionChange(q.id, 'required', !q.required)}
                         className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           q.required 
-                            ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800' 
+                            ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800' 
                             : 'bg-slate-200/60 dark:bg-slate-700 text-slate-500 dark:text-slate-300'
                         }`}
                       >
@@ -330,7 +330,7 @@ export default function MyAnketPage() {
                           const optionsArray = val ? val.split(',').map(s => s.trim()).filter(Boolean) : [];
                           handleQuestionChange(q.id, 'options', optionsArray);
                         }}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-600"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:border-red-600"
                         placeholder="Сонголтууд (таслалаар тусгаарлах, жнь: Авто угаалга, Тос солих)"
                       />
                     </div>
@@ -353,7 +353,7 @@ export default function MyAnketPage() {
                   href={clientFormUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 bg-slate-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-xl transition-all"
+                  className="p-2 bg-slate-50 dark:bg-slate-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-xl transition-all"
                   title="Шинэ цонхоор нээх"
                 >
                   <ExternalLink size={16} />
@@ -384,7 +384,7 @@ export default function MyAnketPage() {
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+                    className="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
                   >
                     <Copy size={15} />
                   </button>
@@ -398,7 +398,7 @@ export default function MyAnketPage() {
         /* Preview Mode */
         <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 p-8 sm:p-12 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-8">
           <div className="text-center space-y-2 pb-6 border-b border-slate-100 dark:border-slate-800">
-            <span className="bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 text-xs font-bold px-3.5 py-1 rounded-full uppercase">Урьдчилан харах</span>
+            <span className="bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 text-xs font-bold px-3.5 py-1 rounded-full uppercase">Урьдчилан харах</span>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">{formTitle}</h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{formDescription}</p>
           </div>
@@ -410,7 +410,7 @@ export default function MyAnketPage() {
                   {idx + 1}. {q.label} {q.required && <span className="text-rose-500 dark:text-rose-400">*</span>}
                 </label>
                 {q.type === 'select' ? (
-                  <select className="w-full px-4.5 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-blue-600 cursor-pointer">
+                  <select className="w-full px-4.5 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600 cursor-pointer">
                     <option value="">Сонгох...</option>
                     {(() => {
                       let opts: string[] = [];
@@ -428,11 +428,11 @@ export default function MyAnketPage() {
                     })()}
                   </select>
                 ) : (
-                  <input type={q.type} placeholder="Бөглөх хэсэг..." className="w-full px-4.5 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-blue-600" />
+                  <input type={q.type} placeholder="Бөглөх хэсэг..." className="w-full px-4.5 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600" />
                 )}
               </div>
             ))}
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all mt-6 text-sm cursor-pointer shadow-md shadow-blue-500/20">
+            <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all mt-6 text-sm cursor-pointer shadow-md shadow-red-500/20">
               Илгээх
             </button>
           </div>

@@ -169,7 +169,7 @@ function CustomersContent() {
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-2xl text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-2xl text-xs font-bold transition-all shadow-sm shadow-red-500/20 cursor-pointer"
         >
           <Plus size={16} /> Шинэ харилцагч нэмэх
         </button>
@@ -183,7 +183,7 @@ function CustomersContent() {
             onClick={() => setActiveTab('all')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'all' 
-                ? 'bg-blue-600 text-white shadow-sm' 
+                ? 'bg-red-600 text-white shadow-sm' 
                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
@@ -194,7 +194,7 @@ function CustomersContent() {
             onClick={() => setActiveTab('company')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'company' 
-                ? 'bg-blue-600 text-white shadow-sm' 
+                ? 'bg-red-600 text-white shadow-sm' 
                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
@@ -205,7 +205,7 @@ function CustomersContent() {
             onClick={() => setActiveTab('individual')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'individual' 
-                ? 'bg-blue-600 text-white shadow-sm' 
+                ? 'bg-red-600 text-white shadow-sm' 
                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
@@ -231,7 +231,7 @@ function CustomersContent() {
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 viewMode === 'list' 
-                  ? 'bg-blue-600 text-white shadow-sm' 
+                  ? 'bg-red-600 text-white shadow-sm' 
                   : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
               title="Жагсаалтаар харах"
@@ -243,7 +243,7 @@ function CustomersContent() {
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 viewMode === 'grid' 
-                  ? 'bg-blue-600 text-white shadow-sm' 
+                  ? 'bg-red-600 text-white shadow-sm' 
                   : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
               title="Кардаар харах"
@@ -293,7 +293,7 @@ function CustomersContent() {
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black shrink-0 ${
                             customer.customer_type === 'company' 
-                              ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400' 
+                              ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' 
                               : 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400'
                           }`}>
                             {customer.customer_type === 'company' ? <Building2 size={18} /> : <User size={18} />}
@@ -350,13 +350,13 @@ function CustomersContent() {
               <div 
                 key={customer.customer_id} 
                 onClick={() => router.push(`/dashboard/customers/${customer.customer_id}?type=${customer.customer_type}`)}
-                className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4 hover:border-blue-200 dark:hover:border-blue-800 transition-all cursor-pointer"
+                className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4 hover:border-red-200 dark:hover:border-red-800 transition-all cursor-pointer"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-base shrink-0 ${
                       customer.customer_type === 'company' 
-                        ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400' 
+                        ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' 
                         : 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400'
                     }`}>
                       {customer.customer_type === 'company' ? <Building2 size={20} /> : <User size={20} />}
@@ -454,7 +454,7 @@ function CustomersContent() {
                     onClick={() => setFormData({ ...formData, customer_type: 'company' })}
                     className={`py-2.5 rounded-xl font-bold border transition-all cursor-pointer ${
                       formData.customer_type === 'company' 
-                        ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400' 
+                        ? 'bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400' 
                         : 'border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
@@ -465,7 +465,7 @@ function CustomersContent() {
                     onClick={() => setFormData({ ...formData, customer_type: 'individual' })}
                     className={`py-2.5 rounded-xl font-bold border transition-all cursor-pointer ${
                       formData.customer_type === 'individual' 
-                        ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400' 
+                        ? 'bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400' 
                         : 'border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
@@ -484,7 +484,7 @@ function CustomersContent() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Жишээ: Компани ХХК"
-                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                     />
                   </div>
                   <div>
@@ -495,7 +495,7 @@ function CustomersContent() {
                       value={formData.tax_number}
                       onChange={(e) => setFormData({ ...formData, tax_number: e.target.value })}
                       placeholder="Жишээ: 1234567"
-                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                     />
                   </div>
                 </>
@@ -509,7 +509,7 @@ function CustomersContent() {
                         value={formData.last_name}
                         onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                         placeholder="Овог"
-                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                       />
                     </div>
                     <div>
@@ -520,7 +520,7 @@ function CustomersContent() {
                         value={formData.first_name}
                         onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                         placeholder="Нэр"
-                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                       />
                     </div>
                   </div>
@@ -542,7 +542,7 @@ function CustomersContent() {
                             }}
                             className={`py-3 rounded-xl font-bold border transition-all cursor-pointer ${
                               formData.male === gender
-                                ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400'
+                                ? 'bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'
                                 : genderMissing
                                   ? 'border-red-300 dark:border-red-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                                   : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
@@ -570,7 +570,7 @@ function CustomersContent() {
                         max={todayIsoDate()}
                         value={formData.birth_date}
                         onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
-                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                       />
                     </div>
                   </div>
@@ -584,7 +584,7 @@ function CustomersContent() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="example@mail.com"
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                 />
               </div>
 
@@ -595,7 +595,7 @@ function CustomersContent() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="99112233"
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                 />
               </div>
 
@@ -606,7 +606,7 @@ function CustomersContent() {
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   placeholder="Гэрийн эсвэл албан байгууллагын хаяг"
                   rows={2}
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400 resize-none"
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400 resize-none"
                 />
               </div>
 
@@ -621,7 +621,7 @@ function CustomersContent() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-6 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
                   {saving ? 'Хадгалж байна...' : 'Хадгалах'}
                 </button>

@@ -75,8 +75,8 @@ const CUSTOMER_TYPE_ROWS = [
 ];
 
 // Нэг өнгөний хоёр түвшин: бүхэл (бүртгэгдсэн) ба түүний хэсэг (дууссан)
-const BAR_FILL = 'bg-blue-600 dark:bg-blue-500';
-const BAR_SOFT = 'bg-blue-200 dark:bg-blue-900';
+const BAR_FILL = 'bg-red-600 dark:bg-red-500';
+const BAR_SOFT = 'bg-red-200 dark:bg-red-900';
 const BAR_TRACK = 'bg-slate-100 dark:bg-slate-800';
 const CARD = 'bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs';
 
@@ -281,8 +281,8 @@ function Summary({ data, periodLabel, previousLabel }: { data: AnalyticsData; pe
   }
 
   return (
-    <div className="flex gap-3 p-4 sm:p-5 rounded-3xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/60">
-      <Lightbulb size={18} className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" aria-hidden />
+    <div className="flex gap-3 p-4 sm:p-5 rounded-3xl bg-red-50/70 dark:bg-red-950/30 border border-red-100 dark:border-red-900/60">
+      <Lightbulb size={18} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" aria-hidden />
       <div className="space-y-1 text-sm text-slate-700 dark:text-slate-200 leading-relaxed [&_b]:font-extrabold [&_b]:text-slate-900 dark:[&_b]:text-white">
         {lines.map((line, i) => (
           <p key={i}>{line}</p>
@@ -491,7 +491,7 @@ function StatusBreakdown({ data }: { data: AnalyticsData }) {
                   <span className="flex items-center gap-2 text-sm tabular-nums text-slate-500 dark:text-slate-400">
                     <span className="font-bold text-slate-900 dark:text-white">{formatNumber(r.count)}</span>
                     <span className="w-10 text-right text-xs">{percent(r.count, total)}%</span>
-                    <ChevronRight size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-blue-500" aria-hidden />
+                    <ChevronRight size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-red-500" aria-hidden />
                   </span>
                 </Link>
               </li>
@@ -514,7 +514,7 @@ function StatusBreakdown({ data }: { data: AnalyticsData }) {
                   <Link
                     key={t.key}
                     href={workshopHref({ customerType: t.key, createdFrom: data.since })}
-                    className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
+                    className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400"
                   >
                     <span className={`w-2.5 h-2.5 rounded-sm ${t.color}`} aria-hidden />
                     {t.label}
@@ -584,7 +584,7 @@ function OverdueList({ data }: { data: AnalyticsData }) {
         action={
           <Link
             href={workshopHref({ due: 'overdue', sort: 'due' })}
-            className="shrink-0 inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+            className="shrink-0 inline-flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400 hover:underline"
           >
             Бүгдийг харах <ChevronRight size={14} aria-hidden />
           </Link>
@@ -604,7 +604,7 @@ function OverdueList({ data }: { data: AnalyticsData }) {
                 </span>
               </Tooltip>
               <span className="flex-1 min-w-0">
-                <span className="block text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                <span className="block text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-red-600 dark:group-hover:text-red-400">
                   {w.title}
                 </span>
                 <span className="block text-xs text-slate-500 dark:text-slate-400 truncate">
@@ -612,7 +612,7 @@ function OverdueList({ data }: { data: AnalyticsData }) {
                 </span>
               </span>
               <span className="shrink-0 text-sm font-bold text-slate-900 dark:text-white tabular-nums hidden sm:block"><Money value={w.price} /></span>
-              <ChevronRight size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-blue-500 shrink-0" aria-hidden />
+              <ChevronRight size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-red-500 shrink-0" aria-hidden />
             </Link>
           </li>
         ))}
@@ -686,7 +686,7 @@ export default function AnalyticsPage() {
                 aria-pressed={range === option.key}
                 className={`w-full px-2 sm:px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
                   range === option.key
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                    ? 'bg-red-600 text-white shadow-lg shadow-red-500/20'
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
@@ -699,7 +699,7 @@ export default function AnalyticsPage() {
             href="/dashboard/data"
             className="flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs transition-all text-sm"
           >
-            <Database size={16} className="text-blue-600 dark:text-blue-400" /> Өгөгдөл татах
+            <Database size={16} className="text-red-600 dark:text-red-400" /> Өгөгдөл татах
           </Link>
         </div>
       </div>
@@ -866,7 +866,7 @@ export default function AnalyticsPage() {
                             <td className="py-3 px-1">
                               <Link
                                 href={workshopHref({ employee: e.userId, createdFrom: data.since })}
-                                className="font-bold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400"
+                                className="font-bold text-slate-700 dark:text-slate-200 hover:text-red-600 dark:hover:text-red-400"
                               >
                                 {e.name}
                               </Link>

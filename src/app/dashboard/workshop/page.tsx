@@ -134,9 +134,9 @@ function currentRanges() {
 const isOpenWork = (w: WorkItem) => w.status !== 'completed' && w.status !== 'cancelled';
 
 const filterSelectClass =
-  'w-full text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none cursor-pointer focus:border-blue-500 transition-all';
+  'w-full text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none cursor-pointer focus:border-red-500 transition-all';
 const filterInputClass =
-  'w-full min-w-0 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 px-3 py-2 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none focus:border-blue-500 transition-all';
+  'w-full min-w-0 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 px-3 py-2 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none focus:border-red-500 transition-all';
 const filterLabelClass = 'text-[10px] font-extrabold text-slate-400 uppercase tracking-wider';
 const searchSelectFilterClass = 'px-3! bg-slate-50/70! dark:bg-slate-800/60! border-slate-200/70!';
 
@@ -453,7 +453,7 @@ function WorkshopContent() {
       case 'completed':
         return <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 shrink-0 border border-emerald-100/50 dark:border-emerald-800"><CheckCircle2 size={11} /> Дууссан</span>;
       case 'in_progress':
-        return <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 shrink-0 border border-blue-100/50 dark:border-blue-800"><Wrench size={11} /> Хийгдэж байна</span>;
+        return <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 shrink-0 border border-red-100/50 dark:border-red-800"><Wrench size={11} /> Хийгдэж байна</span>;
       case 'cancelled':
         return <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 shrink-0 border border-rose-100/50 dark:border-rose-800"><X size={11} /> Цуцлагдсан</span>;
       default:
@@ -482,7 +482,7 @@ function WorkshopContent() {
         </div>
         <button
           onClick={openModal}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl sm:rounded-2xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl sm:rounded-2xl text-xs font-bold transition-all shadow-md shadow-red-500/20 active:scale-95 cursor-pointer"
         >
           <Plus size={16} /> Шинэ ажил бүртгэх
         </button>
@@ -491,7 +491,7 @@ function WorkshopContent() {
       {/* Filter & Search Section */}
       <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/60 px-3.5 py-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700 w-full lg:w-md focus-within:border-blue-500 focus-within:bg-white dark:focus-within:bg-slate-900 transition-all">
+          <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/60 px-3.5 py-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700 w-full lg:w-md focus-within:border-red-500 focus-within:bg-white dark:focus-within:bg-slate-900 transition-all">
             <Search size={16} className="text-slate-400 shrink-0" />
             <input
               type="text"
@@ -527,7 +527,7 @@ function WorkshopContent() {
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewMode === 'list' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  viewMode === 'list' ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-2xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
                 title="Жагсаалтаар харах"
               >
@@ -536,7 +536,7 @@ function WorkshopContent() {
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewMode === 'grid' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  viewMode === 'grid' ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-2xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
                 title="Хэсгээр харах"
               >
@@ -599,12 +599,12 @@ function WorkshopContent() {
             type="button"
             onClick={() => setShowAdvanced((v) => !v)}
             aria-expanded={showAdvanced}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
           >
             <SlidersHorizontal size={14} />
             Нэмэлт шүүлтүүр
             {advancedCount > 0 && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-blue-600 text-white">{advancedCount}</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-red-600 text-white">{advancedCount}</span>
             )}
             <ChevronDown size={14} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
           </button>
@@ -754,10 +754,10 @@ function WorkshopContent() {
             {activeChips.map((chip) => (
               <span
                 key={chip.key}
-                className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-[11px] font-bold max-w-full"
+                className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-[11px] font-bold max-w-full"
               >
                 <span className="truncate">{chip.label}</span>
-                <button onClick={chip.clear} className="p-0.5 rounded hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer shrink-0" aria-label="Шүүлтүүр арилгах">
+                <button onClick={chip.clear} className="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900 cursor-pointer shrink-0" aria-label="Шүүлтүүр арилгах">
                   <X size={12} />
                 </button>
               </span>
@@ -816,15 +816,15 @@ function WorkshopContent() {
                   <tr 
                     key={work.work_id} 
                     onClick={() => router.push(`/dashboard/workshop/${work.work_id}`)}
-                    className="hover:bg-blue-50/40 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group"
+                    className="hover:bg-red-50/40 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group"
                   >
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center font-black transition-all shrink-0">
+                        <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white flex items-center justify-center font-black transition-all shrink-0">
                           <Wrench size={16} />
                         </div>
                         <div>
-                          <span className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                          <span className="font-bold text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors flex items-center gap-1.5">
                             {work.title} {work.can_edit === false && <ReadOnlyMark />}
                           </span>
                           <span className="text-[11px] text-slate-400 truncate max-w-55 block">{work.description || 'Тайлбар байхгүй'}</span>
@@ -869,15 +869,15 @@ function WorkshopContent() {
             <div 
               key={work.work_id} 
               onClick={() => router.push(`/dashboard/workshop/${work.work_id}`)}
-              className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-3.5 hover:border-blue-300 dark:hover:border-slate-700 hover:shadow-md transition-all cursor-pointer group"
+              className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-3.5 hover:border-red-300 dark:hover:border-slate-700 hover:shadow-md transition-all cursor-pointer group"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center font-black transition-all shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white flex items-center justify-center font-black transition-all shrink-0">
                     <Wrench size={18} />
                   </div>
                   <div>
-                    <h3 className="font-black text-sm text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                    <h3 className="font-black text-sm text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors flex items-center gap-1.5">
                       {work.title} {work.can_edit === false && <ReadOnlyMark />}
                     </h3>
                     <div className="flex items-center gap-1.5 mt-1">
@@ -906,7 +906,7 @@ function WorkshopContent() {
 
               <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 text-xs font-bold">
                 <span className="text-slate-400 inline-flex items-center gap-1">Нийт үнэ: <InfoTip size={12} text="Үйлчилгээ бүрийн тоо × нэгж үнийн нийлбэр." /></span>
-                <span className="text-blue-600 dark:text-blue-400 text-sm">{work.price ? `${Number(work.price).toLocaleString()} ₮` : '0 ₮'}</span>
+                <span className="text-red-600 dark:text-red-400 text-sm">{work.price ? `${Number(work.price).toLocaleString()} ₮` : '0 ₮'}</span>
               </div>
             </div>
           ))}
@@ -966,7 +966,7 @@ function WorkshopContent() {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer">
                   Цуцлах
                 </button>
-                <button type="submit" disabled={saving} className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all cursor-pointer">
+                <button type="submit" disabled={saving} className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 transition-all cursor-pointer">
                   {saving ? 'Хадгалж байна...' : 'Хадгалах'}
                 </button>
               </div>

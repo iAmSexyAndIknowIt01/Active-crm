@@ -63,9 +63,9 @@ export const emptyWorkForm = (): WorkFormData => ({
 
 const labelClass = 'block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1';
 const inputClass =
-  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400';
+  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400';
 const selectClass =
-  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-slate-900 cursor-pointer';
+  'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400 bg-white dark:bg-slate-900 cursor-pointer';
 
 // Ажил нэмэх (modal) болон засах (дэлгэрэнгүй хуудас) формын нийтлэг талбарууд.
 // Хоёр газар ижил талбартай байх ёстой тул энд нэг л удаа тодорхойлно.
@@ -310,7 +310,7 @@ export default function WorkFormFields({
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400 inline-flex items-center gap-1">
                 Нийт <InfoTip size={12} text="Бүх мөрийн дүнгийн нийлбэр (тоо × нэгж үнэ). Энэ нь ажлын нийт үнэ болж хадгалагдана." />
               </span>
-              <span className="text-sm font-black text-blue-600 dark:text-blue-400 tabular-nums">{servicesTotal.toLocaleString()} ₮</span>
+              <span className="text-sm font-black text-red-600 dark:text-red-400 tabular-nums">{servicesTotal.toLocaleString()} ₮</span>
             </div>
           </div>
         )}

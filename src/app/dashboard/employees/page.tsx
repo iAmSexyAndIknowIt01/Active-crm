@@ -172,10 +172,10 @@ function EmployeesContent() {
       
       {/* Top Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100/80 dark:border-slate-800 shadow-2xs relative overflow-hidden">
-        <div className="absolute -right-10 -top-10 w-48 h-48 bg-blue-50/80 dark:bg-blue-950/40 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -right-10 -top-10 w-48 h-48 bg-red-50/80 dark:bg-red-950/40 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="space-y-2 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-extrabold tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 text-xs font-extrabold tracking-wider uppercase">
             <Sparkles size={13} /> Ажилчдын удирдлага
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Компанийн ажилчид</h1>
@@ -187,7 +187,7 @@ function EmployeesContent() {
         <button 
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="self-start md:self-auto px-5 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shadow-md shadow-blue-500/20 cursor-pointer relative z-10 active:scale-95"
+          className="self-start md:self-auto px-5 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shadow-md shadow-red-500/20 cursor-pointer relative z-10 active:scale-95"
         >
           <UserPlus size={18} /> Ажилтан нэмэх
         </button>
@@ -202,7 +202,7 @@ function EmployeesContent() {
             placeholder="Нэр, имэйл, эрхээр хайх..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all shadow-2xs"
+            className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all shadow-2xs"
           />
         </div>
 
@@ -216,7 +216,7 @@ function EmployeesContent() {
                 onClick={() => setSelectedRole(r)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
                   selectedRole === r 
-                    ? 'bg-blue-600 text-white shadow-xs shadow-blue-500/20' 
+                    ? 'bg-red-600 text-white shadow-xs shadow-red-500/20' 
                     : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700'
                 }`}
               >
@@ -266,10 +266,10 @@ function EmployeesContent() {
                     >
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
+                          <div className="w-10 h-10 rounded-xl bg-red-600 dark:bg-red-500 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
                             {u.first_name ? u.first_name.charAt(0) : 'U'}
                           </div>
-                          <span className="font-extrabold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <span className="font-extrabold text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
                             {u.first_name} {u.last_name}
                           </span>
                         </div>
@@ -302,7 +302,7 @@ function EmployeesContent() {
         </div>
       ) : (
         <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-3">
-          <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto shadow-xs">
             <Users size={26} />
           </div>
           <p className="font-extrabold text-slate-800 dark:text-slate-200 text-base">Хэрэглэгч олдсонгүй</p>
@@ -373,7 +373,7 @@ function EmployeesContent() {
                     placeholder="Овог"
                     value={newUser.last_name}
                     onChange={(e) => setNewUser({...newUser, last_name: e.target.value})}
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -384,7 +384,7 @@ function EmployeesContent() {
                     placeholder="Нэр"
                     value={newUser.first_name}
                     onChange={(e) => setNewUser({...newUser, first_name: e.target.value})}
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
                   />
                 </div>
               </div>
@@ -397,7 +397,7 @@ function EmployeesContent() {
                   placeholder="name@company.mn"
                   value={newUser.email}
                   onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
                 />
               </div>
 
@@ -412,7 +412,7 @@ function EmployeesContent() {
                     title="Хамгийн багадаа 8 тэмдэгт, үсэг болон тоо агуулсан"
                     value={newUser.password}
                     onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                    className="w-full pl-4 pr-11 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
+                    className="w-full pl-4 pr-11 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -422,7 +422,7 @@ function EmployeesContent() {
                     placeholder="+976 99..."
                     value={newUser.phone}
                     onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
                   />
                 </div>
               </div>
@@ -434,7 +434,7 @@ function EmployeesContent() {
                   placeholder="Гэрийн хаяг"
                   value={newUser.address}
                   onChange={(e) => setNewUser({...newUser, address: e.target.value})}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all"
                 />
               </div>
 
@@ -443,7 +443,7 @@ function EmployeesContent() {
                 <select 
                   value={newUser.role}
                   onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all cursor-pointer"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all cursor-pointer"
                 >
                   <option value="employee">Ажилтан</option>
                   <option value="admin">Админ</option>
@@ -461,7 +461,7 @@ function EmployeesContent() {
                 <button 
                   type="submit"
                   disabled={submitting}
-                  className="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer inline-flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+                  className="px-6 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-sm shadow-red-500/20 cursor-pointer inline-flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
                 >
                   {submitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} Бүртгэх
                 </button>

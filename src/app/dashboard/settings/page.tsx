@@ -97,7 +97,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-100">
-        <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-red-600 dark:text-red-400 animate-spin" />
       </div>
     );
   }
@@ -117,7 +117,7 @@ export default function SettingsPage() {
             onClick={() => setIsEditing(true)}
             className="flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs transition-all text-sm cursor-pointer self-start sm:self-auto"
           >
-            <Edit3 size={16} className="text-blue-600 dark:text-blue-400" /> Засах
+            <Edit3 size={16} className="text-red-600 dark:text-red-400" /> Засах
           </button>
         )}
       </div>
@@ -144,7 +144,7 @@ export default function SettingsPage() {
         <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800 gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center shrink-0">
                 <Building2 size={20} />
               </div>
               <div>
@@ -168,7 +168,7 @@ export default function SettingsPage() {
                   disabled={!isEditing}
                   required={field.key === 'companyName'}
                   onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                 />
               </label>
             ))}
@@ -188,7 +188,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-blue-500/20 transition-all text-sm cursor-pointer disabled:opacity-50"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-red-500/20 transition-all text-sm cursor-pointer disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={18} />} Өөрчлөлтийг хадгалах
             </button>

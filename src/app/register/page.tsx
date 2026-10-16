@@ -71,17 +71,17 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fbff] dark:bg-slate-950 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 py-12 transition-colors duration-300">
+    <div className="min-h-screen bg-[#fffafa] dark:bg-slate-950 flex items-center justify-center relative overflow-hidden px-4 sm:px-6 py-12 transition-colors duration-300">
       
       {/* Blueprint Grid Pattern */}
       <div 
         className="absolute inset-0 opacity-[0.7] dark:opacity-[0.08] pointer-events-none -z-10"
         style={{
           backgroundImage: `
-            linear-gradient(to right, #bae6fd 1.5px, transparent 1.5px),
-            linear-gradient(to bottom, #bae6fd 1.5px, transparent 1.5px),
-            linear-gradient(to right, #e0f2fe 1px, transparent 1px),
-            linear-gradient(to bottom, #e0f2fe 1.5px, transparent 1.5px)
+            linear-gradient(to right, #fecaca 1.5px, transparent 1.5px),
+            linear-gradient(to bottom, #fecaca 1.5px, transparent 1.5px),
+            linear-gradient(to right, #fee2e2 1px, transparent 1px),
+            linear-gradient(to bottom, #fee2e2 1.5px, transparent 1.5px)
           `,
           backgroundSize: '128px 128px, 128px 128px, 32px 32px, 32px 32px',
           backgroundPosition: '0 0, 0 0, 0 0, 0 0'
@@ -89,9 +89,9 @@ export default function RegisterPage() {
       />
 
       {/* Decorative soft glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-125 sm:h-75 bg-blue-200/50 dark:bg-blue-900/15 blur-[120px] sm:blur-[140px] rounded-full pointer-events-none -z-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-125 sm:h-75 bg-red-200/50 dark:bg-red-900/15 blur-[120px] sm:blur-[140px] rounded-full pointer-events-none -z-10" />
 
-      <div className="max-w-md w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/95 dark:border-slate-800 p-6 sm:p-10 rounded-3xl shadow-xl shadow-blue-500/10 dark:shadow-none relative z-10">
+      <div className="max-w-md w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/95 dark:border-slate-800 p-6 sm:p-10 rounded-3xl shadow-xl shadow-red-500/10 dark:shadow-none relative z-10">
         
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
@@ -100,7 +100,7 @@ export default function RegisterPage() {
           </Link>
           
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-3 py-1 rounded-full border border-blue-200/60 dark:border-blue-900/50 inline-block">
+            <span className="text-xs font-bold uppercase tracking-widest text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/60 px-3 py-1 rounded-full border border-red-200/60 dark:border-red-900/50 inline-block">
               Үнэгүй турших
             </span>
           </div>
@@ -139,7 +139,7 @@ export default function RegisterPage() {
                 value={formData.companyName}
                 onChange={handleChange}
                 placeholder="Жнь: Авто засвар ХХК" 
-                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function RegisterPage() {
                   value={formData.lastName}
                   onChange={handleChange}
                   placeholder="Овог" 
-                  className="w-full pl-9 pr-3.5 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full pl-9 pr-3.5 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function RegisterPage() {
                   value={formData.firstName}
                   onChange={handleChange}
                   placeholder="Нэр" 
-                  className="w-full pl-9 pr-3.5 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full pl-9 pr-3.5 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -203,7 +203,7 @@ export default function RegisterPage() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="example@business.mn" 
-                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
           </div>
@@ -224,7 +224,7 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••" 
-                className="w-full pl-11 pr-11 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                className="w-full pl-11 pr-11 py-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function RegisterPage() {
           <button 
             type="submit"
             disabled={loading}
-            className="w-full mt-2 inline-flex items-center justify-center gap-2 bg-linear-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white font-extrabold px-6 py-4 rounded-2xl shadow-lg shadow-blue-500/20 dark:shadow-none transition-all hover:scale-[1.01] disabled:opacity-70 text-sm cursor-pointer"
+            className="w-full mt-2 inline-flex items-center justify-center gap-2 bg-linear-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-extrabold px-6 py-4 rounded-2xl shadow-lg shadow-red-500/20 dark:shadow-none transition-all hover:scale-[1.01] disabled:opacity-70 text-sm cursor-pointer"
           >
             {loading ? (
               <>
@@ -250,7 +250,7 @@ export default function RegisterPage() {
         {/* Footer Link */}
         <div className="text-center mt-6 sm:mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
           Аль хэдийн бүртгэлтэй юу?{' '}
-          <Link href="/login" className="font-bold text-blue-600 dark:text-blue-400 hover:underline">
+          <Link href="/login" className="font-bold text-red-600 dark:text-red-400 hover:underline">
             Нэвтрэх
           </Link>
         </div>
