@@ -10,7 +10,7 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
-          {/* ЗҮҮН ТАЛ: Open Data үйлчилгээг харуулсан UI карт */}
+          {/* ЗҮҮН ТАЛ: Active CRM үйлчилгээг харуулсан UI карт */}
           <div className="lg:col-span-6 order-2 lg:order-1">
             <div className="bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-100 dark:border-slate-800 p-5 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none relative">
               
@@ -21,7 +21,7 @@ export default function Hero() {
 
               <div className="mb-5 sm:mb-6">
                 <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-3 py-1 rounded-full inline-block">
-                  Open Data CRM Удирдлага
+                  Active CRM Удирдлага
                 </span>
                 <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white mt-2">
                   Үйлчлүүлэгчийн ухаалаг урсгал
@@ -80,7 +80,7 @@ export default function Hero() {
             </h1>
             
             <p className="mt-4 sm:mt-6 text-sm sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-              &quot;Open Data&quot; систем нь авто засвар, үсчин, худалдааны газруудад хэрэглэгчийн мэдээллийг хялбар цуглуулж, улирлын ачааллыг урьдчилан зохицуулах боломжийг олгоно.
+              &quot;Active CRM&quot; систем нь авто засвар, үсчин, худалдааны газруудад хэрэглэгчийн мэдээллийг хялбар цуглуулж, улирлын ачааллыг урьдчилан зохицуулах боломжийг олгоно.
             </p>
 
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4">

@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react';
+import { BrandMark } from '@/src/components/BrandLogo';
 
 interface LoadingProps {
   text?: string;
@@ -8,19 +8,19 @@ interface LoadingProps {
 export default function Loading({ text = 'Ачаалж байна...', fullScreen = true }: LoadingProps) {
   const content = (
     <div className="flex flex-col items-center justify-center space-y-4">
-      {/* "Open Data" болон эргэлдэх тойрог */}
+      {/* "Active CRM" болон эргэлдэх тойрог */}
       <div className="relative w-36 h-36 flex items-center justify-center">
         {/* Гадна талд эргэлдэх дугуй хүрээ (Cycling ring) */}
-        <div className="absolute inset-0 border-4 border-blue-600/15 border-t-blue-600 rounded-full animate-spin" />
+        <div className="absolute inset-0 border-4 border-red-600/15 border-t-red-600 rounded-full animate-spin" />
         
         {/* Дотор талд эсрэг зүгт эргэх эсвэл өөр хурдтай туслах хүрээ */}
-        <div className="absolute inset-2 border-2 border-indigo-500/10 border-b-indigo-500 rounded-full animate-[spin_3s_linear_infinite_reverse]" />
+        <div className="absolute inset-2 border-2 border-rose-500/10 border-b-rose-500 rounded-full animate-[spin_3s_linear_infinite_reverse]" />
 
-        {/* Голд нь байрлах Open Data бичвэр болон дүрс */}
+        {/* Голд нь байрлах Active CRM бичвэр болон дүрс */}
         <div className="flex flex-col items-center justify-center text-center z-10 p-2 space-y-0.5">
-          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-pulse" />
+          <BrandMark className="w-6 h-6 animate-pulse" />
           <span className="text-[11px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-100">
-            Open Data
+            Active CRM
           </span>
         </div>
       </div>

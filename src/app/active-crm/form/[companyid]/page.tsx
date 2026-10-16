@@ -31,7 +31,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
   useEffect(() => {
     async function fetchPublicTemplate() {
       try {
-        const res = await fetch(`/api/open-data/form/${companyId}`);
+        const res = await fetch(`/api/active-crm/form/${companyId}`);
         const json = await res.json();
 
         if (json.success && json.data) {
@@ -76,7 +76,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
     }
 
     try {
-      const response = await fetch(`/api/open-data/form/${companyId}`, {
+      const response = await fetch(`/api/active-crm/form/${companyId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

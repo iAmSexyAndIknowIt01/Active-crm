@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Menu, X } from 'lucide-react';
 import ThemeToggle from '@/src/components/ThemeToggle'; // ThemeToggle байрлах замыг шалгана уу
+import BrandLogo from '@/src/components/BrandLogo';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,12 +19,7 @@ export default function Header() {
         
         {/* Logo Section */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="bg-linear-to-tr from-blue-600 to-sky-400 text-white p-1.5 sm:p-2 rounded-xl font-black text-xs tracking-wider shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-            OD
-          </div>
-          <span className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Open <span className="text-blue-600">Data</span>
-          </span>
+          <BrandLogo markClassName="w-8 h-8 sm:w-9 sm:h-9 group-hover:scale-105 transition-transform" textClassName="text-base sm:text-lg" />
         </Link>
 
         {/* Desktop Navigation Links */}

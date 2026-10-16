@@ -24,12 +24,12 @@ export default function Testimonial() {
         </div>
 
         <blockquote className="text-xl sm:text-3xl font-medium leading-relaxed italic mb-10 text-blue-50">
-          &quot;Өмнө нь манайх дэвтэр дээр үйлчлүүлэгчдийнхээ нэрийг бичдэг байсан ч хэрэг болох үед олдохгүй хоцрох тоо томшгүй олон байсан. Open Data системд шилжсэнээр 7-р сарын оочер үүсдэг асуудлаа 5-р сараас эхлэн захиалга аваад амархан зохицууллаа.&quot;
+          &quot;Өмнө нь манайх дэвтэр дээр үйлчлүүлэгчдийнхээ нэрийг бичдэг байсан ч хэрэг болох үед олдохгүй хоцрох тоо томшгүй олон байсан. Active CRM системд шилжсэнээр 7-р сарын оочер үүсдэг асуудлаа 5-р сараас эхлэн захиалга аваад амархан зохицууллаа.&quot;
         </blockquote>
 
         <div className="inline-block bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/15 shadow-inner">
           <div className="font-extrabold text-lg text-white">Авто засварын газрын эзэн</div>
-          <div className="text-xs text-sky-200 mt-0.5">Open Data системийг амжилттай туршиж буй хэрэглэгч</div>
+          <div className="text-xs text-sky-200 mt-0.5">Active CRM системийг амжилттай туршиж буй хэрэглэгч</div>
         </div>
 
       </div>

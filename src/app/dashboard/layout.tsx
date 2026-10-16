@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { LayoutDashboard, Database, Settings, LogOut, User, BarChart3, ChevronDown, Menu, X, FileText, Users, UserCheck, Briefcase, Wrench, CalendarCheck, Sun, Moon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { BrandMark } from '@/src/components/BrandLogo';
 
 interface UserData {
   email: string;
@@ -151,9 +152,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
 
-          <div className="flex items-center gap-2">
-            <div className="bg-linear-to-tr from-blue-600 to-sky-400 text-white p-2 rounded-xl font-black text-sm">OD</div>
-            <span className="font-extrabold text-lg text-slate-900 dark:text-white hidden sm:inline">OpenData</span>
+          <div className="flex items-center gap-2.5">
+            <BrandMark className="w-9 h-9" />
+            <span className="font-extrabold text-lg text-slate-900 dark:text-white hidden sm:inline">
+              Active <span className="text-red-600 dark:text-red-500">CRM</span>
+            </span>
           </div>
 
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowRight, Lock, Mail, User, Building2, Loader2, CheckCircle2 } from 'lucide-react';
 import LoadingComponent from '@/src/app/components/loading';
 import PasswordInput from '@/src/components/PasswordInput';
+import BrandLogo from '@/src/components/BrandLogo';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -95,12 +96,7 @@ export default function RegisterPage() {
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
-            <div className="bg-linear-to-tr from-blue-600 to-sky-400 text-white p-2.5 rounded-2xl font-black text-sm tracking-wider shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-              OD
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Open <span className="text-blue-600 dark:text-blue-400">Data</span>
-            </span>
+            <BrandLogo markClassName="w-11 h-11 group-hover:scale-105 transition-transform" />
           </Link>
           
           <div>

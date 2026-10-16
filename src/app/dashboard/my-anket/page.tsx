@@ -120,8 +120,8 @@ export default function MyAnketPage() {
   };
 
   const clientFormUrl = companyId 
-  ? `${baseUrl}/open-data/form/${companyId}`
-  : `${baseUrl}/open-data/form/`;
+  ? `${baseUrl}/active-crm/form/${companyId}`
+  : `${baseUrl}/active-crm/form/`;
   
   // QR кодыг браузер дотор үүсгэнэ (анкетын холбоосыг гуравдагч сервис рүү илгээхгүй)
   const [qrCodeImageUrl, setQrCodeImageUrl] = useState('');

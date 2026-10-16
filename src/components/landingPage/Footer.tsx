@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BrandLogo from '@/src/components/BrandLogo';
 
 export default function Footer() {
   return (
@@ -20,9 +21,7 @@ export default function Footer() {
         
         {/* Logo & Brief Description */}
         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-          <span className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Open <span className="text-blue-600 dark:text-blue-400">Data</span>
-          </span>
+          <BrandLogo markClassName="w-8 h-8" />
           <span className="hidden sm:inline text-slate-300 dark:text-slate-700">|</span>
           <span className="text-xs text-slate-500 dark:text-slate-400">
             Бизнесийн харилцагчийн ухаалаг менежментийн систем
@@ -37,7 +36,7 @@ export default function Footer() {
         </div>
 
         <div className="text-xs text-slate-400 dark:text-slate-500">
-          &copy; {new Date().getFullYear()} Open Data. Бүх эрх хуулиар хамгаалагдсан.
+          &copy; {new Date().getFullYear()} Active CRM. Бүх эрх хуулиар хамгаалагдсан.
         </div>
 
       </div>

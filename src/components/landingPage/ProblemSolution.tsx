@@ -90,7 +90,7 @@ export default function ProblemSolution() {
             </div>
           </div>
 
-          {/* ШИЙДЭЛ: Open Data CRM */}
+          {/* ШИЙДЭЛ: Active CRM */}
           <div className="bg-linear-to-br from-blue-600 via-blue-700 to-sky-700 text-white p-8 sm:p-10 rounded-3xl shadow-2xl shadow-blue-500/20 relative overflow-hidden flex flex-col justify-between transition-all hover:scale-[1.01]">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-bl-full pointer-events-none" />
             
@@ -101,7 +101,7 @@ export default function ProblemSolution() {
                 </div>
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-sky-200">
-                    Open Data CRM Шийдэл
+                    Active CRM Шийдэл
                   </span>
                   <h3 className="text-xl font-extrabold text-white">Ухаалаг бөгөөд хялбар менежмент</h3>
                 </div>

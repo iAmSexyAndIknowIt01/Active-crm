@@ -44,11 +44,11 @@ export async function POST(request: Request) {
     if (existing.length > 0) {
       await sendEmail({
         to: email,
-        subject: 'OpenData: бүртгүүлэх оролдлого',
+        subject: 'Active CRM: бүртгүүлэх оролдлого',
         text: [
           `Сайн байна уу${existing[0].first_name ? `, ${existing[0].first_name}` : ''}!`,
           '',
-          'Таны имэйл хаягаар OpenData-д дахин бүртгүүлэх оролдлого хийгдлээ.',
+          'Таны имэйл хаягаар Active CRM-д дахин бүртгүүлэх оролдлого хийгдлээ.',
           'Та аль хэдийн бүртгэлтэй тул шинэ бүртгэл үүсээгүй. Өөрийн нууц үгээрээ нэвтэрнэ үү,',
           'нууц үгээ мартсан бол нэвтрэх хуудасны "Нууц үг сэргээх"-ийг ашиглана уу.',
           '',
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
 
     await sendEmail({
       to: email,
-      subject: 'OpenData: бүртгэл амжилттай үүслээ',
+      subject: 'Active CRM: бүртгэл амжилттай үүслээ',
       text: [
         `Сайн байна уу, ${firstName}!`,
         '',
