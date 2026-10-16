@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="hz:slide-selector" content=".slide">
+<title>Active CRM — Нэрийн хуудас</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+  /* Нэрийн хуудас: 90 × 50 мм (Монголд түгээмэл хэмжээ). Хэвлэлд өгөхдөө 3 мм bleed нэмнэ. */
+  @page { size: 90mm 50mm; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', Arial, sans-serif; background: #e5e7eb; }
+  .slide {
+    width: 340px; height: 189px; position: relative; overflow: hidden;
+    page-break-after: always; break-after: page;
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  @media screen { .slide { margin: 24px auto; box-shadow: 0 8px 24px rgba(0,0,0,.15); } }
+
+  /* НҮҮР ТАЛ */
+  .front { background: linear-gradient(135deg, #EF3B45 0%, #B71C25 100%); color: #fff; }
+  .front .glow { position: absolute; right: -60px; top: -70px; width: 220px; height: 220px; border-radius: 50%;
+    background: rgba(255,255,255,.07); }
+  .front .glow2 { position: absolute; right: 30px; bottom: -110px; width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(0,0,0,.08); }
+  .front .brand { position: absolute; left: 28px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 14px; }
+  .front .mark { width: 62px; height: 62px; }
+  .front .name { font-weight: 800; font-size: 25px; letter-spacing: 1.5px; line-height: 1; }
+  .front .tag { margin-top: 7px; font-size: 6.4px; letter-spacing: 3.6px; font-weight: 500; opacity: .85; }
+  .front .web { position: absolute; right: 18px; bottom: 12px; font-size: 6.5px; letter-spacing: 1px; opacity: .85; font-weight: 600; }
+
+  /* АР ТАЛ */
+  .back { background: #fff; color: #0f172a; }
+  .back .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 7px; background: linear-gradient(180deg, #EF3B45, #B71C25); }
+  .back .person { position: absolute; left: 24px; top: 22px; }
+  .back .person h1 { font-size: 14px; font-weight: 800; letter-spacing: .2px; }
+  .back .person p { margin-top: 3px; font-size: 7.2px; font-weight: 600; color: #DC2626; letter-spacing: 1.2px; text-transform: uppercase; }
+  .back .contacts { position: absolute; left: 24px; bottom: 20px; display: grid; gap: 5px; }
+  .back .row { display: flex; align-items: center; gap: 7px; font-size: 7.4px; font-weight: 500; color: #334155; }
+  .back .ico { width: 13px; height: 13px; border-radius: 4px; background: #FEE2E2; display: flex; align-items: center; justify-content: center; }
+  .back .ico svg { width: 7.5px; height: 7.5px; }
+  .back .side { position: absolute; right: 20px; top: 20px; bottom: 18px; width: 82px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+  .back .mini { display: flex; align-items: center; gap: 5px; }
+  .back .mini svg { width: 18px; height: 18px; }
+  .back .mini span { font-size: 9px; font-weight: 800; letter-spacing: .3px; }
+  .back .mini b { color: #DC2626; }
+  .back .qr { width: 66px; height: 66px; border: 1.2px dashed #FCA5A5; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    text-align: center; font-size: 5.6px; line-height: 1.35; color: #94a3b8; font-weight: 600; }
+  .back .divider { position: absolute; right: 116px; top: 22px; bottom: 22px; width: 1px; background: #f1f5f9; }
+</style>
+</head>
+<body>
+
+<!-- 1. НҮҮР ТАЛ -->
+<section class="slide front" data-canvas-width="340" data-canvas-height="189">
+  <div class="glow"></div><div class="glow2"></div>
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+      <rect width="100" height="100" rx="24" fill="#fff"/>
+      <path d="M15 84 L50 15 L85 84 Z M32 84 L50 47 L68 84 Z" fill="#DC2626" fill-rule="evenodd"/>
+      <path d="M41 79 L50 61 L59 79 Z" fill="#DC2626"/>
+    </svg>
+    <div>
+      <div class="name">ACTIVE CRM</div>
+      <div class="tag">ХАРИЛЦАГЧИЙН УХААЛАГ СИСТЕМ</div>
+    </div>
+  </div>
+  <div class="web">www.activecrm.mn</div>
+</section>
+
+<!-- 2. АР ТАЛ (мэдээллийг өөрийнхөөрөө солино) -->
+<section class="slide back" data-canvas-width="340" data-canvas-height="189">
+  <div class="bar"></div>
+  <div class="person">
+    <h1>Овог Нэр</h1>
+    <p>Албан тушаал</p>
+  </div>
+  <div class="contacts">
+    <div class="row"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></span>+976 9900 0000</div>
+    <div class="row"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>name@activecrm.mn</div>
+    <div class="row"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>www.activecrm.mn</div>
+    <div class="row"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>Улаанбаатар хот, ... дүүрэг</div>
+  </div>
+  <div class="divider"></div>
+  <div class="side">
+    <div class="mini">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EF3B45"/><stop offset="1" stop-color="#B71C25"/></linearGradient></defs><rect width="100" height="100" rx="24" fill="url(#g)"/><path d="M15 84 L50 15 L85 84 Z M32 84 L50 47 L68 84 Z" fill="#fff" fill-rule="evenodd"/><path d="M41 79 L50 61 L59 79 Z" fill="#fff"/></svg>
+      <span>Active <b>CRM</b></span>
+    </div>
+    <div class="qr">QR код<br>байршуулах<br>хэсэг</div>
+  </div>
+</section>
+
+</body>
+</html>
