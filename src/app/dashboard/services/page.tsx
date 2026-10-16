@@ -144,7 +144,7 @@ function ServicesContent() {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-2xl text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-2xl text-xs font-bold transition-all shadow-sm shadow-red-500/20 cursor-pointer"
         >
           <Plus size={16} /> Шинэ үйлчилгээ нэмэх
         </button>
@@ -167,7 +167,7 @@ function ServicesContent() {
           <button
             onClick={() => setViewMode('list')}
             className={`p-2 rounded-xl transition-all cursor-pointer ${
-              viewMode === 'list' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+              viewMode === 'list' ? 'bg-red-600 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
             title="Жагсаалтаар харах"
           >
@@ -176,7 +176,7 @@ function ServicesContent() {
           <button
             onClick={() => setViewMode('grid')}
             className={`p-2 rounded-xl transition-all cursor-pointer ${
-              viewMode === 'grid' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+              viewMode === 'grid' ? 'bg-red-600 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
             title="Кардаар харах"
           >
@@ -220,7 +220,7 @@ function ServicesContent() {
                   >
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center font-black shrink-0">
                           <Briefcase size={18} />
                         </div>
                         <div>
@@ -259,11 +259,11 @@ function ServicesContent() {
             <div
               key={service.service_id}
               onClick={() => router.push(`/dashboard/services/${service.service_id}`)}
-              className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4 hover:border-blue-200 dark:hover:border-blue-800 transition-all cursor-pointer"
+              className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4 hover:border-red-200 dark:hover:border-red-800 transition-all cursor-pointer"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center font-black shrink-0">
                     <Briefcase size={20} />
                   </div>
                   <div>
@@ -279,7 +279,7 @@ function ServicesContent() {
               <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{service.description || 'Тайлбар байхгүй'}</p>
 
               <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 text-xs font-bold">
-                <div className="text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                <div className="text-red-600 dark:text-red-400 flex items-center gap-1">
                   <DollarSign size={14} /> {Number(service.price).toLocaleString()} ₮
                 </div>
                 <div className="text-slate-400 dark:text-slate-500 flex items-center gap-1 font-semibold">
@@ -346,7 +346,7 @@ function ServicesContent() {
                   placeholder="Жишээ: Үс засалт, Зөвлөгөө өгөх..."
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-900"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-900"
                 />
               </div>
 
@@ -357,7 +357,7 @@ function ServicesContent() {
                   placeholder="Жишээ: Үндсэн, Нэмэлт..."
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-900"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-900"
                 />
               </div>
 
@@ -371,7 +371,7 @@ function ServicesContent() {
                     placeholder="0"
                     value={formData.price}
                     onChange={(e) => setFormData({...formData, price: e.target.value})}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-900"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-900"
                   />
                 </div>
                 <div>
@@ -383,7 +383,7 @@ function ServicesContent() {
                     placeholder="30"
                     value={formData.duration}
                     onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-900"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-900"
                   />
                 </div>
               </div>
@@ -395,7 +395,7 @@ function ServicesContent() {
                   placeholder="Үйлчилгээний дэлгэрэнгүй мэдээлэл..."
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-900 resize-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-900 resize-none"
                 />
               </div>
 
@@ -410,7 +410,7 @@ function ServicesContent() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-sm shadow-red-500/20 cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {saving ? (
                     <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

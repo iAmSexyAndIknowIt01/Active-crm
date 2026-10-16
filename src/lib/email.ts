@@ -26,7 +26,7 @@ export async function sendEmail({ to, subject, text }: { to: string; subject: st
   }
 
   try {
-    await transporter.sendMail({ from: `"OpenData" <${user}>`, to, subject, text });
+    await transporter.sendMail({ from: `"Active CRM" <${user}>`, to, subject, text });
     return true;
   } catch (err) {
     console.error('Имэйл илгээхэд алдаа гарлаа:', err);

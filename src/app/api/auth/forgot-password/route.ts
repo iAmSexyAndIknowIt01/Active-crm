@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
     await sendEmail({
       to: email,
-      subject: 'OpenData: нууц үг сэргээх код',
+      subject: 'Active CRM: нууц үг сэргээх код',
       text: [
         `Сайн байна уу${user.first_name ? `, ${user.first_name}` : ''}!`,
         '',

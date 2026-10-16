@@ -16,11 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Open Data CRM",
+  title: "Active CRM",
   description: "Үйлчлүүлэгчийн бүртгэлийн систем",
-  icons: {
-    icon: "/favicon.png",
-  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -190,7 +190,7 @@ export default function WorkDetailPage({ params }: { params: Promise<{ id: strin
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/20 cursor-pointer inline-flex items-center gap-2 disabled:opacity-50"
+            className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-sm shadow-red-500/20 cursor-pointer inline-flex items-center gap-2 disabled:opacity-50"
           >
             {saving ? (
               <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

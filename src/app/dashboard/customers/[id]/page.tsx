@@ -147,7 +147,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
     return (
       <div className="bg-white dark:bg-slate-900 p-12 rounded-3xl border border-slate-100 dark:border-slate-800 text-center space-y-3">
         <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Харилцагчийн мэдээлэл олдсонгүй.</p>
-        <button onClick={() => router.back()} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">
+        <button onClick={() => router.back()} className="text-xs font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer">
           Буцах
         </button>
       </div>
@@ -188,7 +188,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-2xl shadow-sm transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-4 py-2.5 rounded-2xl shadow-sm transition-all cursor-pointer"
           >
             <Edit3 size={16} /> Засварлах
           </button>
@@ -218,7 +218,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
           <div className="flex items-center gap-4">
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl shrink-0 ${
               customer.customer_type === 'company' 
-                ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400' 
+                ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' 
                 : 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400'
             }`}>
               {customer.customer_type === 'company' ? <Building2 size={32} /> : <User size={32} />}
@@ -253,7 +253,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                     name="email"
                     value={formData.email || ''}
                     onChange={handleInputChange}
-                    className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                    className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                   />
                 ) : (
                   <p className="font-bold text-slate-800 dark:text-slate-200">{customer.email || 'Байхгүй'}</p>
@@ -272,7 +272,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                     name="phone"
                     value={formData.phone || ''}
                     onChange={handleInputChange}
-                    className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                    className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                   />
                 ) : (
                   <p className="font-bold text-slate-800 dark:text-slate-200">{customer.phone || 'Байхгүй'}</p>
@@ -293,7 +293,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         name="name"
                         value={formData.name || ''}
                         onChange={handleInputChange}
-                        className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                        className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                       />
                     ) : (
                       <p className="font-bold text-slate-800 dark:text-slate-200">{customer.name || 'Байхгүй'}</p>
@@ -311,7 +311,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         name="tax_number"
                         value={formData.tax_number || ''}
                         onChange={handleInputChange}
-                        className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                        className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                       />
                     ) : (
                       <p className="font-bold text-slate-800 dark:text-slate-200">{customer.tax_number || 'Байхгүй'}</p>
@@ -335,7 +335,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                           name="last_name"
                           value={formData.last_name || ''}
                           onChange={handleInputChange}
-                          className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                          className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                         />
                       ) : (
                         <p className="font-bold text-slate-800 dark:text-slate-200">{customer.last_name || '-'}</p>
@@ -349,7 +349,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                           name="first_name"
                           value={formData.first_name || ''}
                           onChange={handleInputChange}
-                          className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                          className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                         />
                       ) : (
                         <p className="font-bold text-slate-800 dark:text-slate-200">{customer.first_name || '-'}</p>
@@ -375,7 +375,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                             onClick={() => setFormData((prev) => ({ ...prev, male: gender }))}
                             className={`py-1.5 rounded-xl font-bold border transition-all cursor-pointer ${
                               formData.male === gender
-                                ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400'
+                                ? 'bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'
                                 : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
                             }`}
                           >
@@ -407,7 +407,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                         max={todayIsoDate()}
                         value={formData.birth_date || ''}
                         onChange={handleInputChange}
-                        className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                        className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                       />
                     ) : (
                       <p className="font-bold text-slate-800 dark:text-slate-200">
@@ -434,7 +434,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                     name="address"
                     value={formData.address || ''}
                     onChange={handleInputChange}
-                    className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 dark:focus:border-blue-400"
+                    className="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500 dark:focus:border-red-400"
                   />
                 ) : (
                   <p className="font-bold text-slate-800 dark:text-slate-200">{customer.address || 'Байхгүй'}</p>

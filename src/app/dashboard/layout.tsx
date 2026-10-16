@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { LayoutDashboard, Database, Settings, LogOut, User, BarChart3, ChevronDown, Menu, X, FileText, Users, UserCheck, Briefcase, Wrench, CalendarCheck, Sun, Moon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { BrandMark } from '@/src/components/BrandLogo';
 
 interface UserData {
   email: string;
@@ -151,9 +152,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
 
-          <div className="flex items-center gap-2">
-            <div className="bg-linear-to-tr from-blue-600 to-sky-400 text-white p-2 rounded-xl font-black text-sm">OD</div>
-            <span className="font-extrabold text-lg text-slate-900 dark:text-white hidden sm:inline">OpenData</span>
+          <div className="flex items-center gap-2.5">
+            <BrandMark className="w-9 h-9" />
+            <span className="font-extrabold text-lg text-slate-900 dark:text-white hidden sm:inline">
+              Active <span className="text-red-600 dark:text-red-500">CRM</span>
+            </span>
           </div>
 
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
@@ -163,7 +166,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 href={item.href}
                 className={`flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                   pathname === item.href 
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400' 
+                    ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -179,7 +182,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 onClick={() => setSettingsDropdownOpen(!settingsDropdownOpen)}
                 className={`flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
                   isSettingsActive 
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400' 
+                    ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -197,7 +200,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       onClick={() => setSettingsDropdownOpen(false)}
                       className={`flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold transition-colors ${
                         pathname === sub.href
-                          ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'
+                          ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400'
                           : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                       }`}
                     >
@@ -229,7 +232,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="flex items-center gap-2 sm:gap-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-2.5 sm:px-3 py-2 rounded-2xl border border-slate-200/80 dark:border-slate-700 transition-all cursor-pointer"
             >
-              <div className="w-8 h-8 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
+              <div className="w-8 h-8 bg-red-600 text-white rounded-xl flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
                 {getInitials()}
               </div>
               <ChevronDown size={16} className={`text-slate-500 dark:text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
@@ -278,7 +281,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                   pathname === item.href 
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400' 
+                    ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -293,7 +296,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <button
                 onClick={() => setMobileSettingsOpen(!mobileSettingsOpen)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                  isSettingsActive ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                  isSettingsActive ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -310,7 +313,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       href={sub.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                        pathname === sub.href ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        pathname === sub.href ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                       }`}
                     >
                       <sub.icon size={16} />

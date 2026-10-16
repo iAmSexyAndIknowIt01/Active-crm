@@ -31,7 +31,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
   useEffect(() => {
     async function fetchPublicTemplate() {
       try {
-        const res = await fetch(`/api/open-data/form/${companyId}`);
+        const res = await fetch(`/api/active-crm/form/${companyId}`);
         const json = await res.json();
 
         if (json.success && json.data) {
@@ -76,7 +76,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
     }
 
     try {
-      const response = await fetch(`/api/open-data/form/${companyId}`, {
+      const response = await fetch(`/api/active-crm/form/${companyId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
 
         <div className="bg-white p-8 sm:p-12 rounded-3xl border border-slate-100 shadow-sm space-y-8">
           <div className="text-center space-y-2 pb-6 border-b border-slate-100">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-600 text-xs font-bold uppercase">
               <Sparkles size={12} /> Бүртгэл
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-slate-900">{formTitle}</h1>
@@ -154,7 +154,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
                   <select
                     value={answers[q.id] || ''}
                     onChange={(e) => handleInputChange(q.id, e.target.value)}
-                    className="w-full px-4.5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm focus:outline-none focus:border-blue-600 cursor-pointer"
+                    className="w-full px-4.5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm focus:outline-none focus:border-red-600 cursor-pointer"
                   >
                     <option value="">Сонгох...</option>
                     {Array.isArray(q.options) &&
@@ -170,7 +170,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
                     value={answers[q.id] || ''}
                     onChange={(e) => handleInputChange(q.id, e.target.value)}
                     placeholder="Мэдээллээ оруулна уу..."
-                    className="w-full px-4.5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm focus:outline-none focus:border-blue-600"
+                    className="w-full px-4.5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm focus:outline-none focus:border-red-600"
                   />
                 )}
               </div>
@@ -179,7 +179,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-bold py-4 rounded-2xl transition-all mt-6 text-sm cursor-pointer shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full bg-red-600 hover:bg-red-700 active:scale-98 text-white font-bold py-4 rounded-2xl transition-all mt-6 text-sm cursor-pointer shadow-md shadow-red-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Send size={16} /> Мэдээлэл илгээх
             </button>

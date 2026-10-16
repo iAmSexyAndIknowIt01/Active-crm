@@ -108,7 +108,7 @@ export default function DataPage() {
 
         {!loading && !error && (
           <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-sm self-start sm:self-auto">
-            <Database size={16} className="text-blue-600 dark:text-blue-400" />
+            <Database size={16} className="text-red-600 dark:text-red-400" />
             <span className="text-slate-500 dark:text-slate-400">Нийт</span>
             <span className="font-black text-slate-900 dark:text-white">{totalRows.toLocaleString()}</span>
             <span className="text-slate-500 dark:text-slate-400">мөр</span>
@@ -128,7 +128,7 @@ export default function DataPage() {
             placeholder="Өгөгдлийн багц хайх..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-900 transition-all"
+            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-900 transition-all"
           />
         </div>
       </div>
@@ -159,12 +159,12 @@ export default function DataPage() {
                 key={dataset.key}
                 className={`bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border shadow-xs flex flex-col gap-4 transition-all ${
                   isActive
-                    ? 'border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/20'
+                    ? 'border-red-500 dark:border-red-400 ring-2 ring-red-500/20'
                     : 'border-slate-200 dark:border-slate-800'
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-11 h-11 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0">
+                  <div className="w-11 h-11 bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center shrink-0">
                     <Icon size={20} />
                   </div>
                   <div className="min-w-0">
@@ -197,14 +197,14 @@ export default function DataPage() {
                     <Eye size={16} /> Харах
                   </button>
                   {isEmpty ? (
-                    <span className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white font-bold px-3 py-2.5 rounded-2xl text-sm opacity-40 cursor-not-allowed">
+                    <span className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white font-bold px-3 py-2.5 rounded-2xl text-sm opacity-40 cursor-not-allowed">
                       <Download size={16} /> CSV татах
                     </span>
                   ) : (
                     <a
                       href={`/api/data/${dataset.key}?format=csv`}
                       download
-                      className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2.5 rounded-2xl shadow-lg shadow-blue-500/20 transition-all text-sm"
+                      className="flex-1 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-2.5 rounded-2xl shadow-lg shadow-red-500/20 transition-all text-sm"
                     >
                       <Download size={16} /> CSV татах
                     </a>

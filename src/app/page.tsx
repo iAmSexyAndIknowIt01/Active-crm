@@ -7,7 +7,7 @@ import FooterCTA from "../components/landingPage/FooterCTA";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 min-h-screen items-center justify-between bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-blue-600 selection:text-white transition-colors duration-300">
+    <div className="flex flex-col flex-1 min-h-screen items-center justify-between bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-red-600 selection:text-white transition-colors duration-300">
       <main className="flex flex-col w-full items-center justify-center">
         <Header />
         <Hero />

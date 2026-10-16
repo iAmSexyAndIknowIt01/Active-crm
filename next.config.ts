@@ -37,6 +37,13 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  // Хуучин "Open Data" брэндийн анкетын холбоос (QR код, хуваалцсан линк)-ууд ажилласаар байхаар шинэ зам руу шилжүүлнэ
+  async redirects() {
+    return [
+      { source: "/open-data/:path*", destination: "/active-crm/:path*", permanent: true },
+      { source: "/api/open-data/:path*", destination: "/api/active-crm/:path*", permanent: true },
+    ];
+  },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Menu, X } from 'lucide-react';
 import ThemeToggle from '@/src/components/ThemeToggle'; // ThemeToggle байрлах замыг шалгана уу
+import BrandLogo from '@/src/components/BrandLogo';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,19 +19,14 @@ export default function Header() {
         
         {/* Logo Section */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="bg-linear-to-tr from-blue-600 to-sky-400 text-white p-1.5 sm:p-2 rounded-xl font-black text-xs tracking-wider shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-            OD
-          </div>
-          <span className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Open <span className="text-blue-600">Data</span>
-          </span>
+          <BrandLogo markClassName="w-8 h-8 sm:w-9 sm:h-9 group-hover:scale-105 transition-transform" textClassName="text-base sm:text-lg" />
         </Link>
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600 dark:text-slate-300">
-          <a href="#problem" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Давуу тал</a>
-          <a href="#features" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Боломжууд</a>
-          <a href="#testimonials" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Сэтгэгдэл</a>
+          <a href="#problem" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Давуу тал</a>
+          <a href="#features" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Боломжууд</a>
+          <a href="#testimonials" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Сэтгэгдэл</a>
         </nav>
 
         {/* Desktop Action Buttons & Theme Toggle */}
@@ -38,13 +34,13 @@ export default function Header() {
           <ThemeToggle />
           <Link 
             href="/login" 
-            className="text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-3 py-1.5"
+            className="text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-red-600 dark:hover:text-red-400 transition-colors px-3 py-1.5"
           >
             Нэвтрэх
           </Link>
           <Link 
             href="/register" 
-            className="inline-flex items-center gap-1.5 bg-linear-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white text-xs sm:text-sm font-extrabold px-4 py-2 rounded-xl shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+            className="inline-flex items-center gap-1.5 bg-linear-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white text-xs sm:text-sm font-extrabold px-4 py-2 rounded-xl shadow-md shadow-red-500/20 hover:shadow-red-500/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
           >
             Бүртгүүлэх <ArrowRight size={14} />
           </Link>
@@ -55,7 +51,7 @@ export default function Header() {
           <ThemeToggle />
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-slate-700 dark:text-slate-200 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            className="p-2 text-slate-700 dark:text-slate-200 hover:text-red-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
             aria-label="Цэс нээх"
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -71,21 +67,21 @@ export default function Header() {
             <a 
               href="#problem" 
               onClick={handleLinkClick}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors py-1"
+              className="hover:text-red-600 dark:hover:text-red-400 transition-colors py-1"
             >
               Давуу тал
             </a>
             <a 
               href="#features" 
               onClick={handleLinkClick}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors py-1"
+              className="hover:text-red-600 dark:hover:text-red-400 transition-colors py-1"
             >
               Боломжууд
             </a>
             <a 
               href="#testimonials" 
               onClick={handleLinkClick}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors py-1"
+              className="hover:text-red-600 dark:hover:text-red-400 transition-colors py-1"
             >
               Сэтгэгдэл
             </a>
@@ -95,14 +91,14 @@ export default function Header() {
             <Link 
               href="/login" 
               onClick={handleLinkClick}
-              className="w-full text-center font-bold text-slate-700 dark:text-slate-200 hover:text-blue-600 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 py-3 rounded-xl transition-colors text-sm"
+              className="w-full text-center font-bold text-slate-700 dark:text-slate-200 hover:text-red-600 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 py-3 rounded-xl transition-colors text-sm"
             >
               Нэвтрэх
             </Link>
             <Link 
               href="/register" 
               onClick={handleLinkClick}
-              className="w-full inline-flex items-center justify-center gap-2 bg-linear-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white font-extrabold px-6 py-3 rounded-xl shadow-md shadow-blue-500/20 transition-all text-sm"
+              className="w-full inline-flex items-center justify-center gap-2 bg-linear-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-extrabold px-6 py-3 rounded-xl shadow-md shadow-red-500/20 transition-all text-sm"
             >
               Бүртгүүлэх <ArrowRight size={16} />
             </Link>
