@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Reveal from './Reveal';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
 export default function FooterCTA() {
@@ -25,6 +26,7 @@ export default function FooterCTA() {
 
       <div className="max-w-5xl mx-auto px-6 relative z-10">
         
+        <Reveal variant="zoom">
         <div className="bg-linear-to-br from-slate-900 via-slate-800 to-red-950 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 text-white rounded-3xl p-10 sm:p-16 text-center relative overflow-hidden shadow-2xl shadow-red-900/20 border border-slate-800 dark:border-slate-800">
           
           {/* Background decorative circle */}
@@ -46,13 +48,14 @@ export default function FooterCTA() {
 
             <Link 
               href="/register" 
-              className="inline-flex items-center gap-2.5 bg-linear-to-r from-red-500 to-red-500 hover:from-red-600 hover:to-red-600 text-white font-extrabold px-8 py-4 rounded-2xl shadow-xl shadow-red-500/30 transition-all hover:scale-[1.02] hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2.5 bg-linear-to-r from-red-500 to-red-500 hover:from-red-600 hover:to-red-600 text-white font-extrabold px-8 py-4 rounded-2xl shadow-xl shadow-red-500/30 transition-all hover:scale-[1.02] hover:-translate-y-0.5 group"
             >
-              Бүртгүүлж эхлэх (Үнэгүй) <ArrowRight size={18} />
+              Бүртгүүлж эхлэх (Үнэгүй) <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
         </div>
+        </Reveal>
 
       </div>
     </section>
