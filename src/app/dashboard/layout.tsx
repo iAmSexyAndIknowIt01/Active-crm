@@ -35,6 +35,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
     const initialDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+    // localStorage нь зөвхөн клиентэд байдаг тул hydration-ий дараа нэг удаа уншина
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDarkMode(initialDark);
     
     if (initialDark) {
