@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { pool } from '../../../../../lib/db'; // Замын дагуу тохируулна уу
 import { checkRateLimits, getClientIp } from '../../../../../lib/rate-limit';
 import { extractCustomerFields, upsertCustomerFromForm } from '../../../../../lib/form-customer';
+import { checkFormToken, issueFormToken } from '../../../../../lib/form-token';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_ANSWER_LENGTH = 1000;
@@ -45,7 +46,8 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: result.rows[0],
+      // Илгээхэд шаардлагатай роботын эсрэг токен (lib/form-token.ts)
+      data: { ...result.rows[0], form_token: issueFormToken(result.rows[0].id) },
     });
   } catch (error) {
     console.error('Public Template Fetch Error:', error);
@@ -95,7 +97,7 @@ export async function POST(
   try {
     const { companyid } = await params;
     const body = await request.json();
-    const { answers, templateId } = body;
+    const { answers, templateId, website } = body;
 
     if (!UUID_RE.test(companyid) || typeof templateId !== 'string' || !UUID_RE.test(templateId)) {
       return NextResponse.json(
@@ -110,6 +112,19 @@ export async function POST(
       { key: `form:company:${companyid}`, limit: 300, windowSeconds: 60 * 60 },
     ]);
     if (limited) return limited;
+
+    // Хүнд харагдахгүй "website" талбарыг зөвхөн робот бөглөнө: амжилттай мэт хариулж, хадгалахгүй
+    if (typeof website === 'string' && website.trim() !== '') {
+      return NextResponse.json({ success: true, message: 'Анкет амжилттай илгээгдлээ.' });
+    }
+    const tokenCheck = checkFormToken(body.formToken, templateId);
+    if (tokenCheck !== 'ok') {
+      const error =
+        tokenCheck === 'too_fast'
+          ? 'Анкетыг хэт хурдан илгээлээ. Хэдэн секунд хүлээгээд дахин оролдоно уу.'
+          : 'Анкетын хуудасны хугацаа дууссан байна. Хуудсыг дахин ачаалаад бөглөнө үү.';
+      return NextResponse.json({ success: false, error }, { status: 400 });
+    }
 
     // Загвар нь энэ компанийх бөгөөд идэвхтэй байх ёстой
     const templateResult = await pool.query(

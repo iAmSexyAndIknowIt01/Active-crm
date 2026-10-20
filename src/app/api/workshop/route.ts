@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/src/lib/session';
+import { logAudit } from '@/src/lib/audit';
 import { pool } from '@/src/lib/db';
 import {
   canEditWork,
@@ -186,6 +187,10 @@ export async function POST(request: Request) {
       const { rows } = await client.query(insertQuery, values);
       work = rows[0];
       await replaceWorkServices(client, work.work_id, lines);
+      await logAudit(
+        { session: session!, action: 'work.create', entityType: 'work', entityId: work.work_id, summary: work.title, details: { price: work.price, status: work.status } },
+        client
+      );
       await client.query('COMMIT');
     } catch (err) {
       await client.query('ROLLBACK');

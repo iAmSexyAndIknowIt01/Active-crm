@@ -22,6 +22,9 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
   const [errorMessage, setErrorMessage] = useState('');
 
   const [templateId, setTemplateId] = useState('');
+  const [formToken, setFormToken] = useState('');
+  // Роботын эсрэг далд талбар: хүн харахгүй, бөглөхгүй
+  const [website, setWebsite] = useState('');
   const [formTitle, setFormTitle] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -36,6 +39,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
 
         if (json.success && json.data) {
           setTemplateId(json.data.id || '');
+          setFormToken(json.data.form_token || '');
           setFormTitle(json.data.title || 'Үйлчлүүлэгчийн анкет');
           setFormDescription(json.data.description || '');
           setQuestions(json.data.questions || []);
@@ -83,6 +87,8 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
         },
         body: JSON.stringify({
           templateId,
+          formToken,
+          website,
           answers,
         }),
       });
@@ -144,6 +150,13 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Роботын эсрэг далд талбар (дэлгэц уншигч, Tab-аас ч нуусан) */}
+            <div aria-hidden="true" className="absolute -left-[10000px] w-px h-px overflow-hidden">
+              <label>
+                Website
+                <input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+              </label>
+            </div>
             {questions.map((q, idx) => (
               <div key={q.id} className="space-y-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">

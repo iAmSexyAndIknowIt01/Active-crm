@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Building2, User, Mail, Phone, MapPin, ArrowLeft, Calendar, ShieldCheck, FileText, RefreshCw, Edit3, Save, X, Cake } from 'lucide-react';
+import { Building2, User, Mail, Phone, MapPin, ArrowLeft, Calendar, ShieldCheck, FileText, RefreshCw, Edit3, Save, X, Cake, Trash2 } from 'lucide-react';
 import Loading from '@/src/app/components/loading';
 import CommonModal from '@/src/app/components/CommonModal';
 import { BIRTH_DATE_MIN, GENDERS, calcAge, isGender, todayIsoDate } from '@/src/lib/customer-fields';
@@ -104,6 +104,34 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Харилцагчийг бүрмөсөн устгана (QR анкет, сануулгын лог дахь хувийн мэдээлэл хамт устна)
+  const [deleting, setDeleting] = useState(false);
+  const handleDelete = async () => {
+    const name = customer?.customer_type === 'company' ? customer?.name : `${customer?.last_name ?? ''} ${customer?.first_name ?? ''}`.trim();
+    if (
+      !window.confirm(
+        `"${name}" харилцагчийг бүрмөсөн устгах уу?\n\nБөглөсөн QR анкетууд нь хамт устна. Ажил, цаг захиалгын түүх үлдэх боловч харилцагчийн мэдээлэлгүй болно. Энэ үйлдлийг буцаах боломжгүй.`
+      )
+    )
+      return;
+    try {
+      setDeleting(true);
+      const res = await fetch(`/api/customers/${customerId}?type=${customerType}`, { method: 'DELETE' });
+      const result = await res.json();
+      if (!res.ok || !result.success) throw new Error(result.error || 'Устгахад алдаа гарлаа.');
+      router.push('/dashboard/customers');
+    } catch (err) {
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        title: 'Устгаж чадсангүй',
+        message: err instanceof Error ? err.message : 'Холболтын алдаа гарлаа.',
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const handleSave = async () => {
     if (customerType !== 'company' && !isGender(formData.male)) {
       setModalState({
@@ -116,12 +144,20 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
     }
     try {
       setSaving(true);
-      const res = await fetch(`/api/customers/${customerId}?type=${customerType}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const result = await res.json();
+      const save = (allowDuplicate: boolean) =>
+        fetch(`/api/customers/${customerId}?type=${customerType}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...formData, allow_duplicate: allowDuplicate }),
+        });
+      let res = await save(false);
+      let result = await res.json();
+      // Өөр харилцагчтай ижил утас/имэйл/регистр байвал хэрэглэгчээр баталгаажуулна
+      if (res.status === 409 && result.duplicate) {
+        if (!window.confirm(`${result.error}\n\nТэгсэн ч хадгалах уу?`)) return;
+        res = await save(true);
+        result = await res.json();
+      }
 
       if (result.success) {
         setCustomer(result.data);
@@ -198,13 +234,23 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
         </button>
 
         {!isEditing ? (
-          <button
-            type="button"
-            onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-4 py-2.5 rounded-2xl shadow-sm transition-all cursor-pointer"
-          >
-            <Edit3 size={16} /> Засварлах
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="inline-flex items-center gap-2 text-xs font-bold text-rose-600 dark:text-rose-400 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 px-4 py-2.5 rounded-2xl transition-all cursor-pointer disabled:opacity-50"
+            >
+              <Trash2 size={16} /> {deleting ? 'Устгаж байна...' : 'Устгах'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="inline-flex items-center gap-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-4 py-2.5 rounded-2xl shadow-sm transition-all cursor-pointer"
+            >
+              <Edit3 size={16} /> Засварлах
+            </button>
+          </div>
         ) : (
           <div className="flex items-center gap-2">
             <button

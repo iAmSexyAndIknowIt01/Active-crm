@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/src/lib/session';
+import { logAudit } from '@/src/lib/audit';
 import { getDataset, toCsv } from '@/src/lib/datasets';
 
 const PREVIEW_LIMIT = 20;
@@ -29,6 +30,15 @@ export async function GET(
     const { searchParams } = new URL(request.url);
 
     if (searchParams.get('format') === 'csv') {
+      // Хувийн мэдээлэл агуулсан файл татсаныг түүхэнд бичнэ
+      await logAudit({
+        session,
+        action: 'data.export',
+        entityType: 'dataset',
+        entityId: dataset.key,
+        summary: dataset.label,
+        details: { rows: table.rows.length },
+      });
       const date = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Ulaanbaatar' });
       const filename = `${dataset.key}-${date}.csv`;
       return new NextResponse(toCsv(table), {

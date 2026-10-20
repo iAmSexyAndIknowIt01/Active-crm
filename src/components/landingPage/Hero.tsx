@@ -63,7 +63,7 @@ export default function Hero() {
 
               {/* Bottom mini status */}
               <div className="mt-5 sm:mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
-                <span>Бүртгэгдсэн харилцагч: <strong className="text-red-600 dark:text-red-400">1,240+</strong></span>
+                <span>Сануулга: <strong className="text-red-600 dark:text-red-400">SMS · Имэйл</strong></span>
                 <span className="text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full font-bold">● Идэвхтэй</span>
               </div>
             </div>

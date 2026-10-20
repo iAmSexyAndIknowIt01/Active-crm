@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession, normalizeRole, requireAuth } from '@/src/lib/session';
+import { logAudit } from '@/src/lib/audit';
 import { validatePassword } from '@/src/lib/password';
 import { pool } from '../../../lib/db';
 import bcrypt from 'bcrypt';
@@ -113,6 +114,14 @@ export async function POST(request: Request) {
     ];
 
     const newUserResult = await pool.query(insertQuery, values);
+    await logAudit({
+      session,
+      action: 'employee.create',
+      entityType: 'employee',
+      entityId: newUserId,
+      summary: `${last_name ?? ''} ${first_name ?? ''}`.trim(),
+      details: { email, role },
+    });
 
     return NextResponse.json({
       success: true,
