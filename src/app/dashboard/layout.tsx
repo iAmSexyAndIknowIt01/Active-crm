@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { LayoutDashboard, Database, Settings, LogOut, User, BarChart3, ChevronDown, Menu, X, FileText, Users, UserCheck, Briefcase, Wrench, CalendarCheck, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Database, Settings, LogOut, User, BarChart3, ChevronDown, Menu, X, FileText, Users, UserCheck, Briefcase, Wrench, CalendarCheck, Sun, Moon, BellRing } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BrandMark } from '@/src/components/BrandLogo';
@@ -77,6 +77,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/dashboard/employees', icon: Users, label: 'Ажилчид' },
     { href: '/dashboard/services', icon: Briefcase, label: 'Үйлчилгээ' },
     { href: '/dashboard/my-anket', icon: FileText, label: 'Анкет' },
+    { href: '/dashboard/reminders', icon: BellRing, label: 'Сануулга' },
     { href: '/dashboard/settings', icon: Settings, label: 'Ерөнхий тохиргоо' },
   ];
 

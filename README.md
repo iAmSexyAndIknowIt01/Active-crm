@@ -28,6 +28,8 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 | `DB_POOL_MAX` | Нэг процессын DB холболтын дээд тоо (анхдагч 5) |
 | `SESSION_SECRET` | Session JWT болон нууц үг сэргээх кодын HMAC түлхүүр (32+ тэмдэгт санамсаргүй) |
 | `GMAIL_USER`, `GMAIL_APP_PASSWORD` | Имэйл илгээх (Gmail SMTP, nodemailer). `GMAIL_APP_PASSWORD` нь Google бүртгэлийн App Password. Тохируулаагүй бол dev-д console-д хэвлэнэ |
+| `CRON_SECRET` | Өдөр бүрийн сануулгын cron (`/api/cron/reminders`, `vercel.json`)-ийг хамгаалах нууц түлхүүр. Vercel нь `Authorization: Bearer <CRON_SECRET>` толгойгоор дууддаг |
+| `SMS_API_URL`, `SMS_API_TOKEN`, `SMS_SENDER` | Сануулгыг SMS-ээр илгээх gateway (заавал биш). `SMS_API_URL` руу `{"to","text","from"}` JSON POST хийнэ, токеныг `Authorization: Bearer`-ээр илгээнэ. Gateway өөр формат шаарддаг бол `src/lib/sms.ts`-ийг тохируулна. Тохируулаагүй бол зөвхөн имэйлээр илгээнэ |
 | `TRUSTED_PROXY_HOPS` | Апп хэдэн итгэмжлэгдсэн proxy / load balancer-ийн ард ажиллаж байгаа (анхдагч 1). Rate limit-д клиентийн IP-г `X-Forwarded-For`-ийн баруун талаас энэ тоогоор авна, ингэснээр IP-г хуурах боломжгүй. Proxy-гүй бол `0`. Vercel дээр хамаарахгүй |
 
 ## Learn More
