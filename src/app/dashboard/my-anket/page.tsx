@@ -2,10 +2,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, CheckCircle2, Copy, Eye, Settings2, Sparkles, ExternalLink } from 'lucide-react';
+import { Save, Plus, Trash2, CheckCircle2, Copy, Eye, Settings2, Sparkles, ExternalLink, UserPlus, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import QRCode from 'qrcode';
 import LoadingComponent from '@/src/app/components/loading';
+import { CUSTOMER_FIELD_OPTIONS, inferCustomerField } from '@/src/lib/form-customer';
 
 interface Question {
   id: string;
@@ -14,6 +15,15 @@ interface Question {
   required: boolean;
   options?: string[];
   default?: boolean;
+  // Хариултыг харилцагчийн аль талбарт хадгалах ('' = холбохгүй)
+  maps_to?: string;
+}
+
+interface SyncResult {
+  processed: number;
+  linked: number;
+  created: number;
+  skipped: number;
 }
 
 export default function MyAnketPage() {
@@ -21,10 +31,10 @@ export default function MyAnketPage() {
   const [formDescription, setFormDescription] = useState('Та манай үйлчилгээг сонгосонд баярлалаа. Доорх мэдээллийг үнэн зөв бөглөнө үү.');
   
   const [questions, setQuestions] = useState<Question[]>([
-    { id: '1', label: 'Овог, Нэр', type: 'text', required: true },
-    { id: '2', label: 'Утасны дугаар', type: 'number', required: true },
-    { id: '3', label: 'Имэйл хаяг', type: 'text', required: false },
-    { id: '4', label: 'Үйлчилгээний төрөл', type: 'select', required: true, options: ['Авто угаалга', 'Тос солих', 'Засвар үйлчилгээ', 'Бусад'] },
+    { id: '1', label: 'Овог, Нэр', type: 'text', required: true, maps_to: 'full_name' },
+    { id: '2', label: 'Утасны дугаар', type: 'number', required: true, maps_to: 'phone' },
+    { id: '3', label: 'Имэйл хаяг', type: 'text', required: false, maps_to: 'email' },
+    { id: '4', label: 'Үйлчилгээний төрөл', type: 'select', required: true, maps_to: '', options: ['Авто угаалга', 'Тос солих', 'Засвар үйлчилгээ', 'Бусад'] },
   ]);
 
   const [companyId, setCompanyId] = useState('');
@@ -35,6 +45,8 @@ export default function MyAnketPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [copied, setCopied] = useState(false);
   const [baseUrl, setBaseUrl] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
 
   // 1. Хуудас ачаалагдахад серверээс өгөгдлийг татаж авах
   useEffect(() => {
@@ -48,8 +60,14 @@ export default function MyAnketPage() {
         if (json.success && json.data) {
           setFormTitle(json.data.title || '');
           setFormDescription(json.data.description || '');
-          if (json.data.questions) {
-            setQuestions(json.data.questions);
+          if (Array.isArray(json.data.questions)) {
+            // Хуучин загварт maps_to байхгүй бол асуултын нэрээс таамаглаж харуулна (хадгалахад тодорхой болно)
+            setQuestions(
+              json.data.questions.map((q: Question) => ({
+                ...q,
+                maps_to: q.maps_to ?? inferCustomerField(q.label ?? '') ?? '',
+              }))
+            );
           }
           if (json.data.company_id) {
             setCompanyId(json.data.company_id);
@@ -70,6 +88,7 @@ export default function MyAnketPage() {
       label: 'Шинэ асуулт',
       type: 'text',
       required: false,
+      maps_to: '',
     };
     setQuestions([...questions, newQ]);
   };
@@ -116,6 +135,36 @@ export default function MyAnketPage() {
       setErrorMessage(errorMsg);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Харилцагчтай холбогдоогүй өмнөх анкетуудыг утас/имэйлээр нь харилцагч болгох
+  const handleSyncCustomers = async () => {
+    setSyncing(true);
+    setSyncResult(null);
+    setErrorMessage('');
+    const total: SyncResult = { processed: 0, linked: 0, created: 0, skipped: 0 };
+    try {
+      let cursor: string | null = null;
+      do {
+        const res: Response = await fetch('/api/templates/sync-customers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cursor }),
+        });
+        const json: { success: boolean; error?: string; data: SyncResult & { nextCursor: string | null } } = await res.json();
+        if (!res.ok || !json.success) throw new Error(json.error || 'Харилцагч болгоход алдаа гарлаа.');
+        total.processed += json.data.processed;
+        total.linked += json.data.linked;
+        total.created += json.data.created;
+        total.skipped += json.data.skipped;
+        cursor = json.data.nextCursor;
+      } while (cursor);
+      setSyncResult(total);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : 'Сүлжээний алдаа гарлаа.');
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -254,7 +303,10 @@ export default function MyAnketPage() {
                   <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-500 ring-4 ring-red-50 dark:ring-red-950"></span> Асуултуудын жагсаалт
                   </h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Үйлчлүүлэгчээс асуух талбаруудыг удирдах</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                    Үйлчлүүлэгчээс асуух талбаруудыг удирдах. «Харилцагч: …» гэж холбосон хариултаар анкет бөглөсөн хүн
+                    харилцагчийн жагсаалтад автоматаар нэмэгдэнэ (утас эсвэл имэйлээр нь өмнөх бүртгэлтэй тулгана).
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -268,7 +320,7 @@ export default function MyAnketPage() {
               <div className="space-y-4">
               {questions.map((q, index) => (
                 <div key={q.id} className="p-5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/40 hover:bg-slate-50/80 dark:hover:bg-slate-800/85 transition-all space-y-4">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                  <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-3.5 flex-1">
                       <span className="w-8 h-8 rounded-xl bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center text-xs font-black shrink-0">
                         {index + 1}
@@ -282,7 +334,7 @@ export default function MyAnketPage() {
                       />
                     </div>
 
-                    <div className="flex items-center gap-2 self-end lg:self-auto flex-wrap">
+                    <div className="flex items-center gap-2 sm:pl-11.5 flex-wrap">
                       <select
                         value={q.type}
                         onChange={(e) => handleQuestionChange(q.id, 'type', e.target.value)}
@@ -291,6 +343,19 @@ export default function MyAnketPage() {
                         <option value="text">Текст</option>
                         <option value="number">Тоо</option>
                         <option value="select">Сонголт</option>
+                      </select>
+
+                      <select
+                        value={q.maps_to ?? ''}
+                        onChange={(e) => handleQuestionChange(q.id, 'maps_to', e.target.value)}
+                        title="Хариултыг харилцагчийн бүртгэлийн аль талбарт хадгалах"
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-red-600 cursor-pointer"
+                      >
+                        {CUSTOMER_FIELD_OPTIONS.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.value ? `Харилцагч: ${o.label}` : o.label}
+                          </option>
+                        ))}
                       </select>
 
                       <button
@@ -390,6 +455,34 @@ export default function MyAnketPage() {
                   </button>
                 </div>
                 {copied && <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Линк хуулагдлаа!</p>}
+              </div>
+
+              <div className="text-left pt-5 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Хуучин анкетууд</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                    Өмнө ирсэн, харилцагчтай холбогдоогүй анкетуудыг харилцагч болгоно.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSyncCustomers}
+                  disabled={syncing}
+                  className="w-full flex items-center justify-center gap-2 text-xs font-bold bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-900 px-4 py-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-60"
+                >
+                  {syncing ? <Loader2 size={15} className="animate-spin" /> : <UserPlus size={15} />}
+                  Хуучин анкетуудыг харилцагч болгох
+                </button>
+                {syncResult && (
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {syncResult.processed === 0
+                      ? 'Холбох шаардлагатай анкет алга.'
+                      : `${syncResult.linked} анкет холбогдлоо (${syncResult.created} шинэ харилцагч).` +
+                        (syncResult.skipped > 0
+                          ? ` ${syncResult.skipped} анкетад нэр, утас эсвэл имэйл дутуу тул алгаслаа.`
+                          : '')}
+                  </p>
+                )}
               </div>
             </div>
           </div>

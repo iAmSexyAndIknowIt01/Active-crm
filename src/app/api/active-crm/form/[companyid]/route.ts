@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { pool } from '../../../../../lib/db'; // Замын дагуу тохируулна уу
 import { checkRateLimits, getClientIp } from '../../../../../lib/rate-limit';
+import { extractCustomerFields, upsertCustomerFromForm } from '../../../../../lib/form-customer';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_ANSWER_LENGTH = 1000;
@@ -11,6 +12,7 @@ interface TemplateQuestion {
   label: string;
   required?: boolean;
   options?: string[];
+  maps_to?: string | null;
 }
 
 // 1. Тухайн компанийн ID-аар идэвхтэй анкетын загварыг авах
@@ -84,7 +86,8 @@ function validateAnswers(questions: TemplateQuestion[], answers: unknown) {
   return { cleaned };
 }
 
-// 2. Үйлчлүүлэгчийн оруулсан хариуг form_submissions болон form_submission_answers рүү хадгалах
+// 2. Үйлчлүүлэгчийн оруулсан хариуг form_submissions болон form_submission_answers рүү хадгалж,
+//    утас/имэйлээр нь харилцагчийн бүртгэлтэй (mt_customer) холбоно (байхгүй бол шинээр үүсгэнэ)
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ companyid: string }> }
@@ -133,9 +136,12 @@ export async function POST(
     try {
       await client.query('BEGIN');
 
+      const answerMap = Object.fromEntries(cleaned!.map(({ question, value }) => [String(question.id), value]));
+      const customer = await upsertCustomerFromForm(client, companyid, extractCustomerFields(questions, answerMap));
+
       const submissionResult = await client.query(
-        `INSERT INTO form_submissions (form_template_id, company_id) VALUES ($1, $2) RETURNING id`,
-        [templateId, companyid]
+        `INSERT INTO form_submissions (form_template_id, company_id, customer_id) VALUES ($1, $2, $3) RETURNING id`,
+        [templateId, companyid, customer?.customerId ?? null]
       );
       const submissionId = submissionResult.rows[0].id;
 
