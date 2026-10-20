@@ -136,22 +136,57 @@ export function extractCustomerFields(
   return result;
 }
 
+// QR анкетаас: утас/имэйлийн аль нь ч байхгүй бол (тулгах боломжгүй) харилцагч үүсгэхгүй
+export function upsertCustomerFromForm(client: PoolClient, companyId: string, fields: ExtractedCustomer) {
+  return upsertIndividualCustomer(client, companyId, fields, { source: 'form', requireContact: true });
+}
+
 // Утас эсвэл имэйлээр тухайн компанийн өмнөх харилцагчийг хайж, байхгүй бол шинээр үүсгэнэ.
 // Өмнөх харилцагчийн хоосон талбарыг л нөхнө (байгаа мэдээллийг дарж бичихгүй).
-// Нэргүй, эсвэл утас/имэйлийн аль нь ч байхгүй бол харилцагч үүсгэхгүй (null).
+// Нэргүй бол, эсвэл requireContact үед утас/имэйл байхгүй бол харилцагч үүсгэхгүй (null).
 // Transaction доторх client-ээр дуудна.
-export async function upsertCustomerFromForm(
+export async function upsertIndividualCustomer(
   client: PoolClient,
   companyId: string,
-  fields: ExtractedCustomer
+  fields: ExtractedCustomer,
+  options: { source: 'form' | 'import'; requireContact: boolean }
 ): Promise<{ customerId: string; created: boolean } | null> {
   const phoneKey = normalizePhone(fields.phone);
   const email = fields.email;
-  if (phoneKey.length < 6 && !email) return null;
+  const hasContact = phoneKey.length >= 6 || !!email;
+  if (!hasContact && options.requireContact) return null;
 
-  // Нэг дугаараар зэрэг ирсэн хоёр анкет давхар харилцагч үүсгэхээс сэргийлнэ
+  if (hasContact) {
+    const match = await findCustomerByContact(client, companyId, phoneKey, email);
+    if (match) {
+      await fillBlankCustomerFields(client, companyId, match, fields);
+      return { customerId: match, created: false };
+    }
+  }
+
+  if (!fields.first_name) return null;
+
+  const inserted = await client.query(
+    `
+      INSERT INTO mt_customer (company_id, first_name, last_name, email, phone, address, male, birth_date, source)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8::date, $9)
+      RETURNING customer_id
+    `,
+    [companyId, fields.first_name, fields.last_name, email, fields.phone, fields.address, fields.male, fields.birth_date, options.source]
+  );
+  return { customerId: inserted.rows[0].customer_id, created: true };
+}
+
+// Утас (+976, зай, зураасгүйгээр) эсвэл имэйлээр харилцагч хайна.
+// Нэг дугаараар зэрэг ирсэн хоёр хүсэлт давхар харилцагч үүсгэхээс сэргийлж transaction-ы түгжээ авна.
+async function findCustomerByContact(
+  client: PoolClient,
+  companyId: string,
+  phoneKey: string,
+  email: string | null
+): Promise<string | null> {
   await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
-    `form-customer:${companyId}:${phoneKey || email}`,
+    `customer-contact:${companyId}:${phoneKey.length >= 6 ? phoneKey : email}`,
   ]);
 
   const existing = await client.query(
@@ -169,37 +204,31 @@ export async function upsertCustomerFromForm(
     [companyId, phoneKey.length >= 6 ? phoneKey : '', email]
   );
 
-  if (existing.rows.length > 0) {
-    const customerId: string = existing.rows[0].customer_id;
-    await client.query(
-      `
-        UPDATE mt_customer SET
-          first_name = COALESCE(NULLIF(first_name, ''), $3),
-          last_name  = COALESCE(NULLIF(last_name, ''), $4),
-          phone      = COALESCE(NULLIF(phone, ''), $5),
-          email      = COALESCE(NULLIF(email, ''), $6),
-          address    = COALESCE(NULLIF(address, ''), $7),
-          birth_date = COALESCE(birth_date, $8::date),
-          male       = COALESCE(male, $9),
-          update_date = CURRENT_TIMESTAMP
-        WHERE customer_id = $1 AND company_id = $2
-      `,
-      [customerId, companyId, fields.first_name, fields.last_name, fields.phone, email, fields.address, fields.birth_date, fields.male]
-    );
-    return { customerId, created: false };
-  }
+  return existing.rows[0]?.customer_id ?? null;
+}
 
-  if (!fields.first_name) return null;
-
-  const inserted = await client.query(
+async function fillBlankCustomerFields(
+  client: PoolClient,
+  companyId: string,
+  customerId: string,
+  fields: ExtractedCustomer
+) {
+  const email = fields.email;
+  await client.query(
     `
-      INSERT INTO mt_customer (company_id, first_name, last_name, email, phone, address, male, birth_date, source)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8::date, 'form')
-      RETURNING customer_id
+      UPDATE mt_customer SET
+        first_name = COALESCE(NULLIF(first_name, ''), $3),
+        last_name  = COALESCE(NULLIF(last_name, ''), $4),
+        phone      = COALESCE(NULLIF(phone, ''), $5),
+        email      = COALESCE(NULLIF(email, ''), $6),
+        address    = COALESCE(NULLIF(address, ''), $7),
+        birth_date = COALESCE(birth_date, $8::date),
+        male       = COALESCE(male, $9),
+        update_date = CURRENT_TIMESTAMP
+      WHERE customer_id = $1 AND company_id = $2
     `,
-    [companyId, fields.first_name, fields.last_name, email, fields.phone, fields.address, fields.male, fields.birth_date]
+    [customerId, companyId, fields.first_name, fields.last_name, fields.phone, email, fields.address, fields.birth_date, fields.male]
   );
-  return { customerId: inserted.rows[0].customer_id, created: true };
 }
 
 // normalizePhone()-тэй ижил дүрмээр SQL дээр утасны түлхүүр гаргана
