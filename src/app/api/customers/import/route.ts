@@ -4,6 +4,7 @@ import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 import { checkRateLimits } from '@/src/lib/rate-limit';
 import { upsertIndividualCustomer } from '@/src/lib/form-customer';
+import { logAudit } from '@/src/lib/audit';
 import {
   IMPORT_MAX_ROWS,
   isImportType,
@@ -86,6 +87,13 @@ export async function POST(request: Request) {
     }
 
     errors.sort((a, b) => a.line - b.line);
+    await logAudit({
+      session,
+      action: 'customer.import',
+      entityType: type === 'company' ? 'customer_company' : 'customer',
+      summary: `${rows.length} мөр файлаас оруулсан`,
+      details: { created, merged, failed: errors.length },
+    });
     return NextResponse.json({
       success: true,
       data: { total: rows.length, created, merged, failed: errors.length, errors: errors.slice(0, 200) },

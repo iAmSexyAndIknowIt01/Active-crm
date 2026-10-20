@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/src/lib/db';
 import { getSession, normalizeRole, requireAuth } from '@/src/lib/session';
+import { diffFields, logAudit } from '@/src/lib/audit';
 
 // Мэдээлэл авах (GET)
 export async function GET(
@@ -141,7 +142,25 @@ export async function POST(
       session.companyId
     ];
 
+    const before = await pool.query(
+      'SELECT email, role, is_active, position, first_name, last_name FROM mt_user WHERE user_id = $1 AND company_id = $2',
+      [userId, session.companyId]
+    );
     const updateResult = await pool.query(updateQuery, values);
+    if (updateResult.rows.length > 0 && before.rows[0]) {
+      // Эрх, идэвх, имэйл өөрчлөгдсөнийг түүхэнд бичнэ
+      const changes = diffFields(before.rows[0], { email, role, is_active, position, first_name, last_name }, ['email', 'role', 'is_active', 'position', 'first_name', 'last_name']);
+      if (Object.keys(changes).length > 0) {
+        await logAudit({
+          session,
+          action: 'employee.update',
+          entityType: 'employee',
+          entityId: userId,
+          summary: `${last_name ?? ''} ${first_name ?? ''}`.trim(),
+          details: changes,
+        });
+      }
+    }
 
     if (updateResult.rows.length === 0) {
       return NextResponse.json(

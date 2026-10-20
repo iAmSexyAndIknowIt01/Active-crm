@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/src/lib/session';
+import { diffFields, logAudit } from '@/src/lib/audit';
 import { pool } from '@/src/lib/db';
 import {
   canEditWork,
@@ -197,9 +198,20 @@ export async function PUT(
     let work;
     try {
       await client.query('BEGIN');
+      const before = await client.query(
+        'SELECT title, price, status, assigned_employee, due_date FROM mt_works WHERE work_id = $1 AND company_id = $2 FOR UPDATE',
+        [id, companyId]
+      );
       const { rows } = await client.query(updateQuery, values);
       work = rows[0];
       if (work) await replaceWorkServices(client, work.work_id, lines);
+      if (work && before.rows[0]) {
+        // Үнэ, төлөв, хариуцагч зэрэг өөрчлөлтийг түүхэнд бичнэ
+        const changes = diffFields(before.rows[0], work, ['title', 'price', 'status', 'assigned_employee', 'due_date']);
+        if (Object.keys(changes).length > 0) {
+          await logAudit({ session: session!, action: 'work.update', entityType: 'work', entityId: work.work_id, summary: work.title, details: changes }, client);
+        }
+      }
       // Захиалгаас үүссэн ажил: дуусвал захиалга "Үйлчлүүлсэн", бусад үед "Ажилд шилжсэн".
       // Ажил цуцлагдсан ч захиалга өөрийн өгөгдөл, холбоосоороо үлдэнэ.
       if (work?.reservation_id) {

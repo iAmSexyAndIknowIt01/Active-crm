@@ -50,6 +50,7 @@ function CustomersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Шүүлтүүр болон хуудасны төлөвийг URL-аас эхлүүлнэ (дэлгэрэнгүй хуудаснаас буцахад хадгалагдана)
@@ -71,26 +72,36 @@ function CustomersContent() {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const formAge = calcAge(formData.birth_date);
 
-  const fetchCustomers = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/customers');
-      const result = await res.json();
-      if (result.success) {
-        setCustomers(result.data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch customers:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Хайлтыг бичиж дуусахыг 300мс хүлээж серверээс хайна
+  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
   useEffect(() => {
-    // Mount үед өгөгдөл татна (fetch эхлэхэд loading төлөвийг шинэчилдэг)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchCustomers();
-  }, []);
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Сервер талд хуудаслана: зөвхөн тухайн хуудасны мөрүүдийг татна
+  const [reloadKey, setReloadKey] = useState(0);
+  const fetchCustomers = () => setReloadKey((k) => k + 1);
+  useEffect(() => {
+    const controller = new AbortController();
+    const params = new URLSearchParams({ type: activeTab, page: String(currentPage), pageSize: String(itemsPerPage) });
+    if (debouncedQuery) params.set('q', debouncedQuery);
+    fetch(`/api/customers?${params}`, { signal: controller.signal })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success) {
+          setCustomers(result.data);
+          setTotalCount(result.total);
+        }
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') console.error('Failed to fetch customers:', err);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [activeTab, currentPage, debouncedQuery, reloadKey]);
 
   // Шүүлтүүр болон хуудасны төлөвийг URL-тай синк хийх.
   // Хуудсыг зөвхөн шүүлтүүр бодитоор өөрчлөгдсөн үед 1 болгоно (mount үед биш).
@@ -123,12 +134,20 @@ function CustomersContent() {
     }
     try {
       setSaving(true);
-      const res = await fetch('/api/customers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const result = await res.json();
+      const save = (allowDuplicate: boolean) =>
+        fetch('/api/customers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...formData, allow_duplicate: allowDuplicate }),
+        });
+      let res = await save(false);
+      let result = await res.json();
+      // Ижил утас/имэйл/регистртэй харилцагч байвал хэрэглэгчээр баталгаажуулна
+      if (res.status === 409 && result.duplicate) {
+        if (!window.confirm(`${result.error}\n\nТэгсэн ч шинээр нэмэх үү?`)) return;
+        res = await save(true);
+        result = await res.json();
+      }
       if (result.success) {
         setIsModalOpen(false);
         setFormData(EMPTY_FORM);
@@ -145,20 +164,10 @@ function CustomersContent() {
     }
   };
 
-  const filteredCustomers = customers.filter(c => {
-    const displayName = c.customer_type === 'company' ? c.name : `${c.last_name || ''} ${c.first_name || ''}`;
-    const matchesSearch = (displayName && displayName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (c.email && c.email.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    if (activeTab === 'company') return matchesSearch && c.customer_type === 'company';
-    if (activeTab === 'individual') return matchesSearch && c.customer_type === 'individual';
-    return matchesSearch;
-  });
-
-  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentCustomers = filteredCustomers.slice(indexOfFirstItem, indexOfLastItem);
+  const currentCustomers = customers;
 
   return (
     <div className="space-y-6 pb-20 text-slate-800 dark:text-slate-100">
@@ -258,7 +267,7 @@ function CustomersContent() {
 
       {loading ? (
         <Loading />
-      ) : filteredCustomers.length === 0 ? (
+      ) : customers.length === 0 ? (
         <div className="bg-white dark:bg-slate-900 p-12 rounded-3xl border border-slate-100 dark:border-slate-800 text-center space-y-3">
           <Building2 size={40} className="mx-auto text-slate-300 dark:text-slate-600" />
           <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Харилцагч олдсонгүй</p>
@@ -401,7 +410,7 @@ function CustomersContent() {
       {!loading && totalPages > 1 && (
         <div className="flex items-center justify-between bg-white dark:bg-slate-900 px-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-2xs">
           <div className="text-xs font-medium text-slate-400">
-            Нийт <span className="font-bold text-slate-700 dark:text-slate-200">{filteredCustomers.length}</span> өгөгдлөөс <span className="font-bold text-slate-700 dark:text-slate-200">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredCustomers.length)}</span> хүртэл харуулж байна
+            Нийт <span className="font-bold text-slate-700 dark:text-slate-200">{totalCount}</span> өгөгдлөөс <span className="font-bold text-slate-700 dark:text-slate-200">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalCount)}</span> хүртэл харуулж байна
           </div>
 
           <div className="flex items-center gap-1.5">
