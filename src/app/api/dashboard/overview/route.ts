@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/src/lib/session';
+import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 
 const TZ = 'Asia/Ulaanbaatar';
@@ -13,13 +13,9 @@ const toNumber = (value: unknown) => Number(value ?? 0);
 // Хоцорсон/дөхсөн ажлыг аналитиктай адил Улаанбаатарын өдрөөр тооцно (дуусах өдөртөө хоцорсонд тооцогдохгүй).
 export async function GET() {
   try {
-    const session = await getSession();
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Нэвтрээгүй байна. Дахин нэвтэрнэ үү.' },
-        { status: 401 }
-      );
-    }
+    // Орлого, ажилтны гүйцэтгэл зэрэг мэдээлэл тул зөвхөн админ
+    const { session, error: authError } = await requireAuth({ admin: true });
+    if (authError) return authError;
     const { userId, companyId } = session;
 
     const boundsResult = await pool.query(`

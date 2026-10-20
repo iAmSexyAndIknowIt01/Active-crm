@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/src/lib/session';
+import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 
 const TZ = 'Asia/Ulaanbaatar';
@@ -22,13 +22,9 @@ const toNumber = (value: unknown) => Number(value ?? 0);
 //   Өмнөх ижил урттай хугацаатай харьцуулж өөрчлөлтийн хувийг гаргана.
 export async function GET(request: Request) {
   try {
-    const session = await getSession();
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Нэвтрээгүй байна. Дахин нэвтэрнэ үү.' },
-        { status: 401 }
-      );
-    }
+    // Орлого, ажилтны гүйцэтгэл зэрэг мэдээлэл тул зөвхөн админ
+    const { session, error: authError } = await requireAuth({ admin: true });
+    if (authError) return authError;
     const companyId = session.companyId;
 
     const rangeParam = new URL(request.url).searchParams.get('range') ?? '30d';
