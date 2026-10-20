@@ -1,4 +1,5 @@
 import { CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
+import Reveal from './Reveal';
 
 export default function ProblemSolution() {
   return (
@@ -25,23 +26,24 @@ export default function ProblemSolution() {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
+        <Reveal className="text-center max-w-3xl mx-auto mb-20">
           <span className="text-xs font-bold uppercase tracking-widest text-red-600 dark:text-red-400 bg-red-100/80 dark:bg-red-950/60 px-3.5 py-1.5 rounded-full border border-red-200 dark:border-red-900 shadow-sm">
             Яагаад зайлшгүй хэрэгтэй вэ?
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight mt-4">
-            Өдөр тутмын хүндрэлийг <span className="text-transparent bg-clip-text bg-linear-to-r from-red-600 to-red-500 dark:from-red-400 dark:to-red-300">хэрхэн шийдэх вэ?</span>
+            Өдөр тутмын хүндрэлийг <span className="text-shimmer">хэрхэн шийдэх вэ?</span>
           </h2>
           <p className="text-slate-600 dark:text-slate-300 mt-4 text-base sm:text-lg leading-relaxed">
             Дэвтэр дэвтэр тэмдэглэл болон эмх замбараагүй оочер дарааллыг халж, бизнесийнхээ үр ашгийг бүрэн дээд хэмжээнд хүргээрэй.
           </p>
-        </div>
+        </Reveal>
 
         {/* Grid Container */}
         <div className="grid lg:grid-cols-2 gap-8 items-stretch">
           
           {/* АСУУДАЛ: Хуучин арга барил */}
-          <div className="bg-white/95 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 p-8 sm:p-10 rounded-3xl shadow-sm relative overflow-hidden flex flex-col justify-between transition-all hover:shadow-md">
+          <Reveal variant="left" className="h-full">
+          <div className="h-full bg-white/95 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 p-8 sm:p-10 rounded-3xl shadow-sm relative overflow-hidden flex flex-col justify-between transition-all hover:shadow-md">
             <div className="absolute top-0 right-0 w-36 h-36 bg-red-100/30 dark:bg-red-950/30 rounded-bl-full pointer-events-none z-0" />
             
             <div className="relative z-10">
@@ -89,9 +91,11 @@ export default function ProblemSolution() {
               <span className="text-red-600 dark:text-red-400 font-bold">● Эрсдэлтэй</span>
             </div>
           </div>
+          </Reveal>
 
           {/* ШИЙДЭЛ: Active CRM */}
-          <div className="bg-linear-to-br from-red-600 via-red-700 to-red-700 text-white p-8 sm:p-10 rounded-3xl shadow-2xl shadow-red-500/20 relative overflow-hidden flex flex-col justify-between transition-all hover:scale-[1.01]">
+          <Reveal variant="right" delay={150} className="h-full">
+          <div className="h-full bg-linear-to-br from-red-600 via-red-700 to-red-700 text-white p-8 sm:p-10 rounded-3xl shadow-2xl shadow-red-500/20 relative overflow-hidden flex flex-col justify-between transition-all hover:scale-[1.01]">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-bl-full pointer-events-none" />
             
             <div className="relative z-10">
@@ -141,6 +145,7 @@ export default function ProblemSolution() {
               </span>
             </div>
           </div>
+          </Reveal>
 
         </div>
 
