@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useMounted } from '@/src/lib/use-mounted';
 import { createPortal } from 'react-dom';
 import { CheckCircle2, AlertCircle, X } from 'lucide-react';
 
@@ -23,11 +24,7 @@ export default function CommonModal({
   onConfirm,
   confirmText = 'Ойлголоо',
 }: CommonModalProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
 
   // Модал нээгдэх үед арын background scroll хийгдэхгүй болгох
   useEffect(() => {

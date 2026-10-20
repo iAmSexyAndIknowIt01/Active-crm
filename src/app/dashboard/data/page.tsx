@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import {
-  Database, Search, Download, Eye, X, UserCheck, Building2, Wrench, Briefcase, Users, FileText,
+  Database, Search, Download, Eye, X, UserCheck, Building2, Wrench, Briefcase, Users, FileText, Upload,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Loading from '@/src/app/components/loading';
 import InfoTip from '@/src/app/components/InfoTip';
 import Tooltip from '@/src/app/components/Tooltip';
+import ImportCustomers from './ImportCustomers';
 
 interface DatasetSummary {
   key: string;
@@ -43,6 +44,8 @@ export default function DataPage() {
   const [preview, setPreview] = useState<DatasetPreview | null>(null);
   const [previewKey, setPreviewKey] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState('');
+  const [showImport, setShowImport] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     async function fetchDatasets() {
@@ -62,7 +65,7 @@ export default function DataPage() {
       }
     }
     fetchDatasets();
-  }, []);
+  }, [reloadKey]);
 
   const openPreview = async (key: string) => {
     setPreviewKey(key);
@@ -102,12 +105,21 @@ export default function DataPage() {
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Өгөгдлийн менежмент</h1>
           <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1">
-            Компанийнхаа өгөгдлийг урьдчилан харж, CSV (Excel) файлаар татаж авна уу.
+            Компанийнхаа өгөгдлийг урьдчилан харж, CSV (Excel) файлаар татаж авах эсвэл файлаас харилцагч оруулна уу.
           </p>
         </div>
 
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+        <button
+          type="button"
+          onClick={() => setShowImport(true)}
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl font-bold text-sm transition-all cursor-pointer"
+        >
+          <Upload size={16} /> Файлаас оруулах
+        </button>
+
         {!loading && !error && (
-          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-sm self-start sm:self-auto">
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-sm">
             <Database size={16} className="text-red-600 dark:text-red-400" />
             <span className="text-slate-500 dark:text-slate-400">Нийт</span>
             <span className="font-black text-slate-900 dark:text-white">{totalRows.toLocaleString()}</span>
@@ -115,7 +127,12 @@ export default function DataPage() {
             <InfoTip text="Доорх бүх өгөгдлийн багцын мөрийн тооны нийлбэр. Нэг мөр = нэг бичлэг (харилцагч, ажил, анкет гэх мэт)." />
           </div>
         )}
+        </div>
       </div>
+
+      {showImport && (
+        <ImportCustomers onClose={() => setShowImport(false)} onImported={() => setReloadKey((k) => k + 1)} />
+      )}
 
       {/* Search Bar */}
       <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs">

@@ -87,6 +87,8 @@ export default function WorkDetailPage({ params }: { params: Promise<{ id: strin
   };
 
   useEffect(() => {
+    // Ажлын ID өөрчлөгдөхөд өгөгдөл дахин татна (fetch эхлэхэд loading төлөвийг шинэчилдэг)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchWorkAndOptions();
   }, [workId]);
 

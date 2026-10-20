@@ -20,9 +20,22 @@ interface CustomerDetail {
   address: string | null;
   tax_number?: string | null;
   status: string | null;
+  source?: string | null;
   create_date: string;
   update_date: string;
+  submissions?: {
+    id: string;
+    submitted_at: string;
+    template_title: string | null;
+    answers: { label: string | null; value: string | null }[];
+  }[];
 }
+
+const SOURCE_LABELS: Record<string, string> = {
+  manual: 'Гараар бүртгэсэн',
+  form: 'QR анкет',
+  import: 'Файлаас оруулсан',
+};
 
 export default function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -448,6 +461,11 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                 <p className="text-[10px] text-slate-400 dark:text-slate-400 font-bold">Бүртгүүлсэн огноо</p>
                 <p className="font-bold text-slate-800 dark:text-slate-200">
                   {customer.create_date ? new Date(customer.create_date).toLocaleString() : '-'}
+                  {customer.source && (
+                    <span className="ml-2 text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/60 px-2 py-0.5 rounded-full">
+                      {SOURCE_LABELS[customer.source] ?? customer.source}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
@@ -464,6 +482,34 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
           </div>
         </div>
       </div>
+
+      {customer.submissions && customer.submissions.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4">
+          <h3 className="font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider text-[11px]">
+            QR анкетын түүх ({customer.submissions.length})
+          </h3>
+          <div className="space-y-3">
+            {customer.submissions.map((submission) => (
+              <div key={submission.id} className="p-4 bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                    <FileText size={14} className="text-red-500" /> {submission.template_title || 'Анкет'}
+                  </p>
+                  <p className="text-[11px] font-semibold text-slate-400">{new Date(submission.submitted_at).toLocaleString()}</p>
+                </div>
+                <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
+                  {submission.answers.map((answer, i) => (
+                    <div key={i} className="flex gap-2">
+                      <dt className="text-slate-400 font-semibold shrink-0">{answer.label}:</dt>
+                      <dd className="font-bold text-slate-700 dark:text-slate-200 break-words">{answer.value || '—'}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

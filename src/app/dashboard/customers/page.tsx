@@ -87,6 +87,8 @@ function CustomersContent() {
   };
 
   useEffect(() => {
+    // Mount үед өгөгдөл татна (fetch эхлэхэд loading төлөвийг шинэчилдэг)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCustomers();
   }, []);
 

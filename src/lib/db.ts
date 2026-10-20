@@ -13,9 +13,8 @@ export const pool =
   globalForDb().pgPool ??
   new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
+    // Supabase SSL шаарддаг. Локал / CI-ийн PostgreSQL-д DATABASE_SSL=false тохируулна
+    ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
     max: Number(process.env.DB_POOL_MAX ?? defaultMax),
     idleTimeoutMillis: 5_000,
     connectionTimeoutMillis: 10_000,

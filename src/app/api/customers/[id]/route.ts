@@ -61,6 +61,7 @@ export async function GET(
           to_char(birth_date, 'YYYY-MM-DD') AS birth_date,
           address,
           status, 
+          source,
           create_date, 
           update_date,
           'individual' as customer_type 
@@ -72,8 +73,25 @@ export async function GET(
       if (rows.length === 0) {
         return NextResponse.json({ success: false, error: 'Хувь хүний харилцагч олдсонгүй' }, { status: 404 });
       }
+
+      // Энэ харилцагчийн бөглөсөн QR анкетууд (сүүлийн 20)
+      const { rows: submissions } = await pool.query(
+        `
+          SELECT s.id, s.submitted_at, t.title AS template_title,
+                 COALESCE(json_agg(json_build_object('label', a.question_label, 'value', a.answer_value)
+                          ORDER BY a.question_label) FILTER (WHERE a.id IS NOT NULL), '[]'::json) AS answers
+          FROM form_submissions s
+          LEFT JOIN mt_templates t ON t.id = s.form_template_id
+          LEFT JOIN form_submission_answers a ON a.submission_id = s.id
+          WHERE s.customer_id = $1 AND s.company_id = $2
+          GROUP BY s.id, s.submitted_at, t.title
+          ORDER BY s.submitted_at DESC
+          LIMIT 20
+        `,
+        [customerId, companyId]
+      );
       
-      return NextResponse.json({ success: true, data: rows[0] });
+      return NextResponse.json({ success: true, data: { ...rows[0], submissions } });
     }
 
   } catch (error) {
