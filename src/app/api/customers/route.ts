@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { customerLimitError } from '@/src/lib/limits';
+import { MANAGER_ROLES } from '@/src/lib/roles';
 import { pool } from '@/src/lib/db';
 import { requireAuth } from '@/src/lib/session';
 import { validateCompanyInput, validateIndividualInput } from '@/src/lib/customer-validation';
@@ -11,7 +13,7 @@ const PAGE_SIZE_MAX = 100;
 // Query: type=all|company|individual, q=хайлт (нэр, имэйл, утас, регистр), page=1.., pageSize (≤100)
 export async function GET(request: Request) {
   try {
-    const { session, error: authError } = await requireAuth({ admin: true });
+    const { session, error: authError } = await requireAuth({ roles: MANAGER_ROLES });
     if (authError) return authError;
     const { companyId } = session;
 
@@ -68,7 +70,7 @@ export async function GET(request: Request) {
 // хэрэглэгч баталгаажуулсан (allow_duplicate: true) үед л давхар бүртгэнэ.
 export async function POST(request: Request) {
   try {
-    const { session, error: authError } = await requireAuth({ admin: true });
+    const { session, error: authError } = await requireAuth({ roles: MANAGER_ROLES });
     if (authError) return authError;
     const { companyId } = session;
 
@@ -77,6 +79,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Хүсэлтийн формат буруу байна.' }, { status: 400 });
     }
     const allowDuplicate = body.allow_duplicate === true;
+
+    const limitError = await customerLimitError(companyId, session.subscription);
+    if (limitError) return NextResponse.json({ success: false, error: limitError, code: 'plan_limit' }, { status: 403 });
 
     if (body.customer_type === 'individual') {
       const input = validateIndividualInput(body);

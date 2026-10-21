@@ -1,7 +1,12 @@
 import Link from 'next/link';
 import BrandLogo from '@/src/components/BrandLogo';
+import { getCachedSiteContent } from '@/src/lib/site-content';
 
-export default function Footer() {
+// Холбоо барих мэдээлэл, сэтгэгдлийн холбоосыг платформын контентоос (кэштэй) авна
+export default async function Footer() {
+  const { contact, testimonial } = await getCachedSiteContent();
+  const showTestimonial = testimonial.enabled && !!testimonial.quote;
+  const contactItems = [contact.phone, contact.email, contact.address].filter(Boolean);
   return (
     <footer className="border-t border-red-100/60 dark:border-slate-800 py-12 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 text-sm w-full relative overflow-hidden transition-colors">
       
@@ -32,11 +37,16 @@ export default function Footer() {
         <div className="flex items-center gap-6 text-xs font-medium">
           <Link href="#problem" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Давуу тал</Link>
           <Link href="#features" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Боломжууд</Link>
-          <Link href="#testimonials" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Сэтгэгдэл</Link>
+          {showTestimonial && (
+            <Link href="#testimonials" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Сэтгэгдэл</Link>
+          )}
         </div>
 
-        <div className="text-xs text-slate-400 dark:text-slate-500">
+        <div className="text-xs text-slate-400 dark:text-slate-500 text-center sm:text-right space-y-1">
+          {contactItems.length > 0 && <p className="text-slate-500 dark:text-slate-400">{contactItems.join(' · ')}</p>}
+          <p>
           &copy; {new Date().getFullYear()} Active CRM. Бүх эрх хуулиар хамгаалагдсан.
+          </p>
         </div>
 
       </div>

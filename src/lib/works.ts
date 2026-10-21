@@ -1,11 +1,12 @@
 import 'server-only';
+import { isManager } from './roles';
 import type { PoolClient } from 'pg';
 import { pool } from './db';
 import type { Session } from './session';
 
 // Админ бүх ажлыг, ажилтан зөвхөн өөрт нь хуваарилагдсан ажлыг засна
 export function canEditWork(session: Pick<Session, 'role' | 'userId'>, assignedEmployee: unknown): boolean {
-  if (session.role === 'admin') return true;
+  if (isManager(session.role)) return true;
   return assignedEmployee !== null && assignedEmployee !== undefined && String(assignedEmployee) === session.userId;
 }
 

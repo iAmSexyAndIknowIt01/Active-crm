@@ -4,6 +4,8 @@ import { cookies, headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { pool } from './db';
 import { clientIpFromHeaders } from './client-ip';
+import { normalizeRole, type Role } from './roles';
+import { computeSubscription, type Subscription } from './plans';
 
 export const SESSION_COOKIE = 'session';
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 хоног
@@ -11,7 +13,8 @@ const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 хоног
 // Хуучин гарын үсэггүй cookie-нууд (нэвтрэх, гарах үед устгана)
 const LEGACY_COOKIES = ['user_id', 'company_id', 'role'];
 
-export type Role = 'admin' | 'employee';
+export type { Role } from './roles';
+export { normalizeRole } from './roles';
 
 // Cookie (JWT)-д хадгалагдах мэдээлэл. sid нь mt_session дахь серверийн session-ийг заана.
 export interface SessionPayload {
@@ -25,12 +28,10 @@ export interface Session {
   userId: string;
   companyId: string;
   role: Role;
+  email: string;
+  subscription: Subscription;
 }
 
-// DB-д 'admin'-аас бусад бүх утгыг ажилтан гэж үзнэ
-export function normalizeRole(role: unknown): Role {
-  return typeof role === 'string' && role.trim().toLowerCase() === 'admin' ? 'admin' : 'employee';
-}
 
 function getKey() {
   const secret = process.env.SESSION_SECRET;
@@ -67,9 +68,10 @@ export async function decrypt(token: string | undefined): Promise<SessionPayload
 // role-ыг DB-ээс авдаг тул эрх өөрчлөгдөхөд даруй үйлчилнэ.
 export async function loadSession(payload: SessionPayload): Promise<Session | null> {
   const { rows } = await pool.query(
-    `SELECT u.role
+    `SELECT u.role, u.email, c.plan, c.trial_ends_at, c.paid_until
      FROM mt_session s
      JOIN mt_user u ON u.user_id = s.user_id
+     JOIN mt_company c ON c.company_id = u.company_id
      WHERE s.session_id::text = $1
        AND s.user_id::text = $2
        AND u.company_id::text = $3
@@ -80,7 +82,14 @@ export async function loadSession(payload: SessionPayload): Promise<Session | nu
   );
   const user = rows[0];
   if (!user) return null;
-  return { sessionId: payload.sid, userId: payload.userId, companyId: payload.companyId, role: normalizeRole(user.role) };
+  return {
+    sessionId: payload.sid,
+    userId: payload.userId,
+    companyId: payload.companyId,
+    role: normalizeRole(user.role),
+    email: String(user.email ?? '').toLowerCase(),
+    subscription: computeSubscription(user),
+  };
 }
 
 export async function createSession({ userId, companyId }: { userId: string; companyId: string }) {
@@ -122,16 +131,32 @@ export async function getSession(): Promise<Session | null> {
 type AuthResult = { session: Session; error?: never } | { session?: never; error: NextResponse };
 
 // Route handler-ийн эхэнд: const { session, error } = await requireAuth({ admin: true }); if (error) return error;
-export async function requireAuth(options: { admin?: boolean } = {}): Promise<AuthResult> {
+//   admin: true        — зөвхөн админ
+//   roles: [...]       — жагсаасан эрхтэй хэрэглэгч (жнь MANAGER_ROLES = админ, менежер)
+//   allowExpired: true — багцын хугацаа дууссан ч зөвшөөрнө (төлбөр, профайл). Бусад үед 402 буцаана.
+export async function requireAuth(options: { admin?: boolean; roles?: Role[]; allowExpired?: boolean } = {}): Promise<AuthResult> {
   const session = await getSession();
   if (!session) {
     return {
       error: NextResponse.json({ success: false, error: 'Нэвтрээгүй байна. Дахин нэвтэрнэ үү.' }, { status: 401 }),
     };
   }
+  if (!options.allowExpired && session.subscription.status === 'expired') {
+    return {
+      error: NextResponse.json(
+        { success: false, error: 'Багцын хугацаа дууссан байна. "Багц" хуудаснаас сунгана уу.', code: 'subscription_expired' },
+        { status: 402 }
+      ),
+    };
+  }
   if (options.admin && session.role !== 'admin') {
     return {
       error: NextResponse.json({ success: false, error: 'Энэ үйлдлийг зөвхөн админ хийх эрхтэй.' }, { status: 403 }),
+    };
+  }
+  if (options.roles && !options.roles.includes(session.role)) {
+    return {
+      error: NextResponse.json({ success: false, error: 'Танд энэ үйлдлийг хийх эрх байхгүй.' }, { status: 403 }),
     };
   }
   return { session };

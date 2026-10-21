@@ -13,5 +13,6 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     // DB тестүүд нэг мэдээллийн сан дээр ажилладаг тул файлуудыг дараалан ажиллуулна
     fileParallelism: false,
+    setupFiles: ['tests/vitest.setup.ts'],
   },
 });

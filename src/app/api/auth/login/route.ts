@@ -74,7 +74,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // 6. user_id, company_id-г гарын үсэгтэй session cookie-д хадгалах.
+    // 6. Имэйлээ баталгаажуулаагүй бол нэвтрүүлэхгүй (нэвтрэх хуудас холбоосыг дахин илгээх боломж харуулна)
+    if (!user.email_verified_at) {
+      return NextResponse.json(
+        {
+          error: 'Имэйл хаягаа баталгаажуулаагүй байна. Имэйлээр ирсэн холбоосоор орж баталгаажуулна уу.',
+          code: 'email_not_verified',
+        },
+        { status: 403 }
+      );
+    }
+
+    // 7. user_id, company_id-г гарын үсэгтэй session cookie-д хадгалах.
     //    role-ийг cookie-д хуулахгүй: loadSession() хүсэлт бүрт user_id-аар mt_user.role-ийг уншдаг
     //    тул эрх солигдоход даруй үйлчилнэ.
     await clearRateLimit(failKeys[0].key);
@@ -83,7 +94,7 @@ export async function POST(request: Request) {
       companyId: String(user.company_id),
     });
 
-    // 7. Амжилттай нэвтэрсэн үед хэрэглэгчийн мэдээллийг буцаах
+    // 8. Амжилттай нэвтэрсэн үед хэрэглэгчийн мэдээллийг буцаах
     return NextResponse.json(
       {
         message: 'Амжилттай нэвтэрлээ.',

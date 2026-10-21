@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getSession, requireAuth } from '@/src/lib/session';
+import { requireAuth } from '@/src/lib/session';
 import { pool } from '../../../lib/db'; // Төслийн замын дагуу тохируулна уу
 
 // 1. Тухайн компанийн идэвхтэй (is_active = true) анкетын тохиргоог авах GET метод
 export async function GET() {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const userId = session?.userId;
 
     if (!userId) {

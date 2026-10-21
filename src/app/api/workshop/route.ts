@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/src/lib/session';
+import { OVERDUE_CONDITION, buildWorkFilter } from '@/src/lib/work-filters';
+import { requireAuth } from '@/src/lib/session';
 import { logAudit } from '@/src/lib/audit';
 import { pool } from '@/src/lib/db';
 import {
@@ -14,7 +15,9 @@ import {
 // GET: Тухайн компанийн ажлуудын жагсаалт болон холбогдох сонголтын датаг татах
 export async function GET(request: Request) {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const companyId = session?.companyId;
 
     if (!companyId) {
@@ -58,30 +61,54 @@ export async function GET(request: Request) {
       });
     }
 
-    // Үндсэн ажлын жагсаалт татах query (mt_user-ийг assigned_employee-р холбох)
+    // Ажлын жагсаалт: шүүлтүүр, эрэмбэ, хуудаслалтыг сервер дээр (lib/work-filters.ts)
+    const pick = (key: string) => searchParams.get(key);
+    const filter = buildWorkFilter(companyId, {
+      q: pick('q'), status: pick('status'), priority: pick('priority'), customerType: pick('customerType'),
+      employee: pick('employee'), service: pick('service'), customer: pick('customer'), due: pick('due'),
+      dueFrom: pick('dueFrom'), dueTo: pick('dueTo'), createdFrom: pick('createdFrom'), createdTo: pick('createdTo'),
+      priceMin: pick('priceMin'), priceMax: pick('priceMax'), sort: pick('sort'),
+    });
+    const page = Math.max(1, Number.parseInt(pick('page') ?? '1', 10) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number.parseInt(pick('pageSize') ?? '20', 10) || 20));
+    const limitParam = filter.values.length + 1;
+
     const worksQuery = `
-      SELECT 
+      SELECT
         w.*,
-        CASE 
+        CASE
           WHEN w.customer_type = 'individual' THEN CONCAT(COALESCE(c.last_name, ''), ' ', COALESCE(c.first_name, ''))
           WHEN w.customer_type = 'company' THEN cc.name
           ELSE 'Тодорхойгүй'
         END AS customer_name,
         ${WORK_SERVICES_SELECT},
-        CONCAT(COALESCE(u.last_name, ''), ' ', COALESCE(u.first_name, '')) AS employee_name
+        CONCAT(COALESCE(u.last_name, ''), ' ', COALESCE(u.first_name, '')) AS employee_name,
+        COUNT(*) OVER () AS total_count
       FROM mt_works w
       LEFT JOIN mt_customer c ON w.customer_id = c.customer_id
       LEFT JOIN mt_customercompany cc ON w.company_customer_id = cc.company_customer_id
       LEFT JOIN mt_user u ON w.assigned_employee::text = u.user_id::text
-      WHERE w.company_id = $1
-      ORDER BY w.create_date DESC
+      WHERE ${filter.where}
+      ORDER BY ${filter.orderBy}
+      LIMIT $${limitParam} OFFSET $${limitParam + 1}
     `;
 
-    const { rows } = await pool.query(worksQuery, [companyId]);
+    const [{ rows }, overdue] = await Promise.all([
+      pool.query(worksQuery, [...filter.values, pageSize, (page - 1) * pageSize]),
+      pool.query(`SELECT COUNT(*) AS count FROM mt_works w WHERE w.company_id = $1 AND ${OVERDUE_CONDITION}`, [companyId]),
+    ]);
 
     return NextResponse.json({
       success: true,
-      data: rows.map((w) => ({ ...w, can_edit: canEditWork(session!, w.assigned_employee) })),
+      data: rows.map((w) => {
+        const row = { ...w, can_edit: canEditWork(session!, w.assigned_employee) };
+        delete row.total_count;
+        return row;
+      }),
+      total: rows.length > 0 ? Number(rows[0].total_count) : 0,
+      overdueCount: Number(overdue.rows[0].count),
+      page,
+      pageSize,
     });
   } catch (error) {
     console.error('Fetch Works Error:', error);
@@ -95,7 +122,9 @@ export async function GET(request: Request) {
 // POST: Шинэ ажил бүртгэх
 export async function POST(request: Request) {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const companyId = session?.companyId;
 
     if (!companyId) {

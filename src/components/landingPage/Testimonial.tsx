@@ -1,6 +1,7 @@
 import Reveal from './Reveal';
 
-export default function Testimonial() {
+// Платформын админ "Платформ → Контент"-оос оруулсан бодит сэтгэгдэл. Идэвхгүй/хоосон бол харагдахгүй.
+export default function Testimonial({ quote, author, role }: { quote: string; author: string; role: string }) {
   return (
     <section id="testimonials" className="py-28 bg-linear-to-br from-red-600 via-red-700 to-red-700 dark:from-red-950 dark:via-slate-900 dark:to-red-950 text-white relative overflow-hidden w-full transition-colors duration-300">
       
@@ -27,12 +28,12 @@ export default function Testimonial() {
         </div>
 
         <blockquote className="text-xl sm:text-3xl font-medium leading-relaxed italic mb-10 text-red-50">
-          &quot;Өмнө нь манайх дэвтэр дээр үйлчлүүлэгчдийнхээ нэрийг бичдэг байсан ч хэрэг болох үед олдохгүй хоцрох тоо томшгүй олон байсан. Active CRM системд шилжсэнээр 7-р сарын оочер үүсдэг асуудлаа 5-р сараас эхлэн захиалга аваад амархан зохицууллаа.&quot;
+          &quot;{quote}&quot;
         </blockquote>
 
         <div className="inline-block bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/15 shadow-inner">
-          <div className="font-extrabold text-lg text-white">Авто засварын газрын эзэн</div>
-          <div className="text-xs text-red-200 mt-0.5">Active CRM системийг амжилттай туршиж буй хэрэглэгч</div>
+          <div className="font-extrabold text-lg text-white">{author}</div>
+          {role && <div className="text-xs text-red-200 mt-0.5">{role}</div>}
         </div>
         </Reveal>
 

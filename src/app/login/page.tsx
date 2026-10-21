@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { homePathFor, normalizeRole } from '@/src/lib/roles';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Lock, Mail, Loader2 } from 'lucide-react';
@@ -19,6 +20,9 @@ export default function LoginPage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Имэйлээ баталгаажуулаагүй үед холбоосыг дахин илгээх товч харуулна
+  const [notVerified, setNotVerified] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -36,6 +40,8 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setNotVerified(false);
+    setResendMessage('');
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -49,11 +55,12 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (data.code === 'email_not_verified') setNotVerified(true);
         throw new Error(data.error || 'Нэвтрэх үед алдаа гарлаа.');
       }
 
       // Ажилтанд зөвхөн "Ажил" цэс харагддаг тул шууд тийш нь оруулна
-      router.push(data.user?.role === 'admin' ? '/dashboard' : '/dashboard/workshop');
+      router.push(homePathFor(normalizeRole(data.user?.role)));
 
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -62,6 +69,21 @@ export default function LoginPage() {
         setError('Нэвтрэх үед алдаа гарлаа.');
       }
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResendMessage('');
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      });
+      const data = await res.json();
+      setResendMessage(data.message || data.error || '');
+    } catch {
+      setResendMessage('Сервертэй холбогдож чадсангүй.');
     }
   };
 
@@ -105,6 +127,14 @@ export default function LoginPage() {
         {error && (
           <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 p-3 rounded-xl text-xs sm:text-sm mb-4 font-bold text-center animate-in fade-in">
             {error}
+            {notVerified && (
+              <div className="mt-2 font-semibold">
+                <button type="button" onClick={handleResend} className="underline cursor-pointer">
+                  Баталгаажуулах холбоосыг дахин илгээх
+                </button>
+                {resendMessage && <p className="mt-1 text-slate-600 dark:text-slate-300">{resendMessage}</p>}
+              </div>
+            )}
           </div>
         )}
 

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { customerLimitError, getCompanySubscription } from '../../../../../lib/limits';
 import { pool } from '../../../../../lib/db'; // Замын дагуу тохируулна уу
 import { checkRateLimits, getClientIp } from '../../../../../lib/rate-limit';
 import { extractCustomerFields, upsertCustomerFromForm } from '../../../../../lib/form-customer';
@@ -146,13 +147,16 @@ export async function POST(
       return NextResponse.json({ success: false, error }, { status: 400 });
     }
 
+    // Багцын харилцагчийн хязгаар хүрсэн (эсвэл хугацаа дууссан) бол анкетыг хадгалж, шинэ харилцагч үүсгэхгүй
+    const canCreateCustomer = !(await customerLimitError(companyid, await getCompanySubscription(companyid)));
+
     // Transaction ашиглах тул client-ийг pool-оос дуудна
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
       const answerMap = Object.fromEntries(cleaned!.map(({ question, value }) => [String(question.id), value]));
-      const customer = await upsertCustomerFromForm(client, companyid, extractCustomerFields(questions, answerMap));
+      const customer = await upsertCustomerFromForm(client, companyid, extractCustomerFields(questions, answerMap), canCreateCustomer);
 
       const submissionResult = await client.query(
         `INSERT INTO form_submissions (form_template_id, company_id, customer_id) VALUES ($1, $2, $3) RETURNING id`,

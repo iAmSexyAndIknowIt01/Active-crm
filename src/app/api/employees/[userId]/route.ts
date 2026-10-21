@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { userLimitError } from '@/src/lib/limits';
 import { pool } from '@/src/lib/db';
-import { getSession, normalizeRole, requireAuth } from '@/src/lib/session';
+import { normalizeRole, requireAuth } from '@/src/lib/session';
 import { diffFields, logAudit } from '@/src/lib/audit';
 
 // Мэдээлэл авах (GET)
@@ -9,7 +10,9 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     if (!session) {
       return NextResponse.json(
         { success: false, error: 'Нэвтрээгүй байна.' },
@@ -146,6 +149,11 @@ export async function POST(
       'SELECT email, role, is_active, position, first_name, last_name FROM mt_user WHERE user_id = $1 AND company_id = $2',
       [userId, session.companyId]
     );
+    // Идэвхгүй хэрэглэгчийг дахин идэвхжүүлэхэд багцын хэрэглэгчийн хязгаарыг шалгана
+    if (is_active && before.rows[0] && before.rows[0].is_active === false) {
+      const limitError = await userLimitError(session.companyId, session.subscription);
+      if (limitError) return NextResponse.json({ success: false, error: limitError, code: 'plan_limit' }, { status: 403 });
+    }
     const updateResult = await pool.query(updateQuery, values);
     if (updateResult.rows.length > 0 && before.rows[0]) {
       // Эрх, идэвх, имэйл өөрчлөгдсөнийг түүхэнд бичнэ

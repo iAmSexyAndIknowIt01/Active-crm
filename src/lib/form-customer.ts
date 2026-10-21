@@ -136,9 +136,10 @@ export function extractCustomerFields(
   return result;
 }
 
-// QR анкетаас: утас/имэйлийн аль нь ч байхгүй бол (тулгах боломжгүй) харилцагч үүсгэхгүй
-export function upsertCustomerFromForm(client: PoolClient, companyId: string, fields: ExtractedCustomer) {
-  return upsertIndividualCustomer(client, companyId, fields, { source: 'form', requireContact: true });
+// QR анкетаас: утас/имэйлийн аль нь ч байхгүй бол (тулгах боломжгүй) харилцагч үүсгэхгүй.
+// allowCreate: false бол (багцын хязгаар) зөвхөн байгаа харилцагчтай холбоно.
+export function upsertCustomerFromForm(client: PoolClient, companyId: string, fields: ExtractedCustomer, allowCreate = true) {
+  return upsertIndividualCustomer(client, companyId, fields, { source: 'form', requireContact: true, allowCreate });
 }
 
 // Утас эсвэл имэйлээр тухайн компанийн өмнөх харилцагчийг хайж, байхгүй бол шинээр үүсгэнэ.
@@ -149,7 +150,7 @@ export async function upsertIndividualCustomer(
   client: PoolClient,
   companyId: string,
   fields: ExtractedCustomer,
-  options: { source: 'form' | 'import'; requireContact: boolean }
+  options: { source: 'form' | 'import'; requireContact: boolean; allowCreate?: boolean }
 ): Promise<{ customerId: string; created: boolean } | null> {
   const phoneKey = normalizePhone(fields.phone);
   const email = fields.email;
@@ -164,7 +165,7 @@ export async function upsertIndividualCustomer(
     }
   }
 
-  if (!fields.first_name) return null;
+  if (!fields.first_name || options.allowCreate === false) return null;
 
   const inserted = await client.query(
     `

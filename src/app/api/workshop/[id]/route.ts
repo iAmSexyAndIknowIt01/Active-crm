@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/src/lib/session';
+import { isManager } from '@/src/lib/roles';
+import { requireAuth } from '@/src/lib/session';
 import { diffFields, logAudit } from '@/src/lib/audit';
 import { pool } from '@/src/lib/db';
 import {
@@ -17,7 +18,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const companyId = session?.companyId;
 
     if (!companyId) {
@@ -65,7 +68,7 @@ export async function GET(
         ...work,
         // Админ бүх ажлыг, ажилтан зөвхөн өөрийн хариуцсан ажлыг засна. Хариуцагчийг зөвхөн админ солино.
         can_edit: canEditWork(session!, work.assigned_employee),
-        can_reassign: session!.role === 'admin',
+        can_reassign: isManager(session!.role),
       },
     });
   } catch (error) {
@@ -83,7 +86,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const companyId = session?.companyId;
 
     if (!companyId) {
@@ -113,7 +118,7 @@ export async function PUT(
 
     const body = await request.json();
     // Хариуцсан ажилтныг зөвхөн админ солино; ажилтны хувьд одоогийн утгыг хадгална
-    if (session!.role !== 'admin') body.assigned_employee = currentAssignee ? String(currentAssignee) : '';
+    if (!isManager(session!.role)) body.assigned_employee = currentAssignee ? String(currentAssignee) : '';
     // Хуучин өгөгдөлд "COMPANY" гэх мэт том үсгээр хадгалагдсан утга байдаг тул жижиг үсэг болгоно
     if (typeof body.customer_type === 'string') body.customer_type = body.customer_type.toLowerCase();
     const { 
@@ -191,7 +196,7 @@ export async function PUT(
       id,
       companyId,
       // Ажилтан: шалгасны дараа хариуцагч солигдсон бол шинэчлэхгүй
-      session!.role === 'admin' ? null : session!.userId
+      isManager(session!.role) ? null : session!.userId
     ];
 
     const client = await pool.connect();

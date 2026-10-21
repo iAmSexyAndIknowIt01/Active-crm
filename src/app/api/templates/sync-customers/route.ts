@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { customerLimitError } from '@/src/lib/limits';
 import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 import { extractCustomerFields, upsertCustomerFromForm, type FormQuestion } from '@/src/lib/form-customer';
@@ -51,7 +52,9 @@ export async function POST(request: Request) {
 
         await client.query('BEGIN');
         try {
-          const customer = await upsertCustomerFromForm(client, companyId, extractCustomerFields(questions, answerMap));
+          // Багцын хязгаар хүрвэл зөвхөн байгаа харилцагчтай холбоно
+          const canCreate = !(await customerLimitError(companyId, session.subscription));
+          const customer = await upsertCustomerFromForm(client, companyId, extractCustomerFields(questions, answerMap), canCreate);
           if (customer) {
             await client.query('UPDATE form_submissions SET customer_id = $1 WHERE id = $2 AND company_id = $3', [
               customer.customerId,

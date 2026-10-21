@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { LayoutDashboard, Database, Settings, LogOut, User, BarChart3, ChevronDown, Menu, X, FileText, Users, UserCheck, Briefcase, Wrench, CalendarCheck, Sun, Moon, BellRing, History } from 'lucide-react';
+import { canAccessPath, normalizeRole } from '@/src/lib/roles';
+import type { Subscription } from '@/src/lib/plans';
+import { LayoutDashboard, Database, Settings, LogOut, User, BarChart3, ChevronDown, Menu, X, FileText, Users, UserCheck, Briefcase, Wrench, CalendarCheck, Sun, Moon, BellRing, History, CreditCard, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BrandMark } from '@/src/components/BrandLogo';
@@ -10,7 +12,9 @@ interface UserData {
   email: string;
   first_name: string;
   last_name: string;
-  role?: 'admin' | 'employee';
+  role?: string;
+  subscription?: Subscription;
+  is_platform_admin?: boolean;
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -60,19 +64,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   };
 
-  // Цэсийг session-ий role (mt_user.role)-оор шүүнэ: админ бүх цэсийг, ажилтан зөвхөн "Ажил" цэсийг харна.
+  // Цэсийг session-ий role (mt_user.role)-оор шүүнэ (lib/roles.ts): админ бүгдийг, менежер харилцагч/захиалга/ажил/тайланг,
+  // ажилтан зөвхөн "Ажил" цэсийг харна.
   // Role ачаалагдах хүртэл цэс харуулахгүй (админд ажилтны цэс, эсрэгээр анивчихаас сэргийлнэ).
   // Эрхийн жинхэнэ шалгалт API дээр хийгдэнэ.
   const isAdmin = userData?.role === 'admin';
+  const role = normalizeRole(userData?.role);
+  const subscription = userData?.subscription;
 
   const navItems = !userData ? [] : [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Удирдлага' },
     { href: '/dashboard/data', icon: Database, label: 'Өгөгдөл' },
     { href: '/dashboard/customers', icon: UserCheck, label: 'Харилцагч' },
     { href: '/dashboard/reservations', icon: CalendarCheck, label: 'Захиалга' },
-    { href: '/dashboard/workshop', icon: Wrench, label: 'Ажил', employeeVisible: true },
+    { href: '/dashboard/workshop', icon: Wrench, label: 'Ажил' },
     { href: '/dashboard/analytics', icon: BarChart3, label: 'Аналитик' },
-  ].filter((item) => isAdmin || item.employeeVisible);
+    // Админ "Тохиргоо → Багц"-аас, бусад нь энд харна
+    ...(role !== 'admin' ? [{ href: '/dashboard/billing', icon: CreditCard, label: 'Багц' }] : []),
+  ].filter((item) => canAccessPath(role, item.href));
 
   // Тохиргооны доошоо унадаг дэд цэсүүд (зөвхөн админд)
   const settingsSubItems = !isAdmin ? [] : [
@@ -81,6 +90,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/dashboard/my-anket', icon: FileText, label: 'Анкет' },
     { href: '/dashboard/reminders', icon: BellRing, label: 'Сануулга' },
     { href: '/dashboard/audit', icon: History, label: 'Үйлдлийн түүх' },
+    { href: '/dashboard/billing', icon: CreditCard, label: 'Багц' },
     { href: '/dashboard/settings', icon: Settings, label: 'Ерөнхий тохиргоо' },
   ];
 
@@ -150,7 +160,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex items-center gap-4 sm:gap-6">
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            className="xl:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
             aria-label="Menu"
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -163,12 +173,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </span>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+          <nav className="hidden xl:flex items-center gap-1">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all ${
                   pathname === item.href 
                     ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
@@ -184,7 +194,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="relative" ref={settingsDropdownRef}>
               <button
                 onClick={() => setSettingsDropdownOpen(!settingsDropdownOpen)}
-                className={`flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
                   isSettingsActive 
                     ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
@@ -262,6 +272,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <User size={16} className="text-slate-500 dark:text-slate-400" /> Профайл
                 </Link>
 
+                {userData?.is_platform_admin && (
+                  <Link
+                    href="/dashboard/platform"
+                    onClick={() => setDropdownOpen(false)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <ShieldCheck size={16} className="text-slate-500 dark:text-slate-400" /> Платформ (Active CRM)
+                  </Link>
+                )}
+
                 <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
 
                 <button 
@@ -277,7 +297,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 space-y-1 shadow-xl z-50 max-h-[80vh] overflow-y-auto">
+          <div className="xl:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 space-y-1 shadow-xl z-50 max-h-[80vh] overflow-y-auto">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -332,6 +352,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
       </header>
       
+      {/* Туршилт / багц дуусах дөхсөн эсвэл дууссан үед анхааруулна */}
+      {subscription && (subscription.status === 'expired' || subscription.daysLeft <= 5) && !pathname.startsWith('/dashboard/billing') && (
+        <Link
+          href="/dashboard/billing"
+          className={`flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold ${
+            subscription.status === 'expired' ? 'bg-rose-600 text-white' : 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200'
+          }`}
+        >
+          <AlertTriangle size={16} />
+          {subscription.status === 'expired'
+            ? 'Багцын хугацаа дууссан. Үргэлжлүүлэн ашиглахын тулд багцаа сунгана уу →'
+            : `${subscription.status === 'trial' ? 'Туршилтын' : 'Багцын'} хугацаа ${subscription.daysLeft} хоногийн дараа дуусна. Багц сонгох →`}
+        </Link>
+      )}
+
       <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">{children}</main>
     </div>
   );

@@ -104,8 +104,15 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Харилцагчийг бүрмөсөн устгана (QR анкет, сануулгын лог дахь хувийн мэдээлэл хамт устна)
+  // Харилцагчийг бүрмөсөн устгана (QR анкет, сануулгын лог дахь хувийн мэдээлэл хамт устна). Зөвхөн админ.
   const [deleting, setDeleting] = useState(false);
+  const [canDelete, setCanDelete] = useState(false);
+  useEffect(() => {
+    fetch('/api/user')
+      .then((res) => res.json())
+      .then((json) => setCanDelete(json.data?.role === 'admin'))
+      .catch(() => {});
+  }, []);
   const handleDelete = async () => {
     const name = customer?.customer_type === 'company' ? customer?.name : `${customer?.last_name ?? ''} ${customer?.first_name ?? ''}`.trim();
     if (
@@ -235,6 +242,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
 
         {!isEditing ? (
           <div className="flex items-center gap-2">
+            {canDelete && (
             <button
               type="button"
               onClick={handleDelete}
@@ -243,6 +251,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
             >
               <Trash2 size={16} /> {deleting ? 'Устгаж байна...' : 'Устгах'}
             </button>
+            )}
             <button
               type="button"
               onClick={() => setIsEditing(true)}

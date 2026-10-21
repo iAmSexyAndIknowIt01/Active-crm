@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef, Suspense } from 'react';
+import { ROLE_LABELS, normalizeRole } from '@/src/lib/roles';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   Users, UserPlus, Search, X, Check, Filter, 
@@ -26,9 +27,9 @@ interface User {
   created_at: string;
 }
 
-const roles = ['Бүгд', 'Админ', 'Ажилтан'];
+const roles = ['Бүгд', 'Админ', 'Менежер', 'Ажилтан'];
 // URL дахь role параметрийн утга <-> дэлгэцэнд харагдах нэр
-const roleParams: Record<string, string> = { 'Админ': 'admin', 'Ажилтан': 'employee' };
+const roleParams: Record<string, string> = { 'Админ': 'admin', 'Менежер': 'manager', 'Ажилтан': 'employee' };
 
 function EmployeesContent() {
   const router = useRouter();
@@ -114,9 +115,7 @@ function EmployeesContent() {
     
     let matchesRole = selectedRole === 'Бүгд';
     if (!matchesRole) {
-      const isAdminRole = user.role?.toLowerCase() === 'admin';
-      if (selectedRole === 'Админ' && isAdminRole) matchesRole = true;
-      if (selectedRole === 'Ажилтан' && !isAdminRole) matchesRole = true;
+      matchesRole = roleParams[selectedRole] === normalizeRole(user.role);
     }
 
     return matchesSearch && matchesRole;
@@ -165,7 +164,7 @@ function EmployeesContent() {
     }
   };
 
-  const getRoleDisplayName = (role: string) => (role?.toLowerCase() === 'admin' ? 'Админ' : 'Ажилтан');
+  const getRoleDisplayName = (role: string) => ROLE_LABELS[normalizeRole(role)];
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-24 font-sans antialiased text-slate-800 dark:text-slate-100 px-4 sm:px-6">
@@ -446,6 +445,7 @@ function EmployeesContent() {
                   className="w-full px-4 py-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-red-500 dark:focus:border-red-400 focus:bg-white dark:focus:bg-slate-800 transition-all cursor-pointer"
                 >
                   <option value="employee">Ажилтан</option>
+                  <option value="manager">Менежер</option>
                   <option value="admin">Админ</option>
                 </select>
               </div>

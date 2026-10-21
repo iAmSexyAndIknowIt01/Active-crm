@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { MANAGER_ROLES } from '@/src/lib/roles';
 import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 import {
@@ -16,7 +17,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 // GET: Захиалгын жагсаалт (?from=YYYY-MM-DD&to=YYYY-MM-DD) эсвэл ?action=options сонголтын дата
 export async function GET(request: Request) {
   try {
-    const { session, error } = await requireAuth();
+    const { session, error } = await requireAuth({ roles: MANAGER_ROLES });
     if (error) return error;
     const { companyId } = session;
 
@@ -87,7 +88,7 @@ export async function GET(request: Request) {
 // POST: Шинэ захиалга бүртгэх. Харилцагчийн мэдээллийг mt_customer / mt_customercompany-оос хуулна.
 export async function POST(request: Request) {
   try {
-    const { session, error } = await requireAuth();
+    const { session, error } = await requireAuth({ roles: MANAGER_ROLES });
     if (error) return error;
     const { companyId, userId } = session;
 

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { MANAGER_ROLES } from '@/src/lib/roles';
 import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 
@@ -22,8 +23,8 @@ const toNumber = (value: unknown) => Number(value ?? 0);
 //   Өмнөх ижил урттай хугацаатай харьцуулж өөрчлөлтийн хувийг гаргана.
 export async function GET(request: Request) {
   try {
-    // Орлого, ажилтны гүйцэтгэл зэрэг мэдээлэл тул зөвхөн админ
-    const { session, error: authError } = await requireAuth({ admin: true });
+    // Орлого, ажилтны гүйцэтгэл зэрэг мэдээлэл тул зөвхөн админ, менежер
+    const { session, error: authError } = await requireAuth({ roles: MANAGER_ROLES });
     if (authError) return authError;
     const companyId = session.companyId;
 
