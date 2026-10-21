@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { MANAGER_ROLES } from '@/src/lib/roles';
 import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 import { validateCompanyInput, validateIndividualInput } from '@/src/lib/customer-validation';
@@ -27,7 +28,7 @@ function notFound(type: string | null) {
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { session, error: authError } = await requireAuth({ admin: true });
+    const { session, error: authError } = await requireAuth({ roles: MANAGER_ROLES });
     if (authError) return authError;
     const { companyId } = session;
     const { id: customerId } = await params;
@@ -76,7 +77,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 // Засах: шалгалт нь нэмэхтэй ижил. Өөр харилцагчийн утас/имэйл/регистртэй давхцвал 409 (allow_duplicate-аар үргэлжилнэ)
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { session, error: authError } = await requireAuth({ admin: true });
+    const { session, error: authError } = await requireAuth({ roles: MANAGER_ROLES });
     if (authError) return authError;
     const { companyId } = session;
     const { id: customerId } = await params;

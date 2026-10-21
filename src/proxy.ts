@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { decrypt, loadSession, SESSION_COOKIE } from '@/src/lib/session';
-
-// Ажилтан (admin биш) нээж болох dashboard хуудсууд
-const EMPLOYEE_PATHS = ['/dashboard/workshop', '/dashboard/profile'];
+import { canAccessPath, homePathFor } from '@/src/lib/roles';
 
 // Урьдчилсан шалгалт: session хүчингүй (гарсан, хугацаа дууссан, нууц үг солигдсон) эсвэл
 // хэрэглэгч идэвхгүй бол dashboard-ыг нээлгүй login руу шилжүүлнэ.
@@ -23,9 +21,9 @@ export async function proxy(request: NextRequest) {
       response.cookies.delete(SESSION_COOKIE);
       return response;
     }
-    // Ажилтан зөвхөн "Ажил" болон өөрийн профайлыг үзнэ; бусад хуудас (харилцагч, тайлан, тохиргоо) админд
-    if (loaded.role !== 'admin' && !EMPLOYEE_PATHS.some((p) => request.nextUrl.pathname.startsWith(p))) {
-      return NextResponse.redirect(new URL('/dashboard/workshop', request.url));
+    // Эрхэд нээлттэй бус хуудсыг (lib/roles.ts) тухайн эрхийн нүүр хуудас руу шилжүүлнэ
+    if (!canAccessPath(loaded.role, request.nextUrl.pathname)) {
+      return NextResponse.redirect(new URL(homePathFor(loaded.role), request.url));
     }
   } catch (error) {
     // DB түр алдаатай үед хуудсыг хаахгүй; API route-ууд өөрсдөө шалгана

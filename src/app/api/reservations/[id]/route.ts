@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { MANAGER_ROLES } from '@/src/lib/roles';
 import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 import {
@@ -30,7 +31,7 @@ const notFound = () =>
 // GET: Захиалгын дэлгэрэнгүй
 export async function GET(_request: Request, { params }: Params) {
   try {
-    const { session, error } = await requireAuth();
+    const { session, error } = await requireAuth({ roles: MANAGER_ROLES });
     if (error) return error;
 
     const { id } = await params;
@@ -51,7 +52,7 @@ export async function GET(_request: Request, { params }: Params) {
 // сонгоогүй бол (жишээ нь харилцагч устсан) өмнөх хуулбарыг хэвээр үлдээнэ.
 export async function PUT(request: Request, { params }: Params) {
   try {
-    const { session, error } = await requireAuth();
+    const { session, error } = await requireAuth({ roles: MANAGER_ROLES });
     if (error) return error;
     const { companyId } = session;
 
@@ -158,7 +159,7 @@ export async function PUT(request: Request, { params }: Params) {
 // PATCH: Зөвхөн төлөв солих (баталгаажуулах, цуцлах гэх мэт)
 export async function PATCH(request: Request, { params }: Params) {
   try {
-    const { session, error } = await requireAuth();
+    const { session, error } = await requireAuth({ roles: MANAGER_ROLES });
     if (error) return error;
     const { companyId } = session;
 

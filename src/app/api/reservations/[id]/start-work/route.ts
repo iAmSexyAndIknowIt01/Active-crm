@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { MANAGER_ROLES } from '@/src/lib/roles';
 import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 import { sendEmail } from '@/src/lib/email';
@@ -14,7 +15,7 @@ const STARTABLE = ['pending', 'confirmed'];
 // Дараа нь хариуцсан ажилтанд имэйлээр мэдэгдэнэ. Имэйл амжилтгүй болсон ч ажил үүссэн хэвээр үлдэнэ.
 export async function POST(request: Request, { params }: Params) {
   try {
-    const { session, error } = await requireAuth();
+    const { session, error } = await requireAuth({ roles: MANAGER_ROLES });
     if (error) return error;
     const { companyId, userId } = session;
     const { id } = await params;

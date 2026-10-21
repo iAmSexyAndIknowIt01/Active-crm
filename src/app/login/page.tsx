@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { homePathFor, normalizeRole } from '@/src/lib/roles';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Lock, Mail, Loader2 } from 'lucide-react';
@@ -53,7 +54,7 @@ export default function LoginPage() {
       }
 
       // Ажилтанд зөвхөн "Ажил" цэс харагддаг тул шууд тийш нь оруулна
-      router.push(data.user?.role === 'admin' ? '/dashboard' : '/dashboard/workshop');
+      router.push(homePathFor(normalizeRole(data.user?.role)));
 
     } catch (err: unknown) {
       if (err instanceof Error) {

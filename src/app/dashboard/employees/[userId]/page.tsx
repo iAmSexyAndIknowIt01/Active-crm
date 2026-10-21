@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, use, ReactNode } from 'react';
+import { ROLE_LABELS, normalizeRole } from '@/src/lib/roles';
 import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, Mail, Phone, ShieldCheck, MapPin, Calendar, 
@@ -127,7 +128,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
     if (key === 'role') {
       return (
         <span className="text-slate-800 dark:text-slate-100 font-bold">
-          {String(value).toLowerCase() === 'admin' ? 'Админ' : 'Ажилтан'}
+          {ROLE_LABELS[normalizeRole(value)]}
         </span>
       );
     }
@@ -244,7 +245,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
                   </span>
                 </div>
                 {!isEditing ? (
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-semibold">{user.position || (user.role?.toLowerCase() === 'admin' ? 'Админ' : 'Ажилтан')}</p>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-semibold">{user.position || ROLE_LABELS[normalizeRole(user.role)]}</p>
                 ) : (
                   <input 
                     type="text" 
@@ -385,11 +386,12 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
                             </select>
                           ) : key === 'role' ? (
                             <select
-                              value={String(value ?? '').toLowerCase() === 'admin' ? 'admin' : 'employee'}
+                              value={normalizeRole(value)}
                               onChange={(e) => setEditForm({...editForm, role: e.target.value})}
                               className="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100"
                             >
                               <option value="admin">Админ</option>
+                              <option value="manager">Менежер</option>
                               <option value="employee">Ажилтан</option>
                             </select>
                           ) : (

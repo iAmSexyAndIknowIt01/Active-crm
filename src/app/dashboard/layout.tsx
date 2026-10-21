@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { canAccessPath, normalizeRole } from '@/src/lib/roles';
 import { LayoutDashboard, Database, Settings, LogOut, User, BarChart3, ChevronDown, Menu, X, FileText, Users, UserCheck, Briefcase, Wrench, CalendarCheck, Sun, Moon, BellRing, History } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -60,19 +61,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   };
 
-  // Цэсийг session-ий role (mt_user.role)-оор шүүнэ: админ бүх цэсийг, ажилтан зөвхөн "Ажил" цэсийг харна.
+  // Цэсийг session-ий role (mt_user.role)-оор шүүнэ (lib/roles.ts): админ бүгдийг, менежер харилцагч/захиалга/ажил/тайланг,
+  // ажилтан зөвхөн "Ажил" цэсийг харна.
   // Role ачаалагдах хүртэл цэс харуулахгүй (админд ажилтны цэс, эсрэгээр анивчихаас сэргийлнэ).
   // Эрхийн жинхэнэ шалгалт API дээр хийгдэнэ.
   const isAdmin = userData?.role === 'admin';
+  const role = normalizeRole(userData?.role);
 
   const navItems = !userData ? [] : [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Удирдлага' },
     { href: '/dashboard/data', icon: Database, label: 'Өгөгдөл' },
     { href: '/dashboard/customers', icon: UserCheck, label: 'Харилцагч' },
     { href: '/dashboard/reservations', icon: CalendarCheck, label: 'Захиалга' },
-    { href: '/dashboard/workshop', icon: Wrench, label: 'Ажил', employeeVisible: true },
+    { href: '/dashboard/workshop', icon: Wrench, label: 'Ажил' },
     { href: '/dashboard/analytics', icon: BarChart3, label: 'Аналитик' },
-  ].filter((item) => isAdmin || item.employeeVisible);
+  ].filter((item) => canAccessPath(role, item.href));
 
   // Тохиргооны доошоо унадаг дэд цэсүүд (зөвхөн админд)
   const settingsSubItems = !isAdmin ? [] : [
