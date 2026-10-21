@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSession, normalizeRole, requireAuth } from '@/src/lib/session';
+import { userLimitError } from '@/src/lib/limits';
+import { normalizeRole, requireAuth } from '@/src/lib/session';
 import { logAudit } from '@/src/lib/audit';
 import { validatePassword } from '@/src/lib/password';
 import { pool } from '../../../lib/db';
@@ -9,7 +10,9 @@ import { randomUUID } from 'crypto';
 // 1. GET метод: Компанийн бүх хэрэглэгчдийг авах
 export async function GET() {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const userId = session?.userId;
     const companyId = session?.companyId;
 
@@ -61,6 +64,9 @@ export async function POST(request: Request) {
     const { session, error: authError } = await requireAuth({ admin: true });
     if (authError) return authError;
     const companyId = session.companyId;
+
+    const limitError = await userLimitError(companyId, session.subscription);
+    if (limitError) return NextResponse.json({ success: false, error: limitError, code: 'plan_limit' }, { status: 403 });
 
     const body = await request.json();
     const { first_name, last_name, password, phone, address, male } = body;

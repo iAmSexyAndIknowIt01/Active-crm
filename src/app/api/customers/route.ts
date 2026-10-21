@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { customerLimitError } from '@/src/lib/limits';
 import { MANAGER_ROLES } from '@/src/lib/roles';
 import { pool } from '@/src/lib/db';
 import { requireAuth } from '@/src/lib/session';
@@ -78,6 +79,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Хүсэлтийн формат буруу байна.' }, { status: 400 });
     }
     const allowDuplicate = body.allow_duplicate === true;
+
+    const limitError = await customerLimitError(companyId, session.subscription);
+    if (limitError) return NextResponse.json({ success: false, error: limitError, code: 'plan_limit' }, { status: 403 });
 
     if (body.customer_type === 'individual') {
       const input = validateIndividualInput(body);

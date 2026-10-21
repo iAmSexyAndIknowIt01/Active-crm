@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/src/lib/session';
+import { requireAuth } from '@/src/lib/session';
 import { logAudit } from '@/src/lib/audit';
 import { pool } from '@/src/lib/db';
 import {
@@ -14,7 +14,9 @@ import {
 // GET: Тухайн компанийн ажлуудын жагсаалт болон холбогдох сонголтын датаг татах
 export async function GET(request: Request) {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const companyId = session?.companyId;
 
     if (!companyId) {
@@ -95,7 +97,9 @@ export async function GET(request: Request) {
 // POST: Шинэ ажил бүртгэх
 export async function POST(request: Request) {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const companyId = session?.companyId;
 
     if (!companyId) {

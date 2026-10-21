@@ -32,6 +32,8 @@ const PATHS: Record<Exclude<Role, 'admin'>, string[]> = {
 
 export function canAccessPath(role: Role, pathname: string) {
   if (role === 'admin') return true;
+  // Платформын админы хуудсууд: эрхийг API нь PLATFORM_ADMIN_EMAILS-ээр шалгана
+  if (pathname === '/dashboard/platform' || pathname.startsWith('/dashboard/platform/')) return true;
   if (role === 'manager' && pathname === '/dashboard') return true;
   return PATHS[role].some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }

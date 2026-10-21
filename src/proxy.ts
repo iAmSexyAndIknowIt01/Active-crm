@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { decrypt, loadSession, SESSION_COOKIE } from '@/src/lib/session';
 import { canAccessPath, homePathFor } from '@/src/lib/roles';
+import { EXPIRED_ALLOWED_PATHS } from '@/src/lib/plans';
 
 // Урьдчилсан шалгалт: session хүчингүй (гарсан, хугацаа дууссан, нууц үг солигдсон) эсвэл
 // хэрэглэгч идэвхгүй бол dashboard-ыг нээлгүй login руу шилжүүлнэ.
@@ -20,6 +21,11 @@ export async function proxy(request: NextRequest) {
       const response = NextResponse.redirect(new URL('/login', request.url));
       response.cookies.delete(SESSION_COOKIE);
       return response;
+    }
+    // Багцын хугацаа дууссан бол зөвхөн төлбөр, профайл хуудас нээгдэнэ
+    const path = request.nextUrl.pathname;
+    if (loaded.subscription.status === 'expired' && !EXPIRED_ALLOWED_PATHS.some((p) => path === p || path.startsWith(`${p}/`))) {
+      return NextResponse.redirect(new URL('/dashboard/billing', request.url));
     }
     // Эрхэд нээлттэй бус хуудсыг (lib/roles.ts) тухайн эрхийн нүүр хуудас руу шилжүүлнэ
     if (!canAccessPath(loaded.role, request.nextUrl.pathname)) {

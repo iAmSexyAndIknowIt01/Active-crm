@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getSession, requireAuth } from '@/src/lib/session';
+import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
 
 // GET: Тухайн компанийн үйлчилгээний жагсаалтыг татах
 export async function GET() {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const companyId = session?.companyId;
 
     if (!companyId) {

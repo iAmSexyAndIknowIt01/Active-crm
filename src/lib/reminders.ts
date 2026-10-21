@@ -1,4 +1,5 @@
 import 'server-only';
+import { computeSubscription, type SubscriptionRow } from './plans';
 import { pool } from './db';
 import { sendEmail } from './email';
 import { isSmsConfigured, sendSms } from './sms';
@@ -30,7 +31,7 @@ export interface ReminderRunStats {
   skipped: number;
 }
 
-interface CompanyRow extends ReminderSettings {
+interface CompanyRow extends ReminderSettings, SubscriptionRow {
   company_id: string;
   company_name: string;
   phone_number: string | null;
@@ -94,7 +95,8 @@ export async function runReminders(options: { companyId?: string } = {}): Promis
   const { rows: companies } = await pool.query<CompanyRow>(
     `
       SELECT s.company_id, s.reservation_enabled, s.reservation_template, s.followup_enabled,
-             s.followup_days, s.followup_template, c.company_name, c.phone_number
+             s.followup_days, s.followup_template, c.company_name, c.phone_number,
+             c.plan, c.trial_ends_at, c.paid_until
       FROM mt_reminder_settings s
       JOIN mt_company c ON c.company_id = s.company_id
       WHERE (s.reservation_enabled OR s.followup_enabled)
@@ -105,6 +107,8 @@ export async function runReminders(options: { companyId?: string } = {}): Promis
 
   const stats: ReminderRunStats = { sent: 0, failed: 0, skipped: 0 };
   for (const company of companies) {
+    // Багцын хугацаа дууссан компанид сануулга илгээхгүй
+    if (computeSubscription(company).status === 'expired') continue;
     const candidates = [
       ...(company.reservation_enabled ? await reservationCandidates(company) : []),
       ...(company.followup_enabled ? await followupCandidates(company) : []),
@@ -211,7 +215,8 @@ async function followupCandidates(company: CompanyRow): Promise<Candidate[]> {
 // Илгээхээс өмнө лог мөр нөөцөлдөг тул зэрэг ажилласан хоёр процесс давхар илгээхгүй.
 async function deliver(company: CompanyRow, candidate: Candidate): Promise<keyof ReminderRunStats | null> {
   const phone = normalizePhone(candidate.phone);
-  const useSms = isSmsConfigured() && phone.length === 8;
+  // SMS нь багцад (Pro, туршилт) багтсан үед л; Стандарт багц имэйлээр илгээнэ
+  const useSms = isSmsConfigured() && computeSubscription(company).limits.sms && phone.length === 8;
   const channel = useSms ? 'sms' : candidate.email ? 'email' : null;
   const recipient = useSms ? phone : candidate.email;
 

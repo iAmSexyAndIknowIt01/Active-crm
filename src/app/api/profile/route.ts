@@ -64,7 +64,7 @@ export async function GET() {
 // Солигдсоны дараа бусад төхөөрөмж дээрх session-уудыг хүчингүй болгоно.
 export async function PUT(request: Request) {
   try {
-    const { session, error: authError } = await requireAuth();
+    const { session, error: authError } = await requireAuth({ allowExpired: true });
     if (authError) return authError;
     const { userId, sessionId } = session;
 

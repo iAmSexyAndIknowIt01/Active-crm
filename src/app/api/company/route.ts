@@ -5,7 +5,7 @@ import { pool } from '@/src/lib/db';
 // GET: Компанийн мэдээлэл (бүх ажилтан харна)
 export async function GET() {
   try {
-    const { session, error: authError } = await requireAuth();
+    const { session, error: authError } = await requireAuth({ allowExpired: true });
     if (authError) return authError;
 
     const { rows } = await pool.query(

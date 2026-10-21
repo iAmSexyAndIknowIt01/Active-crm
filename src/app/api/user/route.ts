@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/src/lib/session';
+import { isPlatformAdmin } from '@/src/lib/platform';
 import { pool } from '@/src/lib/db'; // Төслийн файлын бүтцээс хамаарч замыг шалгана уу
 
 export async function GET() {
@@ -33,7 +34,13 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       // role нь зөвхөн цэс харуулах/нуухад; эрхийн жинхэнэ шалгалт API бүр дээр хийгдэнэ
-      data: { ...result.rows[0], role: session!.role },
+      // subscription нь багцын анхааруулга, is_platform_admin нь "Платформ" цэсийг харуулахад
+      data: {
+        ...result.rows[0],
+        role: session!.role,
+        subscription: session!.subscription,
+        is_platform_admin: isPlatformAdmin(session!.email),
+      },
     });
   } catch (error) {
     console.error('User Fetch Error:', error);

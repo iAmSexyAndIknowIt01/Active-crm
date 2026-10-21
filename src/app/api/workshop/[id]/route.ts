@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isManager } from '@/src/lib/roles';
-import { getSession } from '@/src/lib/session';
+import { requireAuth } from '@/src/lib/session';
 import { diffFields, logAudit } from '@/src/lib/audit';
 import { pool } from '@/src/lib/db';
 import {
@@ -18,7 +18,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const companyId = session?.companyId;
 
     if (!companyId) {
@@ -84,7 +86,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getSession();
+    const { session: authSession, error: authError } = await requireAuth();
+    if (authError) return authError;
+    const session = authSession;
     const companyId = session?.companyId;
 
     if (!companyId) {

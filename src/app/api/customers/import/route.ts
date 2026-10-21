@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { customerLimitError } from '@/src/lib/limits';
 import type { PoolClient } from 'pg';
 import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
@@ -61,6 +62,10 @@ export async function POST(request: Request) {
       if ('error' in result) errors.push({ line, error: result.error });
       else valid.push({ line, row: result.row as unknown as Record<string, unknown> });
     });
+
+    // Багцын харилцагчийн хязгаар: давхардсан (нөхөх) мөрүүд ч тоологдох тул хамгийн их тоогоор шалгана
+    const limitError = await customerLimitError(companyId, session.subscription, valid.length);
+    if (limitError) return NextResponse.json({ success: false, error: limitError, code: 'plan_limit' }, { status: 403 });
 
     let created = 0;
     let merged = 0;

@@ -6,7 +6,7 @@ import { ArrowRight, Menu, X } from 'lucide-react';
 import ThemeToggle from '@/src/components/ThemeToggle'; // ThemeToggle байрлах замыг шалгана уу
 import BrandLogo from '@/src/components/BrandLogo';
 
-export default function Header() {
+export default function Header({ showTestimonial = false }: { showTestimonial?: boolean }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLinkClick = () => {
@@ -28,7 +28,9 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600 dark:text-slate-300">
           <a href="#problem" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Давуу тал</a>
           <a href="#features" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Боломжууд</a>
-          <a href="#testimonials" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Сэтгэгдэл</a>
+          {showTestimonial && (
+            <a href="#testimonials" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Сэтгэгдэл</a>
+          )}
         </nav>
 
         {/* Desktop Action Buttons & Theme Toggle */}
@@ -80,13 +82,15 @@ export default function Header() {
             >
               Боломжууд
             </a>
-            <a 
-              href="#testimonials" 
-              onClick={handleLinkClick}
-              className="hover:text-red-600 dark:hover:text-red-400 transition-colors py-1"
-            >
-              Сэтгэгдэл
-            </a>
+            {showTestimonial && (
+              <a
+                href="#testimonials"
+                onClick={handleLinkClick}
+                className="hover:text-red-600 dark:hover:text-red-400 transition-colors py-1"
+              >
+                Сэтгэгдэл
+              </a>
+            )}
           </nav>
 
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2.5">
