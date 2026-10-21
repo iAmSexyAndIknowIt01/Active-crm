@@ -59,7 +59,8 @@ export async function POST(request: Request) {
     try {
       await client.query('BEGIN');
       await client.query(
-        'UPDATE mt_user SET password_hash = $1, update_date = CURRENT_TIMESTAMP WHERE user_id = $2',
+        // Имэйлээр ирсэн кодоор сэргээсэн нь имэйлийг эзэмшдэгийг нотолдог тул баталгаажсанд тооцно
+        'UPDATE mt_user SET password_hash = $1, email_verified_at = COALESCE(email_verified_at, now()), update_date = CURRENT_TIMESTAMP WHERE user_id = $2',
         [passwordHash, reset.user_id]
       );
       await client.query('DELETE FROM mt_password_reset WHERE user_id = $1', [reset.user_id]);

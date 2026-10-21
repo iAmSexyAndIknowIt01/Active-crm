@@ -84,8 +84,8 @@ export async function POST(request: Request) {
     const newUserId = randomUUID();
 
     const insertQuery = `
-      INSERT INTO mt_user (user_id, company_id, email, password_hash, first_name, last_name, male, phone, address, role)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      INSERT INTO mt_user (user_id, company_id, email, password_hash, first_name, last_name, male, phone, address, role, email_verified_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now()) -- админ нэмсэн тул баталгаажсанд тооцно
       RETURNING 
         user_id AS id, 
         company_id, 

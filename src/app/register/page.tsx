@@ -2,14 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowRight, Lock, Mail, User, Building2, Loader2, CheckCircle2 } from 'lucide-react';
 import LoadingComponent from '@/src/app/components/loading';
 import PasswordInput from '@/src/components/PasswordInput';
 import BrandLogo from '@/src/components/BrandLogo';
 
 export default function RegisterPage() {
-  const router = useRouter();
   
   const [formData, setFormData] = useState({
     companyName: '',
@@ -51,11 +49,8 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Бүртгүүлэхэд алдаа гарлаа.');
       }
 
+      // Имэйлээр ирсэн холбоосоор баталгаажуулсны дараа л нэвтэрнэ
       setSuccess(true);
-      
-      setTimeout(() => {
-        router.push('/login');
-      }, 3500);
 
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Сүлжээний алдаа гарлаа.';
@@ -117,7 +112,7 @@ export default function RegisterPage() {
         )}
         {success && (
           <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300 p-3 rounded-xl text-xs sm:text-sm mb-4 font-bold flex items-center justify-center gap-2 animate-in fade-in">
-            <CheckCircle2 size={18} className="shrink-0" /> Бүртгэлийн хүсэлтийг хүлээн авлаа. Имэйлээ шалгана уу. Нэвтрэх хуудас руу шилжиж байна...
+            <CheckCircle2 size={18} className="shrink-0" /> Бүртгэлийн хүсэлтийг хүлээн авлаа. Имэйл рүү тань илгээсэн холбоосоор орж бүртгэлээ баталгаажуулаад нэвтэрнэ үү.
           </div>
         )}
 
