@@ -114,24 +114,7 @@ const SORT_LABELS: Record<string, string> = {
 // Хэрэглэгчийн орон нутгийн цагаар YYYY-MM-DD
 const toISODate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const workDate = (value: string | null | undefined) => (value ? toISODate(new Date(value)) : '');
 const formatDate = (iso: string) => iso.replaceAll('-', '.');
-
-function currentRanges() {
-  const now = new Date();
-  const mondayOffset = (now.getDay() + 6) % 7;
-  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset);
-  const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
-  return {
-    today: toISODate(now),
-    weekStart: toISODate(monday),
-    weekEnd: toISODate(sunday),
-    monthStart: toISODate(new Date(now.getFullYear(), now.getMonth(), 1)),
-    monthEnd: toISODate(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
-  };
-}
-
-const isOpenWork = (w: WorkItem) => w.status !== 'completed' && w.status !== 'cancelled';
 
 const filterSelectClass =
   'w-full text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none cursor-pointer focus:border-red-500 transition-all';
@@ -146,6 +129,8 @@ function WorkshopContent() {
   const searchParams = useSearchParams();
 
   const [works, setWorks] = useState<WorkItem[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [overdueCount, setOverdueCount] = useState(0);
   const [options, setOptions] = useState<WorkOptionData>({ individuals: [], companies: [], services: [], employees: [] });
   const [loading, setLoading] = useState(true);
 
@@ -189,32 +174,54 @@ function WorkshopContent() {
 
   const [formData, setFormData] = useState<WorkFormData>(emptyWorkForm);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/workshop');
-      const result = await res.json();
-      if (result.success) {
-        setWorks(result.data);
-      }
+  // Шүүлтүүрийн сонголтууд (харилцагч, үйлчилгээ, ажилтан) — нэг удаа татна
+  useEffect(() => {
+    fetch('/api/workshop?action=options')
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success) setOptions(result.data);
+      })
+      .catch((err) => console.error('Failed to fetch workshop options:', err));
+  }, []);
 
-      const optRes = await fetch('/api/workshop?action=options');
-      const optResult = await optRes.json();
-      if (optResult.success) {
-        setOptions(optResult.data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch workshop data:', err);
-    } finally {
-      setLoading(false);
+  // Хайлтын үгийг бичиж дуусахыг 300мс хүлээнэ
+  const [debouncedQ, setDebouncedQ] = useState(filters.q);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQ(filters.q.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [filters.q]);
+
+  // Ажлын жагсаалтыг сервер дээр шүүж, хуудаслаж татна (зөвхөн тухайн хуудасны мөрүүд)
+  const [reloadKey, setReloadKey] = useState(0);
+  const fetchData = () => setReloadKey((k) => k + 1);
+  const serverQuery = useMemo(() => {
+    const params = new URLSearchParams({ page: String(currentPage), pageSize: String(itemsPerPage) });
+    for (const key of FILTER_KEYS) {
+      const value = key === 'q' ? debouncedQ : filters[key];
+      if (value !== DEFAULT_FILTERS[key] && value !== '') params.set(key, value);
     }
-  };
+    return params.toString();
+  }, [filters, debouncedQ, currentPage]);
 
   useEffect(() => {
-    // Mount үед өгөгдөл татна (fetch эхлэхэд loading төлөвийг шинэчилдэг)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchData();
-  }, []);
+    const controller = new AbortController();
+    fetch(`/api/workshop?${serverQuery}`, { signal: controller.signal })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success) {
+          setWorks(result.data);
+          setTotalCount(result.total);
+          setOverdueCount(result.overdueCount);
+        }
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') console.error('Failed to fetch workshop data:', err);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [serverQuery, reloadKey]);
 
   // Шүүлтүүр болон хуудасны төлөвийг URL-тай синк хийх (зөвхөн анхдагчаас өөр утгуудыг)
   useEffect(() => {
@@ -305,90 +312,6 @@ function WorkshopContent() {
     [options.individuals, options.companies]
   );
 
-  // ---- Шүүх, эрэмбэлэх ----
-  const ranges = currentRanges();
-  const overdueCount = works.filter((w) => {
-    const due = workDate(w.due_date);
-    return !!due && due < ranges.today && isOpenWork(w);
-  }).length;
-
-  const filteredWorks = useMemo(() => {
-    const { today, weekStart, weekEnd, monthStart, monthEnd } = currentRanges();
-    const words = filters.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    const priceMin = filters.priceMin === '' ? null : Number(filters.priceMin);
-    const priceMax = filters.priceMax === '' ? null : Number(filters.priceMax);
-
-    const result = works.filter((w) => {
-      if (words.length > 0) {
-        // Гарчиг, тайлбар, харилцагч, ажилтан, үйлчилгээний нэрээр — бүх үг тааралдах ёстой
-        const haystack = [w.title, w.description, w.customer_name, w.employee_name, ...(w.services ?? []).map((s) => s.service_name)]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase();
-        if (!words.every((word) => haystack.includes(word))) return false;
-      }
-      if (filters.status !== 'all' && w.status !== filters.status) return false;
-      if (filters.priority !== 'all' && w.priority !== filters.priority) return false;
-      if (filters.customerType !== 'all' && w.customer_type !== filters.customerType) return false;
-      if (filters.employee === 'none' ? !!w.assigned_employee : filters.employee !== 'all' && w.assigned_employee !== filters.employee) {
-        return false;
-      }
-      if (filters.service && !(w.services ?? []).some((s) => String(s.service_id) === filters.service)) return false;
-      if (filters.customer) {
-        const key = w.customer_type === 'company' ? `c:${w.company_customer_id}` : `i:${w.customer_id}`;
-        if (key !== filters.customer) return false;
-      }
-
-      const due = workDate(w.due_date);
-      switch (filters.due) {
-        case 'overdue':
-          if (!due || due >= today || !isOpenWork(w)) return false;
-          break;
-        case 'today':
-          if (due !== today) return false;
-          break;
-        case 'week':
-          if (!due || due < weekStart || due > weekEnd) return false;
-          break;
-        case 'month':
-          if (!due || due < monthStart || due > monthEnd) return false;
-          break;
-        case 'none':
-          if (due) return false;
-          break;
-        case 'custom':
-          if ((filters.dueFrom || filters.dueTo) && !due) return false;
-          if (filters.dueFrom && due < filters.dueFrom) return false;
-          if (filters.dueTo && due > filters.dueTo) return false;
-          break;
-      }
-
-      const created = workDate(w.create_date);
-      if (filters.createdFrom && created < filters.createdFrom) return false;
-      if (filters.createdTo && created > filters.createdTo) return false;
-
-      const price = Number(w.price) || 0;
-      if (priceMin !== null && price < priceMin) return false;
-      if (priceMax !== null && price > priceMax) return false;
-      return true;
-    });
-
-    const byCreated = (a: WorkItem, b: WorkItem) => (a.create_date < b.create_date ? -1 : a.create_date > b.create_date ? 1 : 0);
-    switch (filters.sort) {
-      case 'oldest':
-        return result.sort(byCreated);
-      case 'due':
-        // Хугацаагүй ажлууд хамгийн сүүлд
-        return result.sort((a, b) => (workDate(a.due_date) || '9999').localeCompare(workDate(b.due_date) || '9999'));
-      case 'price_desc':
-        return result.sort((a, b) => Number(b.price) - Number(a.price));
-      case 'price_asc':
-        return result.sort((a, b) => Number(a.price) - Number(b.price));
-      default:
-        return result.sort((a, b) => byCreated(b, a));
-    }
-  }, [works, filters]);
-
   // ---- Идэвхтэй шүүлтүүрийн шошгууд ----
   const optionLabel = (list: { value: string; label: string }[], value: string) =>
     list.find((o) => o.value === value)?.label ?? value;
@@ -445,10 +368,10 @@ function WorkshopContent() {
   const hasActiveFilters = activeChips.length > 0;
   const advancedCount = activeChips.filter((c) => ['service', 'customer', 'due', 'created', 'price'].includes(c.key)).length;
 
-  const totalPages = Math.ceil(filteredWorks.length / itemsPerPage);
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentWorks = filteredWorks.slice(indexOfFirstItem, indexOfLastItem);
+  const currentWorks = works;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -511,7 +434,7 @@ function WorkshopContent() {
 
           <div className="flex items-center justify-between lg:justify-end gap-2 flex-wrap">
             <span className="text-xs font-bold text-slate-400">
-              Үр дүн: <span className="text-slate-800 dark:text-slate-200">{filteredWorks.length}</span>{' '}
+              Үр дүн: <span className="text-slate-800 dark:text-slate-200">{totalCount}</span>{' '}
               <InfoTip size={12} text="Хайлт болон сонгосон шүүлтүүрүүдэд таарсан ажлын тоо." />
             </span>
             <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
@@ -732,7 +655,7 @@ function WorkshopContent() {
                 <input
                   type="date"
                   value={filters.createdFrom}
-                  max={ranges.today}
+                  max={toISODate(new Date())}
                   onChange={(e) => setFilter('createdFrom', e.target.value)}
                   className={filterInputClass}
                   aria-label="Бүртгэсэн огноо — эхлэх"
@@ -776,7 +699,7 @@ function WorkshopContent() {
 
       {loading ? (
         <Loading />
-      ) : filteredWorks.length === 0 ? (
+      ) : totalCount === 0 ? (
         <div className="bg-white dark:bg-slate-900 p-12 rounded-3xl border border-slate-100 dark:border-slate-800 text-center space-y-3 shadow-2xs">
           <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 text-slate-300 dark:text-slate-600 rounded-2xl flex items-center justify-center mx-auto">
             <Wrench size={24} />
@@ -919,7 +842,7 @@ function WorkshopContent() {
       {!loading && totalPages > 1 && (
         <div className="flex items-center justify-between bg-white dark:bg-slate-900 px-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-2xs">
           <div className="text-xs font-medium text-slate-400">
-            Шүүлтүүрт таарсан <span className="font-bold text-slate-700 dark:text-slate-200">{filteredWorks.length}</span> ажлаас <span className="font-bold text-slate-700 dark:text-slate-200">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredWorks.length)}</span> хүртэл харуулж байна
+            Шүүлтүүрт таарсан <span className="font-bold text-slate-700 dark:text-slate-200">{totalCount}</span> ажлаас <span className="font-bold text-slate-700 dark:text-slate-200">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalCount)}</span> хүртэл харуулж байна
           </div>
           
           <div className="flex items-center gap-1.5">
