@@ -6,6 +6,7 @@ import {
   Building2, User, Plus, Search, Mail, Phone, MapPin,
   X, CheckCircle2, LayoutList, LayoutGrid, ChevronLeft, ChevronRight
 } from 'lucide-react';
+import { scrollToTop } from '@/src/components/ScrollToTop';
 import Loading from '@/src/app/components/loading';
 import InfoTip from '@/src/app/components/InfoTip';
 import { BIRTH_DATE_MIN, GENDERS, calcAge, isGender, todayIsoDate, type Gender } from '@/src/lib/customer-fields';
@@ -416,7 +417,7 @@ function CustomersContent() {
           <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+              onClick={() => { setCurrentPage(Math.max(currentPage - 1, 1)); scrollToTop(); }}
               disabled={currentPage === 1}
               className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
@@ -431,7 +432,7 @@ function CustomersContent() {
 
             <button
               type="button"
-              onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
+              onClick={() => { setCurrentPage(Math.min(currentPage + 1, totalPages)); scrollToTop(); }}
               disabled={currentPage === totalPages}
               className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
             >

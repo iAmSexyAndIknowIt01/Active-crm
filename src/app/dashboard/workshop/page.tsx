@@ -7,6 +7,7 @@ import {
   X, LayoutList, LayoutGrid, User, Briefcase, ShieldAlert, RotateCcw, ChevronLeft, ChevronRight,
   SlidersHorizontal, ChevronDown, ArrowRight, Lock
 } from 'lucide-react';
+import { scrollToTop } from '@/src/components/ScrollToTop';
 import Loading from '@/src/app/components/loading';
 import SearchSelect from '@/src/app/components/SearchSelect';
 import InfoTip from '@/src/app/components/InfoTip';
@@ -239,6 +240,7 @@ function WorkshopContent() {
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
+    scrollToTop();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
