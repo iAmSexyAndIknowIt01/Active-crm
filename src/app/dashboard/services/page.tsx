@@ -7,6 +7,7 @@ import {
   Briefcase, Plus, Search, DollarSign, Clock,
   X, CheckCircle2, XCircle, LayoutList, LayoutGrid, Tag, ChevronLeft, ChevronRight
 } from 'lucide-react';
+import { scrollToTop } from '@/src/components/ScrollToTop';
 import Loading from '@/src/app/components/loading';
 import InfoTip from '@/src/app/components/InfoTip';
 
@@ -301,7 +302,7 @@ function ServicesContent() {
           <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={() => setCurrentPage(Math.max(page - 1, 1))}
+              onClick={() => { setCurrentPage(Math.max(page - 1, 1)); scrollToTop(); }}
               disabled={page === 1}
               className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
@@ -316,7 +317,7 @@ function ServicesContent() {
 
             <button
               type="button"
-              onClick={() => setCurrentPage(Math.min(page + 1, totalPages))}
+              onClick={() => { setCurrentPage(Math.min(page + 1, totalPages)); scrollToTop(); }}
               disabled={page === totalPages}
               className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
             >

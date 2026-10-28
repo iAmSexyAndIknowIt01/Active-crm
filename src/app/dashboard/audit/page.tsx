@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { History, ChevronLeft, ChevronRight } from 'lucide-react';
+import { scrollToTop } from '@/src/components/ScrollToTop';
 import LoadingComponent from '@/src/app/components/loading';
 
 interface AuditRow {
@@ -210,7 +211,10 @@ export default function AuditPage() {
         <div className="flex items-center justify-center gap-3">
           <button
             type="button"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => {
+              setPage((p) => Math.max(1, p - 1));
+              scrollToTop();
+            }}
             disabled={page === 1}
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 disabled:opacity-40 cursor-pointer"
             aria-label="Өмнөх хуудас"
@@ -222,7 +226,10 @@ export default function AuditPage() {
           </span>
           <button
             type="button"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            onClick={() => {
+              setPage((p) => Math.min(totalPages, p + 1));
+              scrollToTop();
+            }}
             disabled={page === totalPages}
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 disabled:opacity-40 cursor-pointer"
             aria-label="Дараагийн хуудас"

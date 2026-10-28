@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Footer from "@/src/components/landingPage/Footer";
 import { ThemeProvider } from "@/src/components/ThemeProvider";
 import ValidationMessages from "@/src/components/ValidationMessages";
+import ScrollToTop from "@/src/components/ScrollToTop";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,6 +40,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           {/* Бүх хуудсанд харагдах Footer */}
           <Footer />
+
+          {/* Урт хуудсанд доош гүйлгэсэн үед гарч ирэх "Дээш буцах" товч */}
+          <ScrollToTop />
         </ThemeProvider>
       </body>
     </html>
