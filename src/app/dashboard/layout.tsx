@@ -206,7 +206,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
 
               {settingsDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50">
+                <div className="animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-150 origin-top-left absolute left-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50">
                   {settingsSubItems.map((sub) => (
                     <Link
                       key={sub.href}
@@ -253,7 +253,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50">
+              <div className="animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-150 origin-top-right absolute right-0 mt-2 w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50">
                 <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 space-y-0.5">
                   <p className="text-xs text-slate-400 font-medium">Нэвтэрсэн хэрэглэгч</p>
                   <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
@@ -297,7 +297,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="xl:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 space-y-1 shadow-xl z-50 max-h-[80vh] overflow-y-auto">
+          <div className="animate-in fade-in slide-in-from-top-2 duration-200 xl:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 space-y-1 shadow-xl z-50 max-h-[80vh] overflow-y-auto">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -330,7 +330,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
 
               {mobileSettingsOpen && (
-                <div className="pl-6 py-1 space-y-1 border-l-2 border-slate-100 dark:border-slate-800 ml-4 my-1">
+                <div className="animate-in fade-in slide-in-from-top-2 pl-6 py-1 space-y-1 border-l-2 border-slate-100 dark:border-slate-800 ml-4 my-1">
                   {settingsSubItems.map((sub) => (
                     <Link
                       key={sub.href}

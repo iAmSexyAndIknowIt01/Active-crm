@@ -46,7 +46,7 @@ export default function CommonModal({
   // createPortal ашиглан body дээр шууд байрлуулж, fixed inset-0 ашиглан дэлгэцийг 100% бүрхэнэ
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-md px-4 animate-in fade-in duration-200 transition-colors">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl dark:shadow-none border border-slate-100 dark:border-slate-800 text-center space-y-4 relative animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl dark:shadow-none border border-slate-100 dark:border-slate-800 text-center space-y-4 relative animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
         
         {/* Хаах товч */}
         <button
