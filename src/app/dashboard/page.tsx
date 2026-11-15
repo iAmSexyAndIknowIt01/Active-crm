@@ -10,6 +10,7 @@ import LoadingComponent from '@/src/app/components/loading';
 import InfoTip from '@/src/app/components/InfoTip';
 import Tooltip from '@/src/app/components/Tooltip';
 import Link from 'next/link';
+import AnimatedNumber from '@/src/components/AnimatedNumber';
 
 interface Comparison {
   current: number;
@@ -158,10 +159,10 @@ function WeekChart({ data }: { data: DashboardOverview['lastWeek'] }) {
                 className="relative flex-1 h-full flex items-end justify-center outline-none"
               >
                 <div
-                  className={`w-full max-w-6 rounded-t ${BAR_FILL} transition-opacity ${
+                  className={`animate-bar w-full max-w-6 rounded-t ${BAR_FILL} transition-opacity ${
                     active !== null && active !== i ? 'opacity-40' : ''
                   }`}
-                  style={{ height: `${height}%` }}
+                  style={{ height: `${height}%`, animationDelay: `${i * 40}ms` }}
                 />
                 {active === i && (
                   <div
@@ -347,7 +348,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1.5">Идэвхтэй ажил <InfoTip text="Одоо “Хүлээгдэж буй” болон “Хийгдэж байна” төлөвтэй бүх ажлын нийлбэр. Дууссан, цуцлагдсан ажил орохгүй." /></h3>
-            <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">{activeTotal}</p>
+            <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight"><AnimatedNumber value={activeTotal} /></p>
           </div>
           <div className="pt-3 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
             <span>Хүлээгдэж буй {stats.activeWorks.pending}</span>
@@ -364,7 +365,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1.5">Энэ сарын орлого <InfoTip text="Энэ сарын 1-нээс хойш “Дууссан” төлөвт орсон ажлуудын үнийн нийлбэр (хэзээ бүртгэгдсэнээс үл хамаарна). Хүлээгдэж буй, хийгдэж буй, цуцлагдсан ажлын үнэ орохгүй." /></h3>
-            <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">{formatMoney(stats.revenue.current)}</p>
+            <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight"><AnimatedNumber value={stats.revenue.current} format={formatMoney} /></p>
           </div>
           <div className="pt-3 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
             <span className="inline-flex items-center gap-1">Өмнөх сарын ижил хугацаанд <InfoTip size={12} text="Өмнөх сарын 1-нээс яг нэг сарын өмнөх өнөөдрийн мөч хүртэлх утга. Бүтэн сартай биш, ижил урттай хугацаатай харьцуулна." /></span>
@@ -381,7 +382,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1.5">Энэ сарын шинэ харилцагч <InfoTip text="Энэ сарын 1-нээс хойш бүртгэгдсэн хувь хүн болон байгууллага харилцагчийн нийт тоо." /></h3>
-            <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">{stats.newCustomers.current}</p>
+            <p className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight"><AnimatedNumber value={stats.newCustomers.current} /></p>
           </div>
           <div className="pt-3 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
             <span className="inline-flex items-center gap-1">Өмнөх сарын ижил хугацаанд <InfoTip size={12} text="Өмнөх сарын 1-нээс яг нэг сарын өмнөх өнөөдрийн мөч хүртэлх утга. Бүтэн сартай биш, ижил урттай хугацаатай харьцуулна." /></span>
