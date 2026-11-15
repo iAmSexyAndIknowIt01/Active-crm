@@ -7,6 +7,7 @@ describe.skipIf(!TEST_DATABASE_URL)('subscription, limits and billing API', () =
   let employees: typeof import('@/src/app/api/employees/route');
   let billing: typeof import('@/src/app/api/billing/route');
   let payments: typeof import('@/src/app/api/billing/payments/route');
+  let report: typeof import('@/src/app/api/billing/payments/[id]/report/route');
   let confirm: typeof import('@/src/app/api/platform/payments/[id]/route');
 
   beforeAll(async () => {
@@ -15,6 +16,7 @@ describe.skipIf(!TEST_DATABASE_URL)('subscription, limits and billing API', () =
     employees = await import('@/src/app/api/employees/route');
     billing = await import('@/src/app/api/billing/route');
     payments = await import('@/src/app/api/billing/payments/route');
+    report = await import('@/src/app/api/billing/payments/[id]/report/route');
     confirm = await import('@/src/app/api/platform/payments/[id]/route');
     process.env.PLATFORM_ADMIN_EMAILS = company.users.admin.email;
   });
@@ -52,22 +54,53 @@ describe.skipIf(!TEST_DATABASE_URL)('subscription, limits and billing API', () =
     expect(res.body.code).toBe('plan_limit');
   });
 
-  it('creates a bank payment and extends the plan when a platform admin confirms it', async () => {
-    await loginAs(company, 'manager');
-    expect((await call(payments.POST, { method: 'POST', body: { plan: 'pro', months: 1, method: 'bank' } })).status).toBe(403);
-
+  it('shows a demo bank account until a real one is configured', async () => {
+    await (await db()).query(`DELETE FROM mt_site_content WHERE key = 'bank'`);
     await loginAs(company, 'admin');
-    expect((await call(payments.POST, { method: 'POST', body: { plan: 'pro', months: 1, method: 'bank' } })).status).toBe(400); // данс тохируулаагүй
+    const demo = (await call(billing.GET)).body.data as { bank: { account_number: string; is_demo: boolean } };
+    expect(demo.bank).toMatchObject({ account_number: '0000 0000 0000', is_demo: true });
+
+    // Жишээ данстай үед ч төлбөр үүснэ
+    const created = await call(payments.POST, { method: 'POST', body: { plan: 'pro', months: 1, method: 'bank' } });
+    expect(created.status).toBe(200);
+
     await (await db()).query(
       `INSERT INTO mt_site_content (key, value) VALUES ('bank', '{"bank_name":"Хаан","account_number":"5000","account_holder":"ХХК"}')
        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`
     );
+    const real = (await call(billing.GET)).body.data as { bank: { account_number: string; is_demo: boolean } };
+    expect(real.bank).toMatchObject({ account_number: '5000', is_demo: false });
+  });
+
+  it('puts a reported bank payment under review and extends the plan only when a platform admin confirms it', async () => {
+    await loginAs(company, 'manager');
+    expect((await call(payments.POST, { method: 'POST', body: { plan: 'pro', months: 1, method: 'bank' } })).status).toBe(403);
+
+    await loginAs(company, 'admin');
     const created = await call(payments.POST, { method: 'POST', body: { plan: 'pro', months: 3, method: 'bank' } });
     expect(created.status).toBe(200);
     const payment = (created.body.data as { payment: { id: string; amount: string; reference: string } }).payment;
     expect(Number(payment.amount)).toBe(99000 * 3);
     expect(payment.reference).toMatch(/^ACRM-[A-Z0-9]{6}$/);
 
+    // "Төлбөр хийсэн": зөвхөн админ, төлөв review болно, багц сунгагдахгүй
+    await loginAs(company, 'manager');
+    expect((await call(report.POST, { method: 'POST', params: { id: payment.id } })).status).toBe(403);
+    await loginAs(company, 'admin');
+    const reported = await call(report.POST, { method: 'POST', params: { id: payment.id } });
+    expect(reported.status).toBe(200);
+    expect((reported.body.data as { status: string }).status).toBe('review');
+    expect((await call(report.POST, { method: 'POST', params: { id: payment.id } })).body.data).toMatchObject({ status: 'review' });
+
+    const pendingInfo = await call(billing.GET);
+    const pendingData = pendingInfo.body.data as {
+      subscription: { status: string };
+      payments: { id: string; status: string }[];
+    };
+    expect(pendingData.subscription.status).toBe('trial');
+    expect(pendingData.payments.find((p) => p.id === payment.id)?.status).toBe('review');
+
+    // Платформын админ баталгаажуулахад багц сунгагдана
     const res = await call(confirm.POST, { method: 'POST', body: { action: 'confirm' }, params: { id: payment.id } });
     expect(res.status).toBe(200);
     expect((await call(confirm.POST, { method: 'POST', body: { action: 'confirm' }, params: { id: payment.id } })).status).toBe(409);
@@ -76,6 +109,19 @@ describe.skipIf(!TEST_DATABASE_URL)('subscription, limits and billing API', () =
     const sub = (info.body.data as { subscription: { status: string; plan: string; daysLeft: number } }).subscription;
     expect(sub).toMatchObject({ status: 'active', plan: 'pro' });
     expect(sub.daysLeft).toBeGreaterThan(85);
+  });
+
+  it('lets a platform admin cancel a payment under review', async () => {
+    await loginAs(company, 'admin');
+    const created = await call(payments.POST, { method: 'POST', body: { plan: 'standard', months: 1, method: 'bank' } });
+    const { id } = (created.body.data as { payment: { id: string } }).payment;
+    expect((await call(report.POST, { method: 'POST', params: { id } })).status).toBe(200);
+
+    expect((await call(confirm.POST, { method: 'POST', body: { action: 'cancel' }, params: { id } })).status).toBe(200);
+    // Цуцлагдсан төлбөрийг дахин "Төлбөр хийсэн" гэж мэдэгдэх боломжгүй, багц сунгагдаагүй
+    expect((await call(report.POST, { method: 'POST', params: { id } })).status).toBe(409);
+    const sub = ((await call(billing.GET)).body.data as { subscription: { status: string } }).subscription;
+    expect(sub.status).toBe('trial');
   });
 
   it('rejects platform actions from non-platform admins', async () => {
