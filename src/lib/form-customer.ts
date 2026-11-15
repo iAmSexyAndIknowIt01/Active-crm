@@ -6,7 +6,7 @@ import type { PoolClient } from 'pg';
 
 // Утасны дугаарыг тулгахад зориулж зөвхөн цифр үлдээнэ. +976 улсын кодыг хасна.
 export function normalizePhone(phone: string | null | undefined): string {
-  const digits = (phone ?? '').replace(/D/g, '');
+  const digits = (phone ?? '').replace(/\D/g, '');
   return digits.length === 11 && digits.startsWith('976') ? digits.slice(3) : digits;
 }
 
