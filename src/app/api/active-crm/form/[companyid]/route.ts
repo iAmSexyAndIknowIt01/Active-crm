@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { customerLimitError, getCompanySubscription } from '../../../../../lib/limits';
 import { pool } from '../../../../../lib/db'; // Замын дагуу тохируулна уу
 import { checkRateLimits, getClientIp } from '../../../../../lib/rate-limit';
-import { extractCustomerFields, upsertCustomerFromForm } from '../../../../../lib/form-customer';
 import { checkFormToken, issueFormToken } from '../../../../../lib/form-token';
+import { MULTI_ANSWER_SEPARATOR, splitMultiAnswer } from '../../../../../lib/form-templates';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_ANSWER_LENGTH = 1000;
+const MAX_LONG_ANSWER_LENGTH = 2000; // "Урт хариулт" (textarea)
 
 interface TemplateQuestion {
   id: string | number;
@@ -14,7 +14,6 @@ interface TemplateQuestion {
   label: string;
   required?: boolean;
   options?: string[];
-  maps_to?: string | null;
 }
 
 // 1. Тухайн компанийн ID-аар идэвхтэй анкетын загварыг авах
@@ -75,18 +74,39 @@ function validateAnswers(questions: TemplateQuestion[], answers: unknown) {
 
   for (const question of questions) {
     const raw = input[String(question.id)];
-    const value = raw === undefined || raw === null ? '' : String(raw).trim();
+
+    // Олон сонголт: массив (эсвэл "; "-ээр нийлүүлсэн текст) — сонголт бүр загварт байх ёстой
+    if (question.type === 'multiselect') {
+      const picked = Array.isArray(raw)
+        ? raw.map((v) => String(v).trim()).filter(Boolean)
+        : typeof raw === 'string'
+          ? splitMultiAnswer(raw)
+          : [];
+      const unique = [...new Set(picked)];
+      if (question.required && unique.length === 0) {
+        return { error: `"${question.label}" асуултад дор хаяж нэгийг сонгоно уу.` };
+      }
+      const options = Array.isArray(question.options) ? question.options : [];
+      if (unique.some((v) => !options.includes(v))) {
+        return { error: `"${question.label}" талбарын сонголт буруу байна.` };
+      }
+      cleaned.push({ question, value: unique.join(MULTI_ANSWER_SEPARATOR) });
+      continue;
+    }
+
+    const value = raw === undefined || raw === null || Array.isArray(raw) ? '' : String(raw).trim();
+    const maxLength = question.type === 'textarea' ? MAX_LONG_ANSWER_LENGTH : MAX_ANSWER_LENGTH;
 
     if (question.required && !value) {
       return { error: `"${question.label}" талбарыг заавал бөглөнө үү.` };
     }
-    if (value.length > MAX_ANSWER_LENGTH) {
-      return { error: `"${question.label}" хариулт хэт урт байна (${MAX_ANSWER_LENGTH} тэмдэгтээс ихгүй).` };
+    if (value.length > maxLength) {
+      return { error: `"${question.label}" хариулт хэт урт байна (${maxLength} тэмдэгтээс ихгүй).` };
     }
     if (value && question.type === 'number' && !/^[+-]?\d+([.,]\d+)?$/.test(value.replace(/\s/g, ''))) {
       return { error: `"${question.label}" талбарт зөвхөн тоо оруулна уу.` };
     }
-    if (value && question.type === 'select' && Array.isArray(question.options) && !question.options.includes(value)) {
+    if (value && (question.type === 'select' || question.type === 'rating') && Array.isArray(question.options) && !question.options.includes(value)) {
       return { error: `"${question.label}" талбарын сонголт буруу байна.` };
     }
     cleaned.push({ question, value });
@@ -94,8 +114,8 @@ function validateAnswers(questions: TemplateQuestion[], answers: unknown) {
   return { cleaned };
 }
 
-// 2. Үйлчлүүлэгчийн оруулсан хариуг form_submissions болон form_submission_answers рүү хадгалж,
-//    утас/имэйлээр нь харилцагчийн бүртгэлтэй (mt_customer) холбоно (байхгүй бол шинээр үүсгэнэ)
+// 2. Үйлчлүүлэгчийн оруулсан хариуг form_submissions болон form_submission_answers рүү хадгална.
+//    Анкет зөвхөн асуулт хариулт: харилцагчийн бүртгэл (mt_customer) үүсгэхгүй, холбохгүй.
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ companyid: string }> }
@@ -152,20 +172,14 @@ export async function POST(
       return NextResponse.json({ success: false, error }, { status: 400 });
     }
 
-    // Багцын харилцагчийн хязгаар хүрсэн (эсвэл хугацаа дууссан) бол анкетыг хадгалж, шинэ харилцагч үүсгэхгүй
-    const canCreateCustomer = !(await customerLimitError(companyid, await getCompanySubscription(companyid)));
-
     // Transaction ашиглах тул client-ийг pool-оос дуудна
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
-      const answerMap = Object.fromEntries(cleaned!.map(({ question, value }) => [String(question.id), value]));
-      const customer = await upsertCustomerFromForm(client, companyid, extractCustomerFields(questions, answerMap), canCreateCustomer);
-
       const submissionResult = await client.query(
-        `INSERT INTO form_submissions (form_template_id, company_id, customer_id) VALUES ($1, $2, $3) RETURNING id`,
-        [templateId, companyid, customer?.customerId ?? null]
+        `INSERT INTO form_submissions (form_template_id, company_id) VALUES ($1, $2) RETURNING id`,
+        [templateId, companyid]
       );
       const submissionId = submissionResult.rows[0].id;
 

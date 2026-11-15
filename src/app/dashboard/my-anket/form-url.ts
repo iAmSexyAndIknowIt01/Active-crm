@@ -1,6 +1,5 @@
-// Анкетын нийтийн холбоос. Үндсэн анкет нь анкетын ID-гүй (өмнө хэвлэсэн QR кодтой ижил) холбоостой,
-// бусад анкет ?t=<анкетын id>-тай.
-export function anketFormUrl(origin: string, companyId: string, templateId: string, isDefault: boolean) {
-  const base = `${origin}/active-crm/form/${companyId}`;
-  return isDefault ? base : `${base}?t=${templateId}`;
+// Анкетын нийтийн холбоос. Анкет бүр өөрийн ID-тай (?t=) холбоостой тул яг тэр анкет нээгдэнэ.
+// (Анкетын ID-гүй хуучин холбоос, өмнө хэвлэсэн QR код серверт хадгалсан үндсэн анкетыг нээсээр байна.)
+export function anketFormUrl(origin: string, companyId: string, templateId: string) {
+  return `${origin}/active-crm/form/${companyId}?t=${templateId}`;
 }

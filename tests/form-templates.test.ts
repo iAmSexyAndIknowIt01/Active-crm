@@ -6,7 +6,6 @@ const question = (overrides: Record<string, unknown> = {}) => ({
   label: 'Утасны дугаар',
   type: 'text',
   required: true,
-  maps_to: 'phone',
   ...overrides,
 });
 
@@ -16,18 +15,18 @@ describe('parseTemplateInput', () => {
     expect(result).toEqual({ ok: true, value: DEFAULT_TEMPLATE });
   });
 
-  it('trims text, drops empty description and unknown customer fields', () => {
+  it('trims text, drops empty description and any stored customer mapping', () => {
     const result = parseTemplateInput({
       title: '  Анкет  ',
       description: '   ',
-      questions: [question({ id: 7, label: '  Нэр ', maps_to: 'password', type: 'weird', required: 'yes' })],
+      questions: [question({ id: 7, label: '  Нэр ', maps_to: 'phone', type: 'weird', required: 'yes' })],
     });
     expect(result).toEqual({
       ok: true,
       value: {
         title: 'Анкет',
         description: null,
-        questions: [{ id: '7', label: 'Нэр', type: 'text', required: false, maps_to: '' }],
+        questions: [{ id: '7', label: 'Нэр', type: 'text', required: false }],
       },
     });
   });
@@ -41,6 +40,24 @@ describe('parseTemplateInput', () => {
 
     const missing = parseTemplateInput({ title: 'A', questions: [question({ type: 'select', options: [] })] });
     expect(missing.ok).toBe(false);
+  });
+
+  it('accepts the long-answer, multi-select and rating types; option types need options', () => {
+    const ok = parseTemplateInput({
+      title: 'A',
+      questions: [
+        question({ id: '1', type: 'textarea' }),
+        question({ id: '2', type: 'multiselect', options: ['Касс, банк', 'Цалин'] }),
+        question({ id: '3', type: 'rating', options: ['1 - Муу', '2', '3 - Сайн', 'Хамаарахгүй'] }),
+      ],
+    });
+    expect(ok.ok && ok.value.questions.map((q) => [q.type, q.options])).toEqual([
+      ['textarea', undefined],
+      ['multiselect', ['Касс, банк', 'Цалин']],
+      ['rating', ['1 - Муу', '2', '3 - Сайн', 'Хамаарахгүй']],
+    ]);
+    expect(parseTemplateInput({ title: 'A', questions: [question({ type: 'multiselect' })] }).ok).toBe(false);
+    expect(parseTemplateInput({ title: 'A', questions: [question({ type: 'rating' })] }).ok).toBe(false);
   });
 
   it.each([

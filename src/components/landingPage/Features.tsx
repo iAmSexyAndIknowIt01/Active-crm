@@ -48,7 +48,7 @@ export default function Features() {
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Хурдан бүртгэл</h3>
               <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                QR код уншуулах эсвэл өдөр тутмын Excel файлаасаа харилцагчийн мэдээллээ хялбархан бүрдүүлнэ.
+                QR анкетаар санал асуулга, судалгаа авч, өдөр тутмын Excel файлаасаа харилцагчийн мэдээллээ хялбархан оруулна.
               </p>
             </div>
           </Reveal>

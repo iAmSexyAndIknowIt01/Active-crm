@@ -1,9 +1,44 @@
-import { isCustomerField } from './form-customer';
-
 // QR анкетын загвар (mt_templates). Клиент (засварлагч) болон сервер (API) хоёуланд ашиглагдана.
 
-export const QUESTION_TYPES = ['text', 'number', 'select'] as const;
+export const QUESTION_TYPES = ['text', 'textarea', 'number', 'select', 'multiselect', 'rating'] as const;
 export type QuestionType = (typeof QUESTION_TYPES)[number];
+
+// Засварлагчид харагдах хариултын төрлийн нэр, тайлбар
+export const QUESTION_TYPE_INFO: Record<QuestionType, { label: string; hint: string }> = {
+  text: { label: 'Богино хариулт', hint: 'Нэг мөр текст (нэр, утас, имэйл г.м.)' },
+  textarea: { label: 'Урт хариулт', hint: 'Санал, тайлбар зэрэг хэдэн өгүүлбэр' },
+  number: { label: 'Тоо', hint: 'Зөвхөн тоо' },
+  select: { label: 'Нэг сонголт', hint: 'Жагсаалтаас нэгийг сонгоно' },
+  multiselect: { label: 'Олон сонголт', hint: 'Жагсаалтаас хэд хэдийг сонгож болно' },
+  rating: { label: 'Үнэлгээ', hint: 'Сонголтууд нэг мөрөнд оноо мэт (1–5 г.м.)' },
+};
+
+export const hasOptions = (type: QuestionType) => type === 'select' || type === 'multiselect' || type === 'rating';
+
+// "1 - Маш муу", "2", ... "5 - Маш сайн" хэлбэрийн сонголт: тоо ба (байвал) тайлбар
+const SCALE_OPTION = /^(\d{1,2})(?:\s*[-–—.:)]\s*(.*))?$/;
+export function parseScaleOption(option: string): { number: string; caption: string } | null {
+  const m = option.match(SCALE_OPTION);
+  return m ? { number: m[1], caption: m[2]?.trim() ?? '' } : null;
+}
+
+// "Нэг сонголт" асуултын сонголтууд оноо мэт эсэх: тоотой сонголтууд 0 эсвэл 1-ээс эхэлж дараалсан
+// (1, 2, 3, 4, 5 эсвэл 0…10), дор хаяж 3. "1–3 жил", "10–49" зэрэг хүрээг оноо гэж үзэхгүй.
+// Засварлагч "Үнэлгээ" төрөл болгохыг санал болгоход ашиглана (харагдах байдлыг өөрөө өөрчлөхгүй).
+export function looksLikeRating(options: string[] | undefined) {
+  const numbers = (options ?? []).map((o) => parseScaleOption(o)?.number).filter((n): n is string => n !== undefined).map(Number);
+  if (numbers.length < 3 || numbers[0] > 1) return false;
+  return numbers.every((n, i) => n === numbers[0] + i);
+}
+
+// Олон сонголттой хариултыг нэг текст болгож хадгалах тусгаарлагч.
+// Сонголтын текстэд таслал байж болох тул ("Агуулах, бараа материал") "; " ашиглана.
+export const MULTI_ANSWER_SEPARATOR = '; ';
+export const splitMultiAnswer = (value: string) =>
+  value
+    .split(MULTI_ANSWER_SEPARATOR)
+    .map((v) => v.trim())
+    .filter(Boolean);
 
 export interface TemplateQuestion {
   id: string;
@@ -11,8 +46,6 @@ export interface TemplateQuestion {
   type: QuestionType;
   required: boolean;
   options?: string[];
-  // Хариултыг харилцагчийн аль талбарт хадгалах ('' = холбохгүй)
-  maps_to?: string;
 }
 
 export interface TemplateInput {
@@ -29,15 +62,14 @@ export const DEFAULT_TEMPLATE: TemplateInput = {
   title: 'Үйлчлүүлэгчийн бүртгэлийн анкет',
   description: 'Та манай үйлчилгээг сонгосонд баярлалаа. Доорх мэдээллийг үнэн зөв бөглөнө үү.',
   questions: [
-    { id: '1', label: 'Овог, Нэр', type: 'text', required: true, maps_to: 'full_name' },
-    { id: '2', label: 'Утасны дугаар', type: 'number', required: true, maps_to: 'phone' },
-    { id: '3', label: 'Имэйл хаяг', type: 'text', required: false, maps_to: 'email' },
+    { id: '1', label: 'Овог, Нэр', type: 'text', required: true },
+    { id: '2', label: 'Утасны дугаар', type: 'text', required: true },
+    { id: '3', label: 'Имэйл хаяг', type: 'text', required: false },
     {
       id: '4',
       label: 'Үйлчилгээний төрөл',
       type: 'select',
       required: true,
-      maps_to: '',
       options: ['Авто угаалга', 'Тос солих', 'Засвар үйлчилгээ', 'Бусад'],
     },
   ],
@@ -79,10 +111,9 @@ export function parseTemplateInput(body: unknown): ParsedTemplate {
       label,
       type,
       required: q.required === true,
-      maps_to: isCustomerField(q.maps_to) ? q.maps_to : '',
     };
 
-    if (type === 'select') {
+    if (hasOptions(type)) {
       const options = Array.isArray(q.options)
         ? [...new Set(q.options.filter((o): o is string => typeof o === 'string').map((o) => o.trim().slice(0, 200)).filter(Boolean))]
         : [];
