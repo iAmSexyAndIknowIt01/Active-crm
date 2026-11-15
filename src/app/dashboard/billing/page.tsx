@@ -276,7 +276,7 @@ export default function BillingPage() {
               role="dialog"
               aria-modal="true"
               aria-labelledby="transfer-modal-title"
-              className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-2xl text-sm animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+              className="w-full max-w-2xl max-h-[90dvh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-2xl text-sm animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300"
             >
               <div className="flex items-start justify-between gap-4 px-5 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div>
@@ -327,7 +327,7 @@ export default function BillingPage() {
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-bold text-slate-900 dark:text-white">Active CRM-ийн данс</p>
                     {data.bank.is_demo && (
-                      <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[length:max(11px,0.75rem)] font-bold">
                         Жишээ данс
                       </span>
                     )}

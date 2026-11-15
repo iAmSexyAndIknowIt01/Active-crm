@@ -207,7 +207,7 @@ const inputClass =
   'w-full px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-red-500';
 const filterClass =
   'w-full text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none focus:border-red-500 transition-all';
-const labelClass = 'text-[10px] font-extrabold text-slate-400 uppercase tracking-wider';
+const labelClass = 'text-[length:max(10px,0.7rem)] font-extrabold text-slate-400 uppercase tracking-wider';
 
 function ReservationsContent() {
   const router = useRouter();
@@ -638,7 +638,7 @@ function ReservationsContent() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs">
         <div>
           <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Захиалга</h1>
-          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">Харилцагчийн үйлчлүүлэх өдөр, цагийг захиалж, хариуцах ажилтанд хуваарилах</p>
+          <p className="text-[length:max(11px,0.75rem)] sm:text-xs text-slate-400 mt-0.5">Харилцагчийн үйлчлүүлэх өдөр, цагийг захиалж, хариуцах ажилтанд хуваарилах</p>
         </div>
         <button
           onClick={() => openCreate()}
@@ -655,7 +655,7 @@ function ReservationsContent() {
             <h2 id="today-heading" className="text-sm font-black text-slate-900 dark:text-white">
               Өнөөдөр · {formatDateHeading(today).replace('Өнөөдөр · ', '')}
             </h2>
-            <p className="text-[11px] text-slate-400">Карт дээр дарж өнөөдрийн захиалгыг тухайн төлөвөөр харна</p>
+            <p className="text-[length:max(11px,0.75rem)] text-slate-400">Карт дээр дарж өнөөдрийн захиалгыг тухайн төлөвөөр харна</p>
           </div>
           {!loading && (
             <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -745,7 +745,7 @@ function ReservationsContent() {
                     <span className="block h-full rounded bg-emerald-500" style={{ width: `${s.progress}%` }} />
                   </span>
                 )}
-                <span className="mt-1.5 text-[11px] leading-snug text-slate-500 dark:text-slate-400">{loading ? '' : s.hint}</span>
+                <span className="mt-1.5 text-[length:max(11px,0.75rem)] leading-snug text-slate-500 dark:text-slate-400">{loading ? '' : s.hint}</span>
               </button>
               </Tooltip>
             );
@@ -771,7 +771,7 @@ function ReservationsContent() {
               <X size={15} />
             </button>
           ) : (
-            <kbd className="hidden sm:inline text-[10px] font-bold text-slate-400 border border-slate-200 dark:border-slate-700 rounded px-1.5 py-0.5">/</kbd>
+            <kbd className="hidden sm:inline text-[length:max(10px,0.7rem)] font-bold text-slate-400 border border-slate-200 dark:border-slate-700 rounded px-1.5 py-0.5">/</kbd>
           )}
         </div>
 
@@ -855,7 +855,7 @@ function ReservationsContent() {
               >
                 {s !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${STATUS_META[s].dot}`} />}
                 {s === 'all' ? 'Бүгд' : STATUS_META[s].label}
-                <span className={`text-[10px] px-1.5 rounded-md ${active ? 'bg-white/20 dark:bg-slate-900/10' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                <span className={`text-[length:max(10px,0.7rem)] px-1.5 rounded-md ${active ? 'bg-white/20 dark:bg-slate-900/10' : 'bg-slate-100 dark:bg-slate-800'}`}>
                   {statusCounts[s]}
                 </span>
               </button>
@@ -869,7 +869,7 @@ function ReservationsContent() {
             {activeChips.map((chip) => (
               <span
                 key={chip.label}
-                className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-[11px] font-bold"
+                className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-[length:max(11px,0.75rem)] font-bold"
               >
                 {chip.label}
                 <button onClick={chip.clear} className="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900 cursor-pointer" aria-label="Шүүлтүүр арилгах">
@@ -879,7 +879,7 @@ function ReservationsContent() {
             ))}
             <button
               onClick={resetFilters}
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer ml-auto"
+              className="inline-flex items-center gap-1 text-[length:max(11px,0.75rem)] font-bold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer ml-auto"
             >
               <RotateCcw size={12} /> Бүгдийг цэвэрлэх
             </button>
@@ -958,13 +958,13 @@ function ReservationsContent() {
                 <h2 className={`flex items-center gap-2 text-xs font-black ${date === today ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`}>
                   <CalendarDays size={14} /> {formatDateHeading(date)}
                   <Tooltip text="Энэ өдрийн захиалгын тоо (шүүлтүүрийн дагуу)">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">{items.length}</span>
+                    <span className="text-[length:max(10px,0.7rem)] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">{items.length}</span>
                   </Tooltip>
                 </h2>
                 {date >= today && (
                   <button
                     onClick={() => openCreate(date)}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 text-[length:max(11px,0.75rem)] font-bold text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
                   >
                     <Plus size={12} /> Нэмэх
                   </button>
@@ -996,11 +996,11 @@ function ReservationsContent() {
                         <span className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
                           {r.customer_name}
                         </span>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                        <span className="text-[length:max(9px,0.65rem)] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
                           {r.customer_type === 'company' ? 'Байгууллага' : 'Хувь хүн'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-x-3 gap-y-1 flex-wrap text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                      <div className="flex items-center gap-x-3 gap-y-1 flex-wrap text-[length:max(11px,0.75rem)] font-semibold text-slate-500 dark:text-slate-400">
                         {r.customer_phone && (
                           <a
                             href={`tel:${r.customer_phone}`}
@@ -1018,7 +1018,7 @@ function ReservationsContent() {
                           {r.employee_name || <span className="italic">Хуваарилаагүй</span>}
                         </span>
                       </div>
-                      {r.note && <p className="text-[11px] text-slate-400 line-clamp-1">{r.note}</p>}
+                      {r.note && <p className="text-[length:max(11px,0.75rem)] text-slate-400 line-clamp-1">{r.note}</p>}
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0 flex-wrap" onClick={(e) => e.stopPropagation()}>
@@ -1027,7 +1027,7 @@ function ReservationsContent() {
                         <Tooltip text={STATUS_META.in_service.description}>
                         <Link
                           href={`/dashboard/workshop/${r.work_id}`}
-                          className={`inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2.5 py-1.5 rounded-full border hover:underline ${STATUS_META.in_service.className}`}
+                          className={`inline-flex items-center gap-1.5 text-[length:max(11px,0.75rem)] font-extrabold px-2.5 py-1.5 rounded-full border hover:underline ${STATUS_META.in_service.className}`}
                           aria-label="Энэ захиалгаас үүссэн ажлыг нээх"
                         >
                           <Wrench size={12} aria-hidden />
@@ -1043,7 +1043,7 @@ function ReservationsContent() {
                             <button
                               type="button"
                               onClick={() => startWork(r)}
-                              className="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 text-white cursor-pointer"
+                              className="inline-flex items-center gap-1 text-[length:max(11px,0.75rem)] font-extrabold px-2.5 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 text-white cursor-pointer"
                             >
                               <CheckCircle2 size={12} aria-hidden /> Тийм, эхлүүлэх
                             </button>
@@ -1061,7 +1061,7 @@ function ReservationsContent() {
                             type="button"
                             onClick={() => setConfirmStartId(r.reservation_id)}
                             disabled={startingId === r.reservation_id}
-                            className="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1.5 rounded-full border border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-950 disabled:opacity-50 cursor-pointer"
+                            className="inline-flex items-center gap-1 text-[length:max(11px,0.75rem)] font-extrabold px-2.5 py-1.5 rounded-full border border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-950 disabled:opacity-50 cursor-pointer"
                             title="Харилцагч ирсэн: захиалгын мэдээллээр ажил үүсгэж, хариуцах ажилтанд имэйлээр мэдэгдэнэ"
                           >
                             <PlayCircle size={12} aria-hidden />
@@ -1073,7 +1073,7 @@ function ReservationsContent() {
                       <select
                         value={r.status}
                         onChange={(e) => handleStatusChange(r, e.target.value as ReservationStatus)}
-                        className={`text-[11px] font-extrabold px-2.5 py-1.5 rounded-full border outline-none cursor-pointer ${STATUS_META[r.status].className}`}
+                        className={`text-[length:max(11px,0.75rem)] font-extrabold px-2.5 py-1.5 rounded-full border outline-none cursor-pointer ${STATUS_META[r.status].className}`}
                         aria-label="Төлөв солих"
                       >
                         {MANUAL_STATUSES.map((value) => (
@@ -1107,14 +1107,14 @@ function ReservationsContent() {
             if (e.target === e.currentTarget) setIsModalOpen(false);
           }}
         >
-          <div className="bg-white dark:bg-slate-900 max-w-lg w-full rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+          <div className="bg-white dark:bg-slate-900 max-w-lg w-full rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 dark:border-slate-800 max-h-[90dvh] overflow-y-auto animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <div>
                 <h3 className="font-black text-base text-slate-900 dark:text-white">
                   {editing ? 'Захиалга засах' : 'Шинэ захиалга'}
                 </h3>
                 {editing && (
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[length:max(11px,0.75rem)] text-slate-400 mt-0.5">
                     {editing.customer_name} · {formatDate(editing.reservation_date)} {editing.start_time}
                   </p>
                 )}
@@ -1166,7 +1166,7 @@ function ReservationsContent() {
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">Үйлчилгээнүүд *</label>
                   {formData.services.length > 0 && (
-                    <span className="text-[11px] font-bold text-slate-400">{formData.services.length} үйлчилгээ</span>
+                    <span className="text-[length:max(11px,0.75rem)] font-bold text-slate-400">{formData.services.length} үйлчилгээ</span>
                   )}
                 </div>
                 {formData.services.length > 0 && (
@@ -1177,10 +1177,10 @@ function ReservationsContent() {
                         <span className="flex-1 min-w-0 text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
                           {line.service_name}
                           {!line.service_id && (
-                            <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold">устсан</span>
+                            <span className="ml-1.5 text-[length:max(9px,0.65rem)] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold">устсан</span>
                           )}
                         </span>
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
+                        <span className="text-[length:max(11px,0.75rem)] text-slate-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
                           {line.duration ? formatDuration(line.duration) : '—'}
                         </span>
                         <span className="w-24 text-right text-xs font-bold text-slate-900 dark:text-white tabular-nums whitespace-nowrap">
@@ -1222,7 +1222,7 @@ function ReservationsContent() {
                 {/* Үйлчилгээ нэмэгдмэгц нуугдмал талбар алга болдог тул алдааг энд шүүнэ */}
                 {formData.services.length === 0 && <FieldError message={errors.services} />}
                 {servicesDuration > 0 && (
-                  <p className="mt-1 text-[11px] text-slate-400">Дуусах цагийг үйлчилгээнүүдийн нийт хугацаагаар автоматаар бодно.</p>
+                  <p className="mt-1 text-[length:max(11px,0.75rem)] text-slate-400">Дуусах цагийг үйлчилгээнүүдийн нийт хугацаагаар автоматаар бодно.</p>
                 )}
               </div>
 
@@ -1306,7 +1306,7 @@ function ReservationsContent() {
                       <option key={value} value={value}>{STATUS_META[value].label}</option>
                     ))}
                   </select>
-                  <p className="mt-1 text-[11px] leading-snug text-slate-500 dark:text-slate-400">{STATUS_META[formData.status].description}</p>
+                  <p className="mt-1 text-[length:max(11px,0.75rem)] leading-snug text-slate-500 dark:text-slate-400">{STATUS_META[formData.status].description}</p>
                 </div>
               </div>
 
@@ -1314,7 +1314,7 @@ function ReservationsContent() {
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">Тэмдэглэл</label>
                   {formData.note.length > NOTE_MAX * 0.8 && (
-                    <span className={`text-[11px] font-bold tabular-nums ${formData.note.length >= NOTE_MAX ? 'text-rose-500' : 'text-slate-400'}`}>
+                    <span className={`text-[length:max(11px,0.75rem)] font-bold tabular-nums ${formData.note.length >= NOTE_MAX ? 'text-rose-500' : 'text-slate-400'}`}>
                       {formData.note.length} / {NOTE_MAX}
                     </span>
                   )}

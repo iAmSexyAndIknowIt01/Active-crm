@@ -35,10 +35,10 @@ export default async function Footer() {
 
         {/* Links */}
         <div className="flex items-center gap-6 text-xs font-medium">
-          <Link href="#problem" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Давуу тал</Link>
-          <Link href="#features" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Боломжууд</Link>
+          <Link href="#problem" className="py-2 hover:text-red-600 dark:hover:text-red-400 transition-colors">Давуу тал</Link>
+          <Link href="#features" className="py-2 hover:text-red-600 dark:hover:text-red-400 transition-colors">Боломжууд</Link>
           {showTestimonial && (
-            <Link href="#testimonials" className="hover:text-red-600 dark:hover:text-red-400 transition-colors">Сэтгэгдэл</Link>
+            <Link href="#testimonials" className="py-2 hover:text-red-600 dark:hover:text-red-400 transition-colors">Сэтгэгдэл</Link>
           )}
         </div>
 

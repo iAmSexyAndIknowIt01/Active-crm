@@ -76,7 +76,7 @@ function Details({ details }: { details: Record<string, unknown> | null }) {
   return (
     <ul className="mt-1 space-y-0.5">
       {Object.entries(details).map(([key, value]) => (
-        <li key={key} className="text-[11px] text-slate-500 dark:text-slate-400">
+        <li key={key} className="text-[length:max(11px,0.75rem)] text-slate-500 dark:text-slate-400">
           <span className="font-bold">{FIELD_LABELS[key] ?? key}:</span>{' '}
           {Array.isArray(value) && value.length === 2 ? (
             <>

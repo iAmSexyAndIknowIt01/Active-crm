@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useMobileCardView } from '@/src/lib/use-mobile-card-view';
 import {
   Wrench, Plus, Search, Clock, CheckCircle2,
   X, LayoutList, LayoutGrid, User, Briefcase, ShieldAlert, RotateCcw, ChevronLeft, ChevronRight,
@@ -121,7 +122,7 @@ const filterSelectClass =
   'w-full text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none cursor-pointer focus:border-red-500 transition-all';
 const filterInputClass =
   'w-full min-w-0 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-50/70 dark:bg-slate-800/60 px-3 py-2 rounded-xl border border-slate-200/70 dark:border-slate-700 outline-none focus:border-red-500 transition-all';
-const filterLabelClass = 'text-[10px] font-extrabold text-slate-400 uppercase tracking-wider';
+const filterLabelClass = 'text-[length:max(10px,0.7rem)] font-extrabold text-slate-400 uppercase tracking-wider';
 const searchSelectFilterClass = 'px-3! bg-slate-50/70! dark:bg-slate-800/60! border-slate-200/70!';
 
 // 1. Үндсэн логик бүхий компонентоо тусад нь салгах (WorkshopContent)
@@ -162,6 +163,7 @@ function WorkshopContent() {
   };
 
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  useMobileCardView(setViewMode);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const { formRef, errors, resetErrors } = useFormValidation();
@@ -378,24 +380,24 @@ function WorkshopContent() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
-        return <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 shrink-0 border border-emerald-100/50 dark:border-emerald-800"><CheckCircle2 size={11} /> Дууссан</span>;
+        return <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 shrink-0 border border-emerald-100/50 dark:border-emerald-800"><CheckCircle2 size={11} /> Дууссан</span>;
       case 'in_progress':
-        return <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 shrink-0 border border-red-100/50 dark:border-red-800"><Wrench size={11} /> Хийгдэж байна</span>;
+        return <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 shrink-0 border border-red-100/50 dark:border-red-800"><Wrench size={11} /> Хийгдэж байна</span>;
       case 'cancelled':
-        return <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 shrink-0 border border-rose-100/50 dark:border-rose-800"><X size={11} /> Цуцлагдсан</span>;
+        return <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 shrink-0 border border-rose-100/50 dark:border-rose-800"><X size={11} /> Цуцлагдсан</span>;
       default:
-        return <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 shrink-0 border border-amber-100/50 dark:border-amber-800"><Clock size={11} /> Хүлээгдэж буй</span>;
+        return <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 shrink-0 border border-amber-100/50 dark:border-amber-800"><Clock size={11} /> Хүлээгдэж буй</span>;
     }
   };
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case 'high':
-        return <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-800">Яаралтай</span>;
+        return <span className="text-[length:max(10px,0.7rem)] font-bold px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-800">Яаралтай</span>;
       case 'medium':
-        return <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800">Дунд</span>;
+        return <span className="text-[length:max(10px,0.7rem)] font-bold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800">Дунд</span>;
       default:
-        return <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Энгийн</span>;
+        return <span className="text-[length:max(10px,0.7rem)] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Энгийн</span>;
     }
   };
 
@@ -405,7 +407,7 @@ function WorkshopContent() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs">
         <div>
           <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Ажлын удирдлага</h1>
-          <p className="text-[11px] sm:text-xs text-slate-400 dark:text-slate-400 mt-0.5">Харилцагч, үйлчилгээ болон ажилтны гүйцэтгэлийг хянах</p>
+          <p className="text-[length:max(11px,0.75rem)] sm:text-xs text-slate-400 dark:text-slate-400 mt-0.5">Харилцагч, үйлчилгээ болон ажилтны гүйцэтгэлийг хянах</p>
         </div>
         <button
           onClick={openModal}
@@ -473,7 +475,7 @@ function WorkshopContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
           <div className="flex flex-col gap-1">
             <label className={filterLabelClass}>Төлөв</label>
             <select value={filters.status} onChange={(e) => setFilter('status', e.target.value)} className={filterSelectClass}>
@@ -531,7 +533,7 @@ function WorkshopContent() {
             <SlidersHorizontal size={14} />
             Нэмэлт шүүлтүүр
             {advancedCount > 0 && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-red-600 text-white">{advancedCount}</span>
+              <span className="text-[length:max(10px,0.7rem)] px-1.5 py-0.5 rounded-md bg-red-600 text-white">{advancedCount}</span>
             )}
             <ChevronDown size={14} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
           </button>
@@ -542,7 +544,7 @@ function WorkshopContent() {
                 setFilters((prev) => ({ ...prev, due: 'overdue', dueFrom: '', dueTo: '' }));
                 setCurrentPage(1);
               }}
-              className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 text-[length:max(11px,0.75rem)] font-bold px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950 transition-colors cursor-pointer"
             >
               <Clock size={12} /> Хугацаа хэтэрсэн {overdueCount} ажил
             </button>
@@ -681,7 +683,7 @@ function WorkshopContent() {
             {activeChips.map((chip) => (
               <span
                 key={chip.key}
-                className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-[11px] font-bold max-w-full"
+                className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 text-[length:max(11px,0.75rem)] font-bold max-w-full"
               >
                 <span className="truncate">{chip.label}</span>
                 <button onClick={chip.clear} className="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900 cursor-pointer shrink-0" aria-label="Шүүлтүүр арилгах">
@@ -724,7 +726,7 @@ function WorkshopContent() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-180">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-[length:max(10px,0.7rem)] font-black uppercase text-slate-400 tracking-wider">
                   <th className="py-3.5 px-6">Ажил / Гарчиг</th>
                   <th className="py-3.5 px-6">Харилцагч</th>
                   <th className="py-3.5 px-6">Үйлчилгээ</th>
@@ -754,7 +756,7 @@ function WorkshopContent() {
                           <span className="font-bold text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors flex items-center gap-1.5">
                             {work.title} {work.can_edit === false && <ReadOnlyMark />}
                           </span>
-                          <span className="text-[11px] text-slate-400 truncate max-w-55 block">{work.description || 'Тайлбар байхгүй'}</span>
+                          <span className="text-[length:max(11px,0.75rem)] text-slate-400 truncate max-w-55 block">{work.description || 'Тайлбар байхгүй'}</span>
                         </div>
                       </div>
                     </td>
@@ -762,13 +764,13 @@ function WorkshopContent() {
                       <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 font-bold">
                         <User size={13} className="text-slate-400 shrink-0" /> 
                         <span className="truncate max-w-32">{work.customer_name || 'Харилцагч байхгүй'}</span>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-normal shrink-0">
+                        <span className="text-[length:max(9px,0.65rem)] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-normal shrink-0">
                           {work.customer_type === 'company' ? 'Компани' : 'Хувь хүн'}
                         </span>
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-35">
+                      <span className="inline-flex items-center gap-1 text-[length:max(11px,0.75rem)] font-bold px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-35">
                         <Briefcase size={11} className="shrink-0" /> {serviceLabel(work)}
                       </span>
                     </td>
@@ -808,7 +810,7 @@ function WorkshopContent() {
                       {work.title} {work.can_edit === false && <ReadOnlyMark />}
                     </h3>
                     <div className="flex items-center gap-1.5 mt-1">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-bold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                         <Briefcase size={10} /> {serviceLabel(work)}
                       </span>
                       {getPriorityBadge(work.priority)}
@@ -876,7 +878,7 @@ function WorkshopContent() {
       {/* Add Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 max-w-2xl w-full rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 max-w-2xl w-full rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300 max-h-[90dvh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <h3 className="font-black text-base text-slate-900 dark:text-white">Шинэ ажил бүртгэх</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl cursor-pointer">

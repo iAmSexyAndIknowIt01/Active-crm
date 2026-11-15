@@ -82,7 +82,7 @@ export const invalidClass = 'border-rose-400! dark:border-rose-500! focus:border
 export function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-rose-600 dark:text-rose-400">
+    <p role="alert" className="mt-1.5 flex items-center gap-1 text-[length:max(11px,0.75rem)] font-bold text-rose-600 dark:text-rose-400">
       <AlertCircle size={12} className="shrink-0" />
       {message}
     </p>

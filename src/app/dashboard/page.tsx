@@ -184,7 +184,7 @@ function WeekChart({ data }: { data: DashboardOverview['lastWeek'] }) {
         {data.map((d) => {
           const [y, m, day] = d.day.split('-').map(Number);
           return (
-            <span key={d.day} className="flex-1 text-center text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 font-semibold">
+            <span key={d.day} className="flex-1 text-center text-[length:max(10px,0.7rem)] sm:text-xs text-slate-400 dark:text-slate-500 font-semibold">
               {WEEKDAYS[new Date(Date.UTC(y, m - 1, day)).getUTCDay()].slice(0, 2)}
             </span>
           );
@@ -193,21 +193,23 @@ function WeekChart({ data }: { data: DashboardOverview['lastWeek'] }) {
       <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-2">
         {summary.map((s) => (
           <div key={s.label} className="rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 px-3 py-2.5 min-w-0">
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-slate-500 flex items-center gap-1">
+            <p className="text-[length:max(10px,0.7rem)] sm:text-[length:max(11px,0.75rem)] font-bold text-slate-400 dark:text-slate-500 flex items-center gap-1">
               <span className="truncate">{s.label}</span> <InfoTip size={11} text={s.hint} />
             </p>
             <p className="text-sm sm:text-base font-black text-slate-900 dark:text-white tabular-nums truncate">{s.value}</p>
           </div>
         ))}
       </div>
-      <table className="sr-only">
-        <caption>Сүүлийн 7 хоногт бүртгэгдсэн ажил</caption>
-        <tbody>
-          {data.map((d) => (
-            <tr key={d.day}><td>{d.day}</td><td>{d.works}</td></tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="sr-only">
+        <table>
+          <caption>Сүүлийн 7 хоногт бүртгэгдсэн ажил</caption>
+          <tbody>
+            {data.map((d) => (
+              <tr key={d.day}><td>{d.day}</td><td>{d.works}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -292,7 +294,7 @@ export default function DashboardPage() {
             <User size={20} />
           </div>
           <div className="space-y-0.5">
-            <p className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400">Байгууллага</p>
+            <p className="text-[length:max(10px,0.7rem)] uppercase font-extrabold tracking-wider text-slate-400">Байгууллага</p>
             <span className="font-extrabold text-sm text-slate-900 dark:text-white truncate max-w-50 block">
               {data.companyName || 'Компанийн нэр'}
             </span>
@@ -444,18 +446,18 @@ export default function DashboardPage() {
                             {item.name || 'Нэргүй'}
                           </p>
                           {item.service && (
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{item.service}</p>
+                            <p className="text-[length:max(11px,0.75rem)] text-slate-500 dark:text-slate-400 line-clamp-1">{item.service}</p>
                           )}
                         </div>
                         {isNew && (
                           <Tooltip text="Сүүлийн 24 цагт ирсэн анкет" className="shrink-0">
-                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300">
+                            <span className="text-[length:max(10px,0.7rem)] font-extrabold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300">
                               Шинэ
                             </span>
                           </Tooltip>
                         )}
                       </div>
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+                      <div className="flex items-center gap-1.5 text-[length:max(11px,0.75rem)] text-slate-400 font-medium">
                         <Clock size={12} className="text-slate-400" aria-hidden /> {formatRelative(item.submittedAt, now)}
                       </div>
                     </div>
@@ -479,7 +481,7 @@ export default function DashboardPage() {
       <section className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 text-[11px] font-black uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 text-[length:max(11px,0.75rem)] font-black uppercase tracking-wider mb-2">
               <BarChart3 size={13} /> Гүйцэтгэлийн статистик
             </div>
             <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">Энэ сард дуусгасан ажил <InfoTip size={15} text="Энэ сарын 1-нээс хойш “Дууссан” төлөвт орсон, ажилтанд хуваарилагдсан ажлуудыг тоолно. Эрэмбэ: дуусгасан ажлын тоо, тэнцвэл орлогоор." /></h2>
