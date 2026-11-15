@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { CreditCard, CheckCircle2, AlertTriangle, Loader2, Landmark, QrCode, Copy, Clock } from 'lucide-react';
 import LoadingComponent from '@/src/app/components/loading';
 import { PAID_PLANS, PLAN_INFO, type PaidPlan, type Subscription } from '@/src/lib/plans';
@@ -11,6 +12,8 @@ interface BillingData {
   prices: Record<PaidPlan, number>;
   bank: { bank_name: string; account_number: string; account_holder: string; note: string };
   qpay: boolean;
+  contact: { phone: string; email: string };
+  isPlatformAdmin: boolean;
   months: number[];
   canPay: boolean;
   payments: {
@@ -213,6 +216,30 @@ export default function BillingPage() {
               </button>
             )}
           </div>
+
+          {!bankReady && (
+            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-200 rounded-2xl px-4 py-3 text-xs sm:text-sm flex items-start gap-2">
+              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+              {data.isPlatformAdmin ? (
+                <p>
+                  Банкаар шилжүүлэх сонголт идэвхгүй байна: хүлээн авах банкны данс оруулаагүй.{' '}
+                  <Link href="/dashboard/platform" className="font-bold underline underline-offset-2">
+                    Платформ → Контент ба үнэ → Банкны данс
+                  </Link>
+                  -аас оруулна уу.
+                </p>
+              ) : (
+                <p>
+                  Банкаар шилжүүлэх сонголт түр боломжгүй байна.
+                  {data.qpay ? ' QPay-ээр төлөх эсвэл' : ''} Багц сунгахаар бидэнтэй холбогдоно уу
+                  {data.contact.phone || data.contact.email
+                    ? `: ${[data.contact.phone, data.contact.email].filter(Boolean).join(', ')}`
+                    : ''}
+                  .
+                </p>
+              )}
+            </div>
+          )}
 
           {bankPayment && (
             <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-3 text-sm">
