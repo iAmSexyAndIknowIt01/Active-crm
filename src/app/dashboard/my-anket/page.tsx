@@ -16,8 +16,6 @@ import {
   Star,
   Trash2,
   ExternalLink,
-  UserPlus,
-  Loader2,
   X,
   AlertTriangle,
 } from 'lucide-react';
@@ -37,13 +35,6 @@ interface TemplateRow {
   updated_at: string | null;
 }
 
-interface SyncResult {
-  processed: number;
-  linked: number;
-  created: number;
-  skipped: number;
-}
-
 function formatDate(value: string | null) {
   if (!value) return '—';
   return new Date(value).toLocaleDateString('en-CA'); // YYYY-MM-DD
@@ -61,8 +52,6 @@ export default function MyAnketListPage() {
   const [qrTemplate, setQrTemplate] = useState<TemplateRow | null>(null);
   const [qrImage, setQrImage] = useState('');
   const [deleteTemplate, setDeleteTemplate] = useState<TemplateRow | null>(null);
-  const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
 
   const loadTemplates = useCallback(async () => {
     try {
@@ -140,36 +129,6 @@ export default function MyAnketListPage() {
       setErrorMessage(err instanceof Error ? err.message : 'Сүлжээний алдаа гарлаа.');
     } finally {
       setBusyId(null);
-    }
-  };
-
-  // Харилцагчтай холбогдоогүй өмнөх анкетуудыг утас/имэйлээр нь харилцагч болгох
-  const handleSyncCustomers = async () => {
-    setSyncing(true);
-    setSyncResult(null);
-    setErrorMessage('');
-    const total: SyncResult = { processed: 0, linked: 0, created: 0, skipped: 0 };
-    try {
-      let cursor: string | null = null;
-      do {
-        const res: Response = await fetch('/api/templates/sync-customers', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cursor }),
-        });
-        const json: { success: boolean; error?: string; data: SyncResult & { nextCursor: string | null } } = await res.json();
-        if (!res.ok || !json.success) throw new Error(json.error || 'Харилцагч болгоход алдаа гарлаа.');
-        total.processed += json.data.processed;
-        total.linked += json.data.linked;
-        total.created += json.data.created;
-        total.skipped += json.data.skipped;
-        cursor = json.data.nextCursor;
-      } while (cursor);
-      setSyncResult(total);
-    } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : 'Сүлжээний алдаа гарлаа.');
-    } finally {
-      setSyncing(false);
     }
   };
 
@@ -347,33 +306,6 @@ export default function MyAnketListPage() {
           </div>
         </div>
       )}
-
-      {/* Өмнөх анкетуудыг харилцагч болгох */}
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="font-bold text-sm text-slate-900 dark:text-white">Хуучин анкетууд</h2>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-            Өмнө ирсэн, харилцагчтай холбогдоогүй анкетуудыг утас эсвэл имэйлээр нь харилцагч болгоно.
-          </p>
-          {syncResult && (
-            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 leading-relaxed mt-2">
-              {syncResult.processed === 0
-                ? 'Холбох шаардлагатай анкет алга.'
-                : `${syncResult.linked} анкет холбогдлоо (${syncResult.created} шинэ харилцагч).` +
-                  (syncResult.skipped > 0 ? ` ${syncResult.skipped} анкетад нэр, утас эсвэл имэйл дутуу тул алгаслаа.` : '')}
-            </p>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={handleSyncCustomers}
-          disabled={syncing}
-          className="shrink-0 flex items-center justify-center gap-2 text-xs font-bold bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-900 px-4 py-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-60"
-        >
-          {syncing ? <Loader2 size={15} className="animate-spin" /> : <UserPlus size={15} />}
-          Хуучин анкетуудыг харилцагч болгох
-        </button>
-      </div>
 
       {/* QR кодын модал */}
       {qrTemplate && (
