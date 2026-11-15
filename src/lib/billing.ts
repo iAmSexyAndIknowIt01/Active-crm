@@ -15,7 +15,8 @@ export interface PaymentRow {
   months: number;
   amount: string;
   method: 'bank' | 'qpay' | 'manual';
-  status: 'pending' | 'paid' | 'cancelled';
+  // review: компанийн админ "Төлбөр хийсэн" гэж мэдэгдсэн, платформын админ шалгаж байна
+  status: 'pending' | 'review' | 'paid' | 'cancelled';
   reference: string;
   qpay_invoice_id: string | null;
 }
@@ -82,7 +83,7 @@ export async function createPaymentInvoice(payment: PaymentRow, companyName: str
 }
 
 // QPay-ээс төлөлтийг шалгаж, бүрэн төлөгдсөн бол идэвхжүүлнэ. Буцаах: тухайн төлбөрийн шинэ төлөв.
-export async function syncQPayPayment(paymentId: string): Promise<'pending' | 'paid' | 'cancelled'> {
+export async function syncQPayPayment(paymentId: string): Promise<PaymentRow['status']> {
   const { rows } = await pool.query('SELECT * FROM mt_payment WHERE id = $1', [paymentId]);
   const payment: PaymentRow | undefined = rows[0];
   if (!payment) throw new Error('Payment not found');
@@ -94,7 +95,8 @@ export async function syncQPayPayment(paymentId: string): Promise<'pending' | 'p
   return 'paid';
 }
 
-// Төлбөрийг төлөгдсөнд тооцож, компанийн багцын хугацааг сунгана. Дахин дуудахад аюулгүй.
+// Төлбөрийг төлөгдсөнд тооцож, компанийн багцын хугацааг сунгана (хүлээгдэж буй эсвэл хянагдаж буй төлбөр).
+// Дахин дуудахад аюулгүй.
 // Хугацаа дуусаагүй бол дуусах өдрөөс нь, дууссан бол өнөөдрөөс эхлэн months сараар сунгана.
 export async function activatePayment(paymentId: string, confirmedBy: string, client?: PoolClient) {
   const db = client ?? (await pool.connect());
@@ -102,7 +104,7 @@ export async function activatePayment(paymentId: string, confirmedBy: string, cl
     if (!client) await db.query('BEGIN');
     const { rows } = await db.query(`SELECT * FROM mt_payment WHERE id = $1 FOR UPDATE`, [paymentId]);
     const payment: PaymentRow | undefined = rows[0];
-    if (!payment || payment.status !== 'pending') {
+    if (!payment || (payment.status !== 'pending' && payment.status !== 'review')) {
       if (!client) await db.query('COMMIT');
       return false;
     }

@@ -6,10 +6,10 @@ import { isPaidPlan } from '@/src/lib/plans';
 import { isQPayConfigured } from '@/src/lib/qpay';
 import { MONTH_OPTIONS, createPayment, createPaymentInvoice } from '@/src/lib/billing';
 import { appOrigin } from '@/src/lib/email-verification';
-import { getSiteContent } from '@/src/lib/site-content';
 
 // Багцын төлбөр үүсгэх (зөвхөн админ). Body: { plan: 'standard'|'pro', months, method: 'bank'|'qpay' }
-//   bank — гүйлгээний утгад бичих код (reference) буцаана; платформын админ орлогыг шалгаад баталгаажуулна
+//   bank — гүйлгээний утгад бичих код (reference) буцаана. Шилжүүлсний дараа админ "Төлбөр хийсэн" дарж мэдэгдэнэ
+//          (payments/[id]/report → review); платформын админ орлогыг шалгаад баталгаажуулж багцыг сунгана
 //   qpay — QPay нэхэмжлэх (QR, банкны апп-ын холбоос) буцаана; төлөгдөхөд автоматаар идэвхжинэ
 export async function POST(request: Request) {
   try {
@@ -26,10 +26,6 @@ export async function POST(request: Request) {
     }
     if (body.method === 'qpay' && !isQPayConfigured()) {
       return NextResponse.json({ success: false, error: 'QPay төлбөр одоогоор идэвхгүй байна.' }, { status: 400 });
-    }
-
-    if (body.method === 'bank' && !(await getSiteContent()).bank.account_number) {
-      return NextResponse.json({ success: false, error: 'Банкны дансны мэдээлэл тохируулагдаагүй байна.' }, { status: 400 });
     }
 
     const payment = await createPayment({ companyId: session.companyId, plan: body.plan, months, method: body.method, userId: session.userId });

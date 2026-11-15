@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/src/lib/session';
 import { pool } from '@/src/lib/db';
-import { getSiteContent } from '@/src/lib/site-content';
+import { billingBankAccount, getSiteContent } from '@/src/lib/site-content';
 import { isQPayConfigured } from '@/src/lib/qpay';
 import { isPlatformAdmin } from '@/src/lib/platform';
 import { countActiveUsers, countCustomers } from '@/src/lib/limits';
@@ -30,14 +30,12 @@ export async function GET() {
         subscription: session.subscription,
         usage: { users, customers },
         prices: content.plan_prices,
-        bank: content.bank,
-        // Банкны данс тохируулаагүй үед холбогдох мэдээлэл харуулна
-        contact: { phone: content.contact.phone, email: content.contact.email },
+        bank: billingBankAccount(content),
         qpay: isQPayConfigured(),
         months: MONTH_OPTIONS,
         payments: payments.rows,
         canPay: session.role === 'admin',
-        // Платформын админд дансны мэдээллийг хаанаас тохируулахыг заана
+        // Жишээ данс харагдаж байвал платформын админд жинхэнэ дансаа хаанаас оруулахыг заана
         isPlatformAdmin: isPlatformAdmin(session.email),
       },
     });

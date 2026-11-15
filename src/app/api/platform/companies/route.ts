@@ -27,10 +27,12 @@ export async function GET(request: Request) {
       ),
       pool.query(
         `
-          SELECT p.id, p.company_id, c.company_name, p.plan, p.months, p.amount, p.method, p.reference, p.created_at
+          SELECT p.id, p.company_id, c.company_name, p.plan, p.months, p.amount, p.method, p.reference, p.created_at,
+                 p.status, p.reported_at
           FROM mt_payment p JOIN mt_company c ON c.company_id = p.company_id
-          WHERE p.status = 'pending' AND p.method = 'bank'
-          ORDER BY p.created_at DESC
+          WHERE p.status IN ('pending', 'review') AND p.method = 'bank'
+          -- "Төлбөр хийсэн" гэж мэдэгдсэн (review) шилжүүлгүүд эхэнд
+          ORDER BY (p.status = 'review') DESC, COALESCE(p.reported_at, p.created_at) DESC
           LIMIT 100
         `
       ),
