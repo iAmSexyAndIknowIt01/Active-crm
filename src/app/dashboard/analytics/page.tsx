@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowDownRight, ArrowUpRight, AlertTriangle, Briefcase, CheckCircle2, Database, FileText, UserPlus, Wallet,
-  Hourglass, Receipt, Lightbulb, ChevronRight, CalendarClock,
+  Hourglass, Receipt, ChevronRight, CalendarClock,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Loading from '@/src/app/components/loading';
 import InfoTip from '@/src/app/components/InfoTip';
 import Tooltip from '@/src/app/components/Tooltip';
+import { AreaChart, Donut, RingGauge, Sparkline, niceMax } from './charts';
 
 type RangeKey = '7d' | '30d' | '90d' | '12m';
 type Unit = 'day' | 'week' | 'month';
@@ -63,10 +64,10 @@ const RANGE_OPTIONS: { key: RangeKey; label: string; periodLabel: string; previo
 // dataviz validator-оор энэ дарааллаар (stack-ийн хөршүүд) цайвар, бараан горимд шалгасан.
 // Бараан горимд ногоон↔улаан CVD 6.5 тул хэсгүүдийн хооронд 2px зай + тоотой legend заавал.
 const STATUS_ROWS = [
-  { key: 'pending', label: 'Хүлээгдэж буй', color: 'bg-[#eda100] dark:bg-[#c98500]' },
-  { key: 'in_progress', label: 'Хийгдэж байна', color: 'bg-[#2a78d6] dark:bg-[#3987e5]' },
-  { key: 'completed', label: 'Дууссан', color: 'bg-[#1baf7a] dark:bg-[#199e70]' },
-  { key: 'cancelled', label: 'Цуцлагдсан', color: 'bg-[#e34948] dark:bg-[#e66767]' },
+  { key: 'pending', label: 'Хүлээгдэж буй', color: 'bg-[#eda100] dark:bg-[#c98500]', stroke: 'stroke-[#eda100] dark:stroke-[#c98500]' },
+  { key: 'in_progress', label: 'Хийгдэж байна', color: 'bg-[#2a78d6] dark:bg-[#3987e5]', stroke: 'stroke-[#2a78d6] dark:stroke-[#3987e5]' },
+  { key: 'completed', label: 'Дууссан', color: 'bg-[#1baf7a] dark:bg-[#199e70]', stroke: 'stroke-[#1baf7a] dark:stroke-[#199e70]' },
+  { key: 'cancelled', label: 'Цуцлагдсан', color: 'bg-[#e34948] dark:bg-[#e66767]', stroke: 'stroke-[#e34948] dark:stroke-[#e66767]' },
 ];
 
 const CUSTOMER_TYPE_ROWS = [
@@ -78,7 +79,8 @@ const CUSTOMER_TYPE_ROWS = [
 const BAR_FILL = 'bg-red-600 dark:bg-red-500';
 const BAR_SOFT = 'bg-red-200 dark:bg-red-900';
 const BAR_TRACK = 'bg-slate-100 dark:bg-slate-800';
-const CARD = 'bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs';
+const BAR_TRACK_STRONG = 'bg-slate-300 dark:bg-slate-600';
+const CARD = 'relative bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs';
 
 function formatNumber(value: number) {
   return value.toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -95,14 +97,6 @@ function formatBucket(bucket: string, unit: Unit, long = false) {
   if (unit === 'month') return long ? `${year} оны ${Number(month)}-р сар` : `${Number(month)}-р сар`;
   if (unit === 'week') return long ? `${bucket}-с эхэлсэн долоо хоног` : `${month}/${day}`;
   return long ? bucket : `${month}/${day}`;
-}
-
-// Тэнхлэгийн дээд утгыг 1, 2, 5 × 10^n хэлбэрийн цэвэр тоо болгох
-function niceMax(value: number) {
-  if (value <= 0) return 1;
-  const magnitude = 10 ** Math.floor(Math.log10(value));
-  const step = [1, 2, 5, 10].find((s) => s * magnitude >= value) ?? 10;
-  return step * magnitude;
 }
 
 const percent = (part: number, total: number) => (total > 0 ? Math.round((part / total) * 100) : 0);
@@ -132,38 +126,40 @@ function Delta({ value, previousLabel, isPercentPoint = false, format = formatNu
   const rounded = changeOf(value, isPercentPoint);
   if (rounded === null) {
     return (
-      <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
-        Өмнөх хугацаанд өгөгдөлгүй
-        <InfoTip size={12} text="Өмнөх ижил урттай хугацаанд утга 0 эсвэл тооцох боломжгүй байсан тул өөрчлөлтийг хувиар гаргах боломжгүй." />
-      </p>
+      <Tooltip text={`${previousLabel} харьцуулах өгөгдөл алга (өмнөх хугацаанд 0).`}>
+        <span tabIndex={0} className="inline-flex items-center text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-full px-2 py-0.5 cursor-help outline-none">
+          —
+        </span>
+      </Tooltip>
     );
   }
   const previous = value.previous ?? 0;
   const current = value.current ?? 0;
   const deltaHint = isPercentPoint
-    ? `Өмнөх хугацаанд ${previous}% байсан, одоо ${current}%. Пункт = одоогийн хувь − өмнөх хувь.`
-    : `Өмнөх хугацаанд ${format(previous)}, одоо ${format(current)}. Өөрчлөлт = (одоо − өмнөх) ÷ өмнөх × 100.`;
+    ? `${previousLabel} харьцуулахад: өмнө ${previous}%, одоо ${current}% (пункт = одоогийн хувь − өмнөх хувь).`
+    : `${previousLabel} харьцуулахад: өмнө ${format(previous)}, одоо ${format(current)}.`;
   const up = rounded > 0;
   const down = rounded < 0;
   const Icon = down ? ArrowDownRight : ArrowUpRight;
 
   return (
-    <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 flex-wrap">
-      <Tooltip text={deltaHint}>
+    <Tooltip text={deltaHint}>
       <span
         tabIndex={0}
-        className={`inline-flex items-center gap-0.5 font-bold cursor-help outline-none ${
-          up ? 'text-emerald-600 dark:text-emerald-400' : down ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-slate-400'
+        className={`inline-flex items-center gap-0.5 text-xs font-bold rounded-full px-2 py-0.5 cursor-help outline-none ${
+          up
+            ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-950/50'
+            : down
+              ? 'text-rose-700 bg-rose-50 dark:text-rose-300 dark:bg-rose-950/50'
+              : 'text-slate-500 bg-slate-100 dark:text-slate-400 dark:bg-slate-800'
         }`}
       >
-        {(up || down) && <Icon size={14} aria-hidden />}
+        {(up || down) && <Icon size={13} aria-hidden />}
         {up ? '+' : ''}
         {Math.abs(rounded) >= 100 ? formatNumber(Math.round(rounded)) : rounded}
         {isPercentPoint ? ' пункт' : '%'}
       </span>
-      </Tooltip>
-      <span>{previousLabel} харьцуулахад</span>
-    </p>
+    </Tooltip>
   );
 }
 
@@ -179,13 +175,16 @@ function Money({ value }: { value: number }) {
   );
 }
 
-function StatTile({ icon: Icon, label, hint, value, exact, tone = 'default', children }: {
+function StatTile({ icon: Icon, label, hint, value, exact, tone = 'default', delta, visual, chart, children }: {
   icon: LucideIcon;
   label: string;
   hint: string;
   value: string;
   exact?: number; // мөнгөн дүн бол яг утга (товчилсон утгын tooltip)
   tone?: 'default' | 'warning';
+  delta?: React.ReactNode; // өмнөх хугацаатай харьцуулсан тэмдэг
+  visual?: React.ReactNode; // утгын хажууд (жнь. цагираг хэмжүүр)
+  chart?: React.ReactNode; // доор нь (жнь. sparkline)
   children?: React.ReactNode;
 }) {
   return (
@@ -205,7 +204,14 @@ function StatTile({ icon: Icon, label, hint, value, exact, tone = 'default', chi
           <Icon size={16} aria-hidden />
         </span>
       </div>
-      <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white whitespace-nowrap tabular-nums">{exact !== undefined ? <Money value={exact} /> : value}</p>
+      <div className="flex items-center gap-3 min-w-0">
+        {visual}
+        <div className="min-w-0 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white whitespace-nowrap tabular-nums">{exact !== undefined ? <Money value={exact} /> : value}</p>
+          {delta}
+        </div>
+      </div>
+      {chart && <div className="mt-auto pt-1">{chart}</div>}
       {children}
     </div>
   );
@@ -232,63 +238,6 @@ function LegendDot({ className, label }: { className: string; label: string }) {
       <span className={`w-2.5 h-2.5 rounded-sm ${className}`} aria-hidden />
       {label}
     </span>
-  );
-}
-
-// ---- Хураангуй: гол үзүүлэлтүүдийг энгийн өгүүлбэрээр ----
-function Summary({ data, periodLabel, previousLabel }: { data: AnalyticsData; periodLabel: string; previousLabel: string }) {
-  const { kpis } = data;
-  const works = kpis.works.current ?? 0;
-  const completed = kpis.completed.current ?? 0;
-  const revenue = kpis.revenue.current ?? 0;
-  const revenueChange = changeOf(kpis.revenue);
-  const topService = data.topServices.find((s) => s.revenue > 0);
-
-  const lines: React.ReactNode[] = [];
-  if (works === 0) {
-    lines.push(<>{periodLabel} шинэ ажил бүртгэгдээгүй байна.</>);
-  } else {
-    lines.push(
-      <>
-        {periodLabel} <b>{formatNumber(works)} ажил</b> бүртгэгдсэнээс <b>{formatNumber(completed)}</b> нь дууссан, <b><Money value={revenue} /></b> орлого орсон
-        {revenueChange !== null && (
-          <> — {previousLabel} харьцуулахад {revenueChange >= 0 ? `${revenueChange}%-иар өссөн` : `${Math.abs(revenueChange)}%-иар буурсан`}</>
-        )}
-        .
-      </>
-    );
-  }
-  if (kpis.openWorks > 0) {
-    lines.push(
-      <>
-        Одоогоор <b>{formatNumber(kpis.openWorks)} ажил</b> дуусаагүй байгаа бөгөөд тэдгээрийн нийт дүн <b><Money value={kpis.openAmount} /></b>
-        {kpis.overdue > 0 ? (
-          <>
-            , үүнээс <b className="text-amber-700 dark:text-amber-400">{formatNumber(kpis.overdue)}</b> нь хугацаа хэтэрсэн.
-          </>
-        ) : (
-          '.'
-        )}
-      </>
-    );
-  }
-  if (topService) {
-    lines.push(
-      <>
-        Хамгийн их орлого авчирсан үйлчилгээ: <b>{topService.name}</b> (<Money value={topService.revenue} />).
-      </>
-    );
-  }
-
-  return (
-    <div className="flex gap-3 p-4 sm:p-5 rounded-3xl bg-red-50/70 dark:bg-red-950/30 border border-red-100 dark:border-red-900/60">
-      <Lightbulb size={18} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" aria-hidden />
-      <div className="space-y-1 text-sm text-slate-700 dark:text-slate-200 leading-relaxed [&_b]:font-extrabold [&_b]:text-slate-900 dark:[&_b]:text-white">
-        {lines.map((line, i) => (
-          <p key={i}>{line}</p>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -321,11 +270,8 @@ function TrendChart({ data, unit }: { data: AnalyticsData['trend']; unit: Unit }
               }
             />
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            {unit === 'day' ? 'Өдрөөр' : unit === 'week' ? 'Долоо хоногоор' : 'Сараар'} ·{' '}
-            {metric === 'count'
-              ? `${formatNumber(sumTotal)} ажил бүртгэгдсэнээс ${formatNumber(sumDone)} нь дууссан`
-              : `${formatMoney(sumTotal)} дүнтэй ажлаас ${formatMoney(sumDone)} нь орлого болсон`}
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
+            {unit === 'day' ? 'Өдрөөр' : unit === 'week' ? 'Долоо хоногоор' : 'Сараар'} · {format(sumDone)} / {format(sumTotal)}
           </p>
         </div>
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl self-start" role="group" aria-label="Үзүүлэлт сонгох">
@@ -354,7 +300,7 @@ function TrendChart({ data, unit }: { data: AnalyticsData['trend']; unit: Unit }
 
       <div className="flex gap-3">
         {/* Y тэнхлэг */}
-        <div className="relative h-52 shrink-0 text-[10px] text-slate-400 dark:text-slate-500 text-right tabular-nums">
+        <div className="relative h-52 shrink-0 text-[length:max(10px,0.7rem)] text-slate-400 dark:text-slate-500 text-right tabular-nums">
           <span className="block invisible whitespace-nowrap">{format(max)}</span>
           {[max, max / 2, 0].map((tick, i) => (
             <span key={i} className="absolute right-0 -translate-y-1/2 whitespace-nowrap" style={{ top: `${i * 50}%` }}>
@@ -416,7 +362,7 @@ function TrendChart({ data, unit }: { data: AnalyticsData['trend']; unit: Unit }
           {/* X тэнхлэг */}
           <div className="flex gap-0.5 mt-2">
             {data.map((d, i) => (
-              <span key={d.bucket} className="flex-1 text-center text-[10px] text-slate-400 dark:text-slate-500 tabular-nums overflow-visible whitespace-nowrap">
+              <span key={d.bucket} className="flex-1 text-center text-[length:max(10px,0.7rem)] text-slate-400 dark:text-slate-500 tabular-nums overflow-visible whitespace-nowrap">
                 {i % labelEvery === 0 ? formatBucket(d.bucket, unit) : ''}
               </span>
             ))}
@@ -424,28 +370,26 @@ function TrendChart({ data, unit }: { data: AnalyticsData['trend']; unit: Unit }
         </div>
       </div>
 
-      <p className="text-[11px] text-slate-400 dark:text-slate-500">
-        Ажил бүртгэгдсэн өдрөөр нь бүлэглэнэ. Орлого нь тухайн хугацаанд бүртгэгдсэн ажлаас одоогоор дууссаных нь үнэ.
-      </p>
-
       {/* Дэлгэц уншигчид зориулсан хүснэгт */}
-      <table className="sr-only">
-        <caption>Хугацааны тренд</caption>
-        <thead>
-          <tr><th>Хугацаа</th><th>Бүртгэгдсэн ажил</th><th>Нийт дүн</th><th>Дууссан ажил</th><th>Орлого</th></tr>
-        </thead>
-        <tbody>
-          {data.map((d) => (
-            <tr key={d.bucket}>
-              <td>{formatBucket(d.bucket, unit, true)}</td>
-              <td>{d.works}</td>
-              <td>{formatMoney(d.amount)}</td>
-              <td>{d.completed}</td>
-              <td>{formatMoney(d.revenue)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="sr-only">
+        <table>
+          <caption>Хугацааны тренд</caption>
+          <thead>
+            <tr><th>Хугацаа</th><th>Бүртгэгдсэн ажил</th><th>Нийт дүн</th><th>Дууссан ажил</th><th>Орлого</th></tr>
+          </thead>
+          <tbody>
+            {data.map((d) => (
+              <tr key={d.bucket}>
+                <td>{formatBucket(d.bucket, unit, true)}</td>
+                <td>{d.works}</td>
+                <td>{formatMoney(d.amount)}</td>
+                <td>{d.completed}</td>
+                <td>{formatMoney(d.revenue)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -465,19 +409,20 @@ function StatusBreakdown({ data }: { data: AnalyticsData }) {
     <div className={CARD}>
       <SectionTitle
         title="Ажлын төлөв"
-        subtitle={`Энэ хугацаанд бүртгэгдсэн ${formatNumber(total)} ажил одоо ямар төлөвт байгаа`}
+        subtitle="Энэ хугацаанд бүртгэгдсэн ажил"
         hint="Сонгосон хугацаанд бүртгэгдсэн ажлуудыг одоогийн төлөвөөр нь тоолно. Хувь = тухайн төлөвийн тоо ÷ нийт ажил × 100 (бүхэл тоонд дугуйлсан тул нийлбэр яг 100% биш байж болно). Мөр дээр дарж ажлын жагсаалтыг харна."
       />
       {total === 0 ? (
         <p className="text-sm text-slate-400 dark:text-slate-500 py-6 text-center">Энэ хугацаанд ажил бүртгэгдээгүй байна</p>
       ) : (
         <>
-          <div className="flex h-4 gap-0.5 rounded overflow-hidden" role="img" aria-label={rows.map((r) => `${r.label} ${r.count}`).join(', ')}>
-            {rows.filter((r) => r.count > 0).map((r) => (
-              <div key={r.key} className={r.color} style={{ flexGrow: r.count }} title={`${r.label}: ${r.count}`} />
-            ))}
-          </div>
-          <ul className="mt-5 divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+          <Donut
+            centerLabel="нийт ажил"
+            format={formatNumber}
+            segments={rows.map((r) => ({ key: r.key, label: r.label, value: r.count, strokeClass: r.stroke }))}
+          />
+          <ul className="flex-1 w-full divide-y divide-slate-100 dark:divide-slate-800">
             {rows.map((r) => (
               <li key={r.key}>
                 <Link
@@ -497,6 +442,7 @@ function StatusBreakdown({ data }: { data: AnalyticsData }) {
               </li>
             ))}
           </ul>
+          </div>
 
           {typeTotal > 0 && (
             <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
@@ -552,11 +498,10 @@ function BarList({ rows, emptyText }: {
             <div className={`h-2 rounded ${BAR_TRACK}`}>
               <div className={`h-full rounded ${BAR_FILL}`} style={{ width: `${row.value > 0 ? Math.max((row.value / max) * 100, 1) : 0}%` }} />
             </div>
-            {row.sub && <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{row.sub}</p>}
           </>
         );
         return (
-          <li key={row.key} title={row.title}>
+          <li key={row.key} title={[row.title, row.sub].filter(Boolean).join(' — ')}>
             {row.href ? (
               <Link href={row.href} className="block -mx-2 px-2 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
                 {body}
@@ -571,6 +516,67 @@ function BarList({ rows, emptyText }: {
   );
 }
 
+// ---- Ажилчид: саарал зам = хуваарилсан, улаан = дууссан (нэг шкалаар) ----
+function EmployeeBars({ data }: { data: AnalyticsData }) {
+  const rows = data.topEmployees;
+  if (rows.length === 0) return <p className="text-sm text-slate-400 dark:text-slate-500 py-6 text-center">Энэ хугацаанд хуваарилсан ажил алга</p>;
+  const max = Math.max(...rows.map((e) => e.assigned), 1);
+  return (
+    <>
+      <div className="flex items-center gap-4 flex-wrap mb-3">
+        <LegendDot className={BAR_FILL} label="Дууссан" />
+        <LegendDot className={BAR_TRACK_STRONG} label="Хуваарилсан" />
+      </div>
+      <ul className="space-y-1">
+        {rows.map((e) => (
+          <li key={e.userId}>
+            <Link
+              href={workshopHref({ employee: e.userId, createdFrom: data.since })}
+              title={`${e.name}: ${e.completed} дууссан / ${e.assigned} хуваарилсан (${percent(e.completed, e.assigned)}%) · ${formatNumber(e.revenue)} ₮ орлого`}
+              className="block -mx-2 px-2 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+            >
+              <div className="flex items-baseline justify-between gap-3 text-sm mb-1.5">
+                <span className="font-bold text-slate-700 dark:text-slate-200 truncate">{e.name}</span>
+                <span className="shrink-0 tabular-nums text-slate-500 dark:text-slate-400">
+                  <span className="font-bold text-slate-900 dark:text-white">{e.completed}</span>/{e.assigned} · <Money value={e.revenue} />
+                </span>
+              </div>
+              <div className="h-2.5 rounded bg-slate-100 dark:bg-slate-800">
+                <div className={`h-full rounded ${BAR_TRACK_STRONG} relative`} style={{ width: `${(e.assigned / max) * 100}%` }}>
+                  <div className={`absolute inset-y-0 left-0 rounded ${BAR_FILL}`} style={{ width: `${percent(e.completed, e.assigned)}%` }} />
+                </div>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+// ---- Орлогын хандлага: дууссан ажлын орлого хугацаагаар ----
+function RevenueTrend({ data }: { data: AnalyticsData }) {
+  const total = data.trend.reduce((s, d) => s + d.revenue, 0);
+  return (
+    <div className={`${CARD} space-y-4`}>
+      <SectionTitle
+        title="Орлогын хандлага"
+        subtitle={`Нийт ${formatMoney(total)}`}
+        hint="Тухайн хугацаанд бүртгэгдсэн ажлаас одоогоор 'Дууссан' төлөвтэй ажлын үнийн нийлбэр. Цэг дээр очиж яг дүнг харна."
+      />
+      {total === 0 ? (
+        <p className="text-sm text-slate-400 dark:text-slate-500 py-6 text-center">Энэ хугацаанд орлого алга</p>
+      ) : (
+        <AreaChart
+          ariaLabel={`Орлогын хандлага, нийт ${formatMoney(total)}`}
+          format={formatMoney}
+          points={data.trend.map((d) => ({ key: d.bucket, short: formatBucket(d.bucket, data.unit), long: formatBucket(d.bucket, data.unit, true), value: d.revenue }))}
+        />
+      )}
+    </div>
+  );
+}
+
 // ---- Хугацаа хэтэрсэн ажлууд: шууд арга хэмжээ авах жагсаалт ----
 function OverdueList({ data }: { data: AnalyticsData }) {
   const { overdueWorks, kpis } = data;
@@ -579,7 +585,7 @@ function OverdueList({ data }: { data: AnalyticsData }) {
     <div className={CARD}>
       <SectionTitle
         title="Анхаарах ажлууд"
-        subtitle={`Дуусах хугацаа нь өнгөрсөн ${formatNumber(kpis.overdue)} ажил байна (хамгийн их хоцорсноос)`}
+        subtitle={`${formatNumber(kpis.overdue)} ажил хоцорсон`}
         hint="Дуусах огноо нь өнөөдрөөс өмнө боловч дуусаагүй, цуцлагдаагүй ажлууд. Хамгийн их хоцорсон эхний 5-ыг харуулна. Сонгосон хугацаанаас хамаарахгүй."
         action={
           <Link
@@ -600,7 +606,7 @@ function OverdueList({ data }: { data: AnalyticsData }) {
               <Tooltip text={`Дуусах огноо (${w.dueDate.replaceAll('-', '.')})-ноос хойш өнгөрсөн хоног`} className="shrink-0">
                 <span className="w-16 text-center rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 py-1.5">
                   <span className="block text-sm font-black tabular-nums">{formatNumber(w.daysOverdue)}</span>
-                  <span className="block text-[10px] font-bold">хоног</span>
+                  <span className="block text-[length:max(10px,0.7rem)] font-bold">хоног</span>
                 </span>
               </Tooltip>
               <span className="flex-1 min-w-0">
@@ -672,7 +678,7 @@ export default function AnalyticsPage() {
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Аналитик тойм</h1>
           <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1">
-            Ажил, орлого, харилцагчийн үзүүлэлтүүд. Сонгосон хугацаанд бүртгэгдсэн өгөгдлөөр тооцож, өмнөх ижил хугацаатай харьцуулна.
+            {rangeOption.periodLabel} · өмнөх ижил хугацаатай харьцуулсан
           </p>
         </div>
 
@@ -716,101 +722,99 @@ export default function AnalyticsPage() {
         <div className={`space-y-6 transition-opacity ${loading ? 'opacity-50 pointer-events-none' : ''}`} aria-busy={loading}>
           {error && <p className="text-sm font-bold text-rose-600 dark:text-rose-400">{error}</p>}
 
-          <Summary data={data} periodLabel={rangeOption.periodLabel} previousLabel={rangeOption.previousLabel} />
+          {/* Гүйцэтгэл: сонгосон хугацааны үзүүлэлтүүд (хандлагын шугамтай) */}
+          <section aria-label="Гол үзүүлэлтүүд" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <StatTile
+              icon={Briefcase}
+              label="Бүртгэгдсэн ажил"
+              hint="Сонгосон хугацаанд шинээр бүртгэгдсэн бүх ажил (төлөв харгалзахгүй)."
+              value={formatNumber(data.kpis.works.current ?? 0)}
+              delta={<Delta value={data.kpis.works} previousLabel={rangeOption.previousLabel} />}
+              chart={<Sparkline values={data.trend.map((d) => d.works)} label="Бүртгэгдсэн ажлын хандлага" />}
+            />
+            <StatTile
+              icon={CheckCircle2}
+              label="Гүйцэтгэлийн хувь"
+              hint="Дууссан ажил ÷ (бүртгэгдсэн ажил − цуцлагдсан) × 100. Сонгосон хугацаанд бүртгэгдсэн ажлаар тооцно."
+              value={data.kpis.completionRate.current === null ? '—' : `${data.kpis.completionRate.current}%`}
+              visual={<RingGauge value={data.kpis.completionRate.current} size={44} />}
+              delta={<Delta value={data.kpis.completionRate} previousLabel={rangeOption.previousLabel} isPercentPoint />}
+            >
+              <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
+                <span className="font-bold text-slate-700 dark:text-slate-200">{formatNumber(completedNow)}</span> дууссан
+              </p>
+            </StatTile>
+            <StatTile
+              icon={Wallet}
+              label="Орлого"
+              hint="Сонгосон хугацаанд бүртгэгдсэн ажлаас одоогоор 'Дууссан' төлөвтэй ажлуудын нийт үнэ."
+              value={formatMoney(data.kpis.revenue.current ?? 0)}
+              exact={data.kpis.revenue.current ?? 0}
+              delta={<Delta value={data.kpis.revenue} previousLabel={rangeOption.previousLabel} format={formatMoney} />}
+              chart={<Sparkline values={data.trend.map((d) => d.revenue)} label="Орлогын хандлага" />}
+            />
+            <StatTile
+              icon={Receipt}
+              label="Дундаж ажлын үнэ"
+              hint="Орлогыг дууссан ажлын тоонд хуваасан дүн — нэг ажлаас дунджаар хэдэн төгрөг орж байгаа."
+              value={avgTicket === null ? '—' : formatMoney(avgTicket)}
+              exact={avgTicket === null ? undefined : Math.round(avgTicket)}
+              delta={<Delta value={{ current: avgTicket, previous: avgTicketPrev }} previousLabel={rangeOption.previousLabel} format={formatMoney} />}
+              chart={<Sparkline values={data.trend.map((d) => (d.completed ? d.revenue / d.completed : 0))} label="Дундаж ажлын үнийн хандлага" />}
+            />
+            <StatTile
+              icon={UserPlus}
+              label="Шинэ харилцагч"
+              hint="Сонгосон хугацаанд бүртгэгдсэн хувь хүн болон байгууллага харилцагч."
+              value={formatNumber(data.kpis.newCustomers.current ?? 0)}
+              delta={<Delta value={data.kpis.newCustomers} previousLabel={rangeOption.previousLabel} />}
+            />
+            <StatTile
+              icon={FileText}
+              label="Анкетын хариулт"
+              hint="Сонгосон хугацаанд нийтийн анкетаар (холбоосоор) ирсэн хариултын тоо."
+              value={formatNumber(data.kpis.submissions.current ?? 0)}
+              delta={<Delta value={data.kpis.submissions} previousLabel={rangeOption.previousLabel} />}
+            />
 
-          {/* Гүйцэтгэл: сонгосон хугацааны үзүүлэлтүүд */}
-          <section aria-label="Гол үзүүлэлтүүд">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <StatTile
-                icon={Briefcase}
-                label="Бүртгэгдсэн ажил"
-                hint="Сонгосон хугацаанд шинээр бүртгэгдсэн бүх ажил (төлөв харгалзахгүй)."
-                value={formatNumber(data.kpis.works.current ?? 0)}
-              >
-                <Delta value={data.kpis.works} previousLabel={rangeOption.previousLabel} />
-              </StatTile>
-              <StatTile
-                icon={CheckCircle2}
-                label="Гүйцэтгэлийн хувь"
-                hint="Дууссан ажил ÷ (бүртгэгдсэн ажил − цуцлагдсан) × 100. Сонгосон хугацаанд бүртгэгдсэн ажлаар тооцно. Өөрчлөлтийг пунктээр (хувийн зөрүү) харуулна."
-                value={data.kpis.completionRate.current === null ? '—' : `${data.kpis.completionRate.current}%`}
-              >
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-bold text-slate-700 dark:text-slate-200">{formatNumber(completedNow)}</span> ажил дууссан
+            {/* Одоогийн байдал: хугацаанаас үл хамаарна */}
+            <StatTile
+              icon={Hourglass}
+              label="Хүлээгдэж буй орлого"
+              hint="Одоогоор 'Хүлээгдэж буй' болон 'Хийгдэж байна' төлөвтэй бүх ажлын нийт үнэ — дуусвал орлого болно. Сонгосон хугацаанаас хамаарахгүй."
+              value={formatMoney(data.kpis.openAmount)}
+              exact={data.kpis.openAmount}
+            >
+              <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
+                <span className="font-bold text-slate-700 dark:text-slate-200">{formatNumber(data.kpis.openWorks)}</span> ажил дуусаагүй
+              </p>
+            </StatTile>
+            <StatTile
+              icon={AlertTriangle}
+              label="Хугацаа хэтэрсэн"
+              hint="Дуусах огноо нь өнөөдрөөс өмнө боловч дуусаагүй, цуцлагдаагүй ажил. Сонгосон хугацаанаас хамаарахгүй, одоогийн байдлаар."
+              value={formatNumber(data.kpis.overdue)}
+              tone={data.kpis.overdue > 0 ? 'warning' : 'default'}
+            >
+              {data.kpis.overdue > 0 ? (
+                <Link
+                  href={workshopHref({ due: 'overdue', sort: 'due' })}
+                  className="text-xs font-bold text-amber-700 dark:text-amber-400 inline-flex items-center gap-1 hover:underline"
+                >
+                  <CalendarClock size={14} aria-hidden /> Харах →
+                </Link>
+              ) : (
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold inline-flex items-center gap-1">
+                  <CheckCircle2 size={14} aria-hidden /> Хоцорсон ажилгүй
                 </p>
-                <Delta value={data.kpis.completionRate} previousLabel={rangeOption.previousLabel} isPercentPoint />
-              </StatTile>
-              <StatTile
-                icon={Wallet}
-                label="Орлого"
-                hint="Сонгосон хугацаанд бүртгэгдсэн ажлаас одоогоор 'Дууссан' төлөвтэй ажлуудын нийт үнэ."
-                value={formatMoney(data.kpis.revenue.current ?? 0)}
-                exact={data.kpis.revenue.current ?? 0}
-              >
-                <Delta value={data.kpis.revenue} previousLabel={rangeOption.previousLabel} format={formatMoney} />
-              </StatTile>
-              <StatTile
-                icon={Receipt}
-                label="Дундаж ажлын үнэ"
-                hint="Орлогыг дууссан ажлын тоонд хуваасан дүн — нэг ажлаас дунджаар хэдэн төгрөг орж байгаа."
-                value={avgTicket === null ? '—' : formatMoney(avgTicket)}
-                exact={avgTicket === null ? undefined : Math.round(avgTicket)}
-              >
-                <Delta value={{ current: avgTicket, previous: avgTicketPrev }} previousLabel={rangeOption.previousLabel} format={formatMoney} />
-              </StatTile>
-              <StatTile
-                icon={UserPlus}
-                label="Шинэ харилцагч"
-                hint="Сонгосон хугацаанд бүртгэгдсэн хувь хүн болон байгууллага харилцагч."
-                value={formatNumber(data.kpis.newCustomers.current ?? 0)}
-              >
-                <Delta value={data.kpis.newCustomers} previousLabel={rangeOption.previousLabel} />
-              </StatTile>
-              <StatTile
-                icon={FileText}
-                label="Анкетын хариулт"
-                hint="Сонгосон хугацаанд нийтийн анкетаар (холбоосоор) ирсэн хариултын тоо."
-                value={formatNumber(data.kpis.submissions.current ?? 0)}
-              >
-                <Delta value={data.kpis.submissions} previousLabel={rangeOption.previousLabel} />
-              </StatTile>
-
-              {/* Одоогийн байдал: хугацаанаас үл хамаарна */}
-              <StatTile
-                icon={Hourglass}
-                label="Хүлээгдэж буй орлого"
-                hint="Одоогоор 'Хүлээгдэж буй' болон 'Хийгдэж байна' төлөвтэй бүх ажлын нийт үнэ — дуусвал орлого болно. Сонгосон хугацаанаас хамаарахгүй."
-                value={formatMoney(data.kpis.openAmount)}
-                exact={data.kpis.openAmount}
-              >
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-bold text-slate-700 dark:text-slate-200">{formatNumber(data.kpis.openWorks)}</span> ажил дуусаагүй · одоогийн байдлаар
-                </p>
-              </StatTile>
-              <StatTile
-                icon={AlertTriangle}
-                label="Хугацаа хэтэрсэн"
-                hint="Дуусах огноо нь өнөөдрөөс өмнө боловч дуусаагүй, цуцлагдаагүй ажил. Сонгосон хугацаанаас хамаарахгүй, одоогийн байдлаар."
-                value={formatNumber(data.kpis.overdue)}
-                tone={data.kpis.overdue > 0 ? 'warning' : 'default'}
-              >
-                {data.kpis.overdue > 0 ? (
-                  <Link
-                    href={workshopHref({ due: 'overdue', sort: 'due' })}
-                    className="text-xs font-bold text-amber-700 dark:text-amber-400 inline-flex items-center gap-1 hover:underline"
-                  >
-                    <CalendarClock size={14} aria-hidden /> Жагсаалтыг харах →
-                  </Link>
-                ) : (
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold inline-flex items-center gap-1">
-                    <CheckCircle2 size={14} aria-hidden /> Хоцорсон ажилгүй
-                  </p>
-                )}
-              </StatTile>
-            </div>
+              )}
+            </StatTile>
           </section>
 
-          <TrendChart data={data.trend} unit={data.unit} />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <TrendChart data={data.trend} unit={data.unit} />
+            <RevenueTrend data={data} />
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <StatusBreakdown data={data} />
@@ -819,7 +823,7 @@ export default function AnalyticsPage() {
             <div className={CARD}>
               <SectionTitle
                 title="Шилдэг үйлчилгээ"
-                subtitle="Дууссан ажлын орлогоор эрэмбэлсэн эхний 5"
+                subtitle="Орлогоор эхний 5"
                 hint="Орлого = дууссан ажил доторх тухайн үйлчилгээний (үнэ × тоо ширхэг)-ийн нийлбэр. Нэг ажилд олон үйлчилгээ байж болно. Цуцлагдсан ажлыг тооцохгүй. Баганын урт нь тэргүүлэгчтэй харьцуулсан."
               />
               <BarList
@@ -839,59 +843,10 @@ export default function AnalyticsPage() {
             <div className={CARD}>
               <SectionTitle
                 title="Ажилчдын гүйцэтгэл"
-                subtitle="Дуусгасан ажлын тоогоор эрэмбэлсэн эхний 5"
+                subtitle="Дууссан / хуваарилсан ажил"
                 hint="Сонгосон хугацаанд бүртгэгдэж, тухайн ажилтанд хуваарилагдсан ажлаар тооцно. Хувь = дууссан ÷ хуваарилсан × 100. Орлого = дууссан ажлын үнийн нийлбэр."
               />
-              {data.topEmployees.length === 0 ? (
-                <p className="text-sm text-slate-400 dark:text-slate-500 py-6 text-center">Энэ хугацаанд хуваарилсан ажил алга</p>
-              ) : (
-                <div className="overflow-x-auto -mx-1">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="text-xs text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800">
-                        <th className="font-bold py-2 px-1">Ажилтан</th>
-                        <th className="font-bold py-2 px-1 text-right">
-                          <span className="inline-flex items-center gap-1">Дууссан / Хуваарилсан <InfoTip size={12} text="Дууссан: “Дууссан” төлөвтэй ажил. Хуваарилсан: тухайн ажилтанд оноосон бүх ажил (төлөв харгалзахгүй)." /></span>
-                        </th>
-                        <th className="font-bold py-2 px-1 text-right">
-                          <span className="inline-flex items-center gap-1">Орлого <InfoTip size={12} text="Тухайн ажилтны дуусгасан ажлуудын үнийн нийлбэр." /></span>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {data.topEmployees.map((e) => {
-                        const rate = percent(e.completed, e.assigned);
-                        return (
-                          <tr key={e.userId}>
-                            <td className="py-3 px-1">
-                              <Link
-                                href={workshopHref({ employee: e.userId, createdFrom: data.since })}
-                                className="font-bold text-slate-700 dark:text-slate-200 hover:text-red-600 dark:hover:text-red-400"
-                              >
-                                {e.name}
-                              </Link>
-                              <Tooltip text={`Гүйцэтгэл: ${e.completed} дууссан ÷ ${e.assigned} хуваарилсан = ${rate}%`} className="w-full">
-                                <div className="flex items-center gap-2 mt-1.5 w-full">
-                                  <div className={`h-1.5 rounded flex-1 max-w-32 ${BAR_TRACK}`}>
-                                    <div className={`h-full rounded ${BAR_FILL}`} style={{ width: `${rate}%` }} />
-                                  </div>
-                                  <span className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">{rate}%</span>
-                                </div>
-                              </Tooltip>
-                            </td>
-                            <td className="py-3 px-1 text-right tabular-nums text-slate-600 dark:text-slate-300 whitespace-nowrap">
-                              <span className="font-bold text-slate-900 dark:text-white">{e.completed}</span> / {e.assigned}
-                            </td>
-                            <td className="py-3 px-1 text-right tabular-nums text-slate-600 dark:text-slate-300 whitespace-nowrap">
-                              <Money value={e.revenue} />
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              <EmployeeBars data={data} />
             </div>
 
           </div>

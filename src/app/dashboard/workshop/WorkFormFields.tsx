@@ -237,12 +237,12 @@ export default function WorkFormFields({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className={labelClass}>Үйлчилгээнүүд *</label>
-          {hasServices && <span className="text-[11px] font-bold text-slate-400">{services.length} үйлчилгээ</span>}
+          {hasServices && <span className="text-[length:max(11px,0.75rem)] font-bold text-slate-400">{services.length} үйлчилгээ</span>}
         </div>
 
         {hasServices && (
           <div className="rounded-xl border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800">
-            <div className="hidden @md:grid grid-cols-[1fr_4.5rem_7.5rem_6.5rem_2rem] gap-2 px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+            <div className="hidden @md:grid grid-cols-[1fr_4.5rem_7.5rem_6.5rem_2rem] gap-2 px-3 py-2 text-[length:max(10px,0.7rem)] font-extrabold uppercase tracking-wider text-slate-400">
               <span>Үйлчилгээ</span>
               <span>Тоо</span>
               <span className="inline-flex items-center gap-1">Нэгж үнэ (₮) <InfoTip size={11} text="Үйлчилгээ нэмэхэд каталогийн үнэ автоматаар бөглөгдөнө. Энэ ажилд зориулж өөрчилж болно, каталог өөрчлөгдөхгүй." /></span>
@@ -258,7 +258,7 @@ export default function WorkFormFields({
                   <Briefcase size={13} className="text-slate-400 shrink-0" />
                   <span className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{line.service_name}</span>
                   {!line.service_id && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0">устсан</span>
+                    <span className="text-[length:max(9px,0.65rem)] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0">устсан</span>
                   )}
                 </div>
                 <button

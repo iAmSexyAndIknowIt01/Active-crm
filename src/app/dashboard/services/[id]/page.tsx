@@ -185,7 +185,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                     className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm font-bold w-full sm:w-72"
                   />
                 )}
-                <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full ${
+                <span className={`text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full ${
                   isActive
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
@@ -204,7 +204,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
               <DollarSign size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div className="w-full">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1">
                   Үнэ (₮)
                   <InfoTip size={12} text="Каталогийн үндсэн үнэ. Шинэ ажил, цаг захиалгад нэмэхэд автоматаар бөглөгдөнө. Үнийг өөрчлөхөд өмнө бүртгэсэн ажлын үнэ өөрчлөгдөхгүй." />
                 </p>
@@ -226,7 +226,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
               <Clock size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div className="w-full">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1">
                   Хугацаа (минутаар)
                   <InfoTip size={12} text="Үйлчилгээ үргэлжлэх хугацаа. Цаг захиалахад дуусах цагийг сонгосон үйлчилгээнүүдийн хугацааны нийлбэрээр автоматаар бодно." />
                 </p>
@@ -248,7 +248,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
               <Tag size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div className="w-full">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ангилал</p>
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ангилал</p>
                 {!isEditing ? (
                   <p className="font-bold text-slate-800 dark:text-slate-200">{service.category || 'Ангилалгүй'}</p>
                 ) : (
@@ -269,7 +269,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                 <XCircle size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               )}
               <div className="w-full">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Төлөв</p>
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Төлөв</p>
                 {!isEditing ? (
                   <p className="font-bold text-slate-800 dark:text-slate-200">{isActive ? 'Идэвхтэй' : 'Идэвхгүй'}</p>
                 ) : (
@@ -288,7 +288,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 sm:col-span-2">
               <FileText size={18} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="w-full">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Тайлбар</p>
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Тайлбар</p>
                 {!isEditing ? (
                   <p className="font-bold text-slate-800 dark:text-slate-200 whitespace-pre-wrap">{service.description || 'Тайлбар байхгүй'}</p>
                 ) : (
@@ -305,7 +305,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
               <Calendar size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Үүсгэсэн огноо</p>
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Үүсгэсэн огноо</p>
                 <p className="font-bold text-slate-800 dark:text-slate-200">
                   {service.created_at ? new Date(service.created_at).toLocaleDateString() : 'Тодорхойгүй'}
                 </p>

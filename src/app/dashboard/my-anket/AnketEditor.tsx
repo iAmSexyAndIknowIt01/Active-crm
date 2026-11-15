@@ -1,16 +1,45 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import QRCode from 'qrcode';
-import { Save, Plus, Trash2, CheckCircle2, Copy, Eye, Settings2, Sparkles, ExternalLink, ArrowLeft, QrCode, Star } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  CheckCircle2,
+  Copy,
+  CopyPlus,
+  ExternalLink,
+  Eye,
+  Loader2,
+  Pencil,
+  Plus,
+  QrCode,
+  Save,
+  Trash2,
+  X,
+} from 'lucide-react';
 import LoadingComponent from '@/src/app/components/loading';
-import { CUSTOMER_FIELD_OPTIONS, inferCustomerField } from '@/src/lib/form-customer';
-import { DEFAULT_TEMPLATE, type TemplateQuestion } from '@/src/lib/form-templates';
+import AnketForm, { type AnketAnswers } from '@/src/components/anket/AnketForm';
+import {
+  DEFAULT_TEMPLATE,
+  QUESTION_TYPES,
+  QUESTION_TYPE_INFO,
+  hasOptions,
+  looksLikeRating,
+  parseTemplateInput,
+  type QuestionType,
+  type TemplateQuestion,
+} from '@/src/lib/form-templates';
 import { anketFormUrl } from './form-url';
+
+const newId = () => `${Date.now()}${Math.floor(Math.random() * 1000)}`;
+const snapshot = (title: string, description: string, questions: TemplateQuestion[]) => JSON.stringify({ title, description, questions });
 
 // Анкет үүсгэх (templateId-гүй) болон засах (templateId-тэй) хуудасны засварлагч
 export default function AnketEditor({ templateId, justCreated = false }: { templateId?: string; justCreated?: boolean }) {
@@ -20,18 +49,21 @@ export default function AnketEditor({ templateId, justCreated = false }: { templ
   const [formTitle, setFormTitle] = useState(DEFAULT_TEMPLATE.title);
   const [formDescription, setFormDescription] = useState(DEFAULT_TEMPLATE.description ?? '');
   const [questions, setQuestions] = useState<TemplateQuestion[]>(DEFAULT_TEMPLATE.questions);
-
+  const [saved, setSaved] = useState(() => snapshot(DEFAULT_TEMPLATE.title, DEFAULT_TEMPLATE.description ?? '', DEFAULT_TEMPLATE.questions));
+  const [focusId, setFocusId] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState('');
-  const [isDefault, setIsDefault] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
+  const [tab, setTab] = useState<'editor' | 'preview'>('editor');
+  const [previewAnswers, setPreviewAnswers] = useState<AnketAnswers>({});
   const [loading, setLoading] = useState(!isNew);
   const [notFound, setNotFound] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [savedMessage, setSavedMessage] = useState(justCreated ? 'Анкет амжилттай үүслээ. Доорх QR код, холбоосоор хуваалцана уу.' : '');
+  const [savedMessage, setSavedMessage] = useState(justCreated ? 'Анкет үүслээ. Баруун талын QR код, холбоосоор хуваалцана уу.' : '');
   const [errorMessage, setErrorMessage] = useState('');
   const [copied, setCopied] = useState(false);
   const [baseUrl, setBaseUrl] = useState('');
+
+  const dirty = snapshot(formTitle, formDescription, questions) !== saved;
 
   useEffect(() => {
     setBaseUrl(window.location.origin);
@@ -46,21 +78,24 @@ export default function AnketEditor({ templateId, justCreated = false }: { templ
           else setErrorMessage(json.error || 'Анкетыг ачаалахад алдаа гарлаа.');
           return;
         }
-        setFormTitle(json.data.title || '');
-        setFormDescription(json.data.description || '');
+        const title = json.data.title || '';
+        const description = json.data.description || '';
+        // Хуучин анкетад хадгалагдсан харилцагчийн талбарын холболтыг (maps_to) хаяна — хадгалахад арилна
+        const loaded: TemplateQuestion[] = (Array.isArray(json.data.questions) ? json.data.questions : []).map(
+          (q: TemplateQuestion & { maps_to?: unknown }) => ({
+            id: String(q.id),
+            label: q.label ?? '',
+            type: (QUESTION_TYPES as readonly string[]).includes(q.type) ? q.type : 'text',
+            required: q.required === true,
+            ...(Array.isArray(q.options) ? { options: q.options } : {}),
+          })
+        );
+        setFormTitle(title);
+        setFormDescription(description);
+        setQuestions(loaded);
+        setSaved(snapshot(title, description, loaded));
         setCompanyId(json.data.company_id || '');
-        setIsDefault(!!json.data.is_default);
         setIsActive(!!json.data.is_active);
-        if (Array.isArray(json.data.questions)) {
-          // Хуучин загварт maps_to байхгүй бол асуултын нэрээс таамаглаж харуулна (хадгалахад тодорхой болно)
-          setQuestions(
-            json.data.questions.map((q: TemplateQuestion) => ({
-              ...q,
-              id: String(q.id),
-              maps_to: q.maps_to ?? inferCustomerField(q.label ?? '') ?? '',
-            }))
-          );
-        }
       } catch (err) {
         console.error('Failed to load template:', err);
         setErrorMessage('Сүлжээний алдаа гарлаа.');
@@ -71,27 +106,55 @@ export default function AnketEditor({ templateId, justCreated = false }: { templ
     fetchTemplate();
   }, [templateId]);
 
-  const handleAddQuestion = () => {
-    setQuestions([
-      ...questions,
-      { id: Date.now().toString(), label: 'Шинэ асуулт', type: 'text', required: false, maps_to: '' },
-    ]);
+  // Хадгалаагүй өөрчлөлттэй хуудсыг хаах үед анхааруулна
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
+
+  const updateQuestion = (id: string, patch: Partial<TemplateQuestion>) =>
+    setQuestions((qs) => qs.map((q) => (q.id === id ? { ...q, ...patch } : q)));
+
+  const addQuestion = () => {
+    const id = newId();
+    setQuestions((qs) => [...qs, { id, label: '', type: 'text', required: false }]);
+    setFocusId(id);
   };
 
-  const handleDeleteQuestion = (id: string) => {
-    setQuestions(questions.filter((q) => q.id !== id));
+  const duplicateQuestion = (index: number) => {
+    const id = newId();
+    setQuestions((qs) => [...qs.slice(0, index + 1), { ...qs[index], id }, ...qs.slice(index + 1)]);
+    setFocusId(id);
   };
 
-  const handleQuestionChange = (id: string, field: keyof TemplateQuestion, value: unknown) => {
-    setQuestions(questions.map((q) => (q.id === id ? { ...q, [field]: value } : q)));
-  };
+  const moveQuestion = (index: number, direction: -1 | 1) =>
+    setQuestions((qs) => {
+      const target = index + direction;
+      if (target < 0 || target >= qs.length) return qs;
+      const next = [...qs];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+
+  const removeQuestion = (id: string) => setQuestions((qs) => qs.filter((q) => q.id !== id));
 
   // Шинэ анкет бол үүсгээд засах хуудас руу шилжинэ, байгаа анкетыг байранд нь хадгална
   const handleSave = async () => {
-    setSaving(true);
     setSavedMessage('');
     setErrorMessage('');
 
+    // Сервертэй ижил дүрмээр урьдчилж шалгана (хоосон асуулт, сонголтгүй асуулт г.м.)
+    const parsed = parseTemplateInput({ title: formTitle, description: formDescription, questions });
+    if (!parsed.ok) {
+      setErrorMessage(parsed.error);
+      setTab('editor');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    setSaving(true);
     try {
       const response = await fetch(isNew ? '/api/templates' : `/api/templates/${templateId}`, {
         method: isNew ? 'POST' : 'PUT',
@@ -99,15 +162,14 @@ export default function AnketEditor({ templateId, justCreated = false }: { templ
         body: JSON.stringify({ title: formTitle, description: formDescription, questions }),
       });
       const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Хадгалахад алдаа гарлаа.');
-      }
+      if (!response.ok || !data.success) throw new Error(data.error || 'Хадгалахад алдаа гарлаа.');
 
+      setSaved(snapshot(formTitle, formDescription, questions));
       if (isNew) {
         router.replace(`/dashboard/my-anket/${data.data.id}?created=1`);
         return;
       }
-      setSavedMessage('Өөрчлөлт амжилттай хадгалагдлаа!');
+      setSavedMessage('Өөрчлөлт хадгалагдлаа.');
       setTimeout(() => setSavedMessage(''), 3000);
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : 'Сүлжээний алдаа гарлаа.');
@@ -116,7 +178,7 @@ export default function AnketEditor({ templateId, justCreated = false }: { templ
     }
   };
 
-  const clientFormUrl = companyId && templateId && baseUrl ? anketFormUrl(baseUrl, companyId, templateId, isDefault) : '';
+  const clientFormUrl = companyId && templateId && baseUrl ? anketFormUrl(baseUrl, companyId, templateId) : '';
 
   // QR кодыг браузер дотор үүсгэнэ (анкетын холбоосыг гуравдагч сервис рүү илгээхгүй)
   const [qrCodeImageUrl, setQrCodeImageUrl] = useState('');
@@ -137,9 +199,7 @@ export default function AnketEditor({ templateId, justCreated = false }: { templ
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) {
-    return <LoadingComponent text="Анкетын мэдээллийг ачаалж байна..." />;
-  }
+  if (loading) return <LoadingComponent text="Анкетыг ачаалж байна..." />;
 
   if (notFound) {
     return (
@@ -154,353 +214,409 @@ export default function AnketEditor({ templateId, justCreated = false }: { templ
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pb-20 font-sans antialiased text-slate-800 dark:text-slate-100 relative">
-      {/* Хадгалж байх үед гарч ирэх бүтэн дэлгэцийн лоадер */}
-      {saving && <LoadingComponent text="Анкетыг хадгалж байна..." />}
-
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs">
-        <div className="space-y-2">
+    <div className="max-w-6xl mx-auto space-y-5 pb-24 text-slate-800 dark:text-slate-100">
+      {/* Толгой */}
+      <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="space-y-1.5 min-w-0">
           <Link
             href="/dashboard/my-anket"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
           >
             <ArrowLeft size={14} /> Анкетууд
           </Link>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 text-xs font-bold tracking-wide uppercase border border-red-100 dark:border-red-900">
-              <Sparkles size={12} /> {isNew ? 'Шинэ анкет' : 'Анкет засах'}
-            </div>
-            {!isNew && isDefault && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 text-xs font-bold">
-                <Star size={12} /> Үндсэн
-              </span>
-            )}
-            {!isNew && !isActive && (
-              <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-bold">
-                Идэвхгүй
-              </span>
-            )}
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {isNew ? 'Анкет нэмэх' : formTitle || 'Нэргүй анкет'}
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white truncate">
+            {isNew ? 'Шинэ анкет' : formTitle || 'Нэргүй анкет'}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
-            Үйлчлүүлэгчдэд зориулсан асуулга болон бүртгэлийн хуудсаа тохируулах.
-          </p>
+          <div className="flex items-center gap-2 flex-wrap text-xs font-bold">
+            <span className="text-slate-500 dark:text-slate-400 font-semibold">{questions.length} асуулт</span>
+            {!isNew && (
+              <span
+                className={`px-2 py-0.5 rounded-full ${
+                  isActive ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                }`}
+              >
+                {isActive ? 'Хариулт хүлээн авч байна' : 'Идэвхгүй'}
+              </span>
+            )}
+            {dirty && <span className="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300">Хадгалаагүй өөрчлөлттэй</span>}
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="bg-slate-100/80 dark:bg-slate-800 p-1.5 rounded-2xl flex items-center gap-1 border border-slate-200/60 dark:border-slate-700">
-            <button
-              type="button"
-              onClick={() => setActiveTab('editor')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'editor'
-                  ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-sm border border-slate-200/50 dark:border-slate-700'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Settings2 size={15} /> Засварлах
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('preview')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'preview'
-                  ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-sm border border-slate-200/50 dark:border-slate-700'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Eye size={15} /> Урьдчилан харах
-            </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl flex items-center gap-1">
+            {(
+              [
+                ['editor', 'Засах', Pencil],
+                ['preview', 'Урьдчилан харах', Eye],
+              ] as const
+            ).map(([key, label, Icon]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setTab(key)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                  tab === key ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <Icon size={15} /> {label}
+              </button>
+            ))}
           </div>
-
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 active:scale-98 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-md shadow-red-500/20 cursor-pointer disabled:opacity-50"
+            disabled={saving || (!isNew && !dirty)}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-2xl font-bold text-sm transition-colors shadow-md shadow-red-500/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Save size={16} />
-            {isNew ? 'Анкет үүсгэх' : 'Өөрчлөлтийг хадгалах'}
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            {isNew ? 'Анкет үүсгэх' : dirty ? 'Хадгалах' : 'Хадгалагдсан'}
           </button>
         </div>
       </div>
 
       {savedMessage && (
-        <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 px-5 py-4 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-bold shadow-2xs animate-in fade-in slide-in-from-top-2">
-          <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-          {savedMessage}
+        <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 px-5 py-3.5 rounded-2xl flex items-center gap-3 text-sm font-bold animate-in fade-in slide-in-from-top-2">
+          <CheckCircle2 size={18} className="shrink-0" /> {savedMessage}
         </div>
       )}
-
       {errorMessage && (
-        <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 px-5 py-4 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-bold shadow-2xs animate-in fade-in slide-in-from-top-2">
-          <span className="text-rose-600 dark:text-rose-400 font-bold">Алдаа:</span> {errorMessage}
+        <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 px-5 py-3.5 rounded-2xl flex items-center gap-3 text-sm font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertTriangle size={18} className="shrink-0" /> {errorMessage}
         </div>
       )}
 
-      {activeTab === 'editor' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Form Details */}
-            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-5">
-              <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-500 ring-4 ring-red-50 dark:ring-red-950"></span> Ерөнхий мэдээлэл
-              </h2>
+      {tab === 'preview' ? (
+        <div className="max-w-2xl mx-auto bg-slate-100 rounded-3xl p-4 sm:p-6">
+          <AnketForm
+            preview
+            title={formTitle}
+            description={formDescription}
+            questions={questions}
+            answers={previewAnswers}
+            errors={{}}
+            onAnswer={(id, value) => setPreviewAnswers((a) => ({ ...a, [id]: value }))}
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="lg:col-span-2 space-y-4">
+            {/* Ерөнхий мэдээлэл */}
+            <section className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4">
+              <Field label="Анкетын гарчиг" hint="Үйлчлүүлэгчид хамгийн дээр харагдана.">
+                <input
+                  type="text"
+                  value={formTitle}
+                  maxLength={200}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  placeholder="Жнь: Үйлчлүүлэгчийн бүртгэл"
+                  className={`${inputClass} text-base font-bold`}
+                />
+              </Field>
+              <Field label="Тайлбар" hint="Заавал биш. Анкет юунд зориулагдсаныг товч бичнэ.">
+                <textarea
+                  rows={2}
+                  value={formDescription}
+                  maxLength={2000}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  className={`${inputClass} resize-y`}
+                />
+              </Field>
+            </section>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Анкетын гарчиг</label>
-                  <input
-                    type="text"
-                    value={formTitle}
-                    maxLength={200}
-                    onChange={(e) => setFormTitle(e.target.value)}
-                    className="w-full px-4.5 py-3.5 bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm font-semibold focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-red-500/10 transition-all"
-                  />
-                </div>
+            {/* Асуултууд */}
+            {questions.map((q, index) => (
+              <QuestionEditor
+                key={q.id}
+                question={q}
+                index={index}
+                count={questions.length}
+                autoFocus={focusId === q.id}
+                onChange={(patch) => updateQuestion(q.id, patch)}
+                onMove={(dir) => moveQuestion(index, dir)}
+                onDuplicate={() => duplicateQuestion(index)}
+                onRemove={() => removeQuestion(q.id)}
+              />
+            ))}
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Тайлбар текст</label>
-                  <textarea
-                    rows={2}
-                    value={formDescription}
-                    maxLength={2000}
-                    onChange={(e) => setFormDescription(e.target.value)}
-                    className="w-full px-4.5 py-3.5 bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm font-medium leading-relaxed focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-red-500/10 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Questions Section */}
-            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
-                <div>
-                  <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-500 ring-4 ring-red-50 dark:ring-red-950"></span> Асуултуудын жагсаалт
-                  </h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-                    Үйлчлүүлэгчээс асуух талбаруудыг удирдах. «Харилцагч: …» гэж холбосон хариултаар анкет бөглөсөн хүн
-                    харилцагчийн жагсаалтад автоматаар нэмэгдэнэ (утас эсвэл имэйлээр нь өмнөх бүртгэлтэй тулгана).
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleAddQuestion}
-                  className="flex items-center gap-2 text-xs font-bold bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-900 px-4 py-2.5 rounded-xl transition-all cursor-pointer shrink-0"
-                >
-                  <Plus size={16} /> Асуулт нэмэх
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {questions.map((q, index) => (
-                  <div
-                    key={q.id}
-                    className="p-5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/40 hover:bg-slate-50/80 dark:hover:bg-slate-800/85 transition-all space-y-4 animate-in fade-in slide-in-from-bottom-2"
-                  >
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-3.5 flex-1">
-                        <span className="w-8 h-8 rounded-xl bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center text-xs font-black shrink-0">
-                          {index + 1}
-                        </span>
-                        <input
-                          type="text"
-                          value={q.label}
-                          maxLength={300}
-                          onChange={(e) => handleQuestionChange(q.id, 'label', e.target.value)}
-                          placeholder="Асуултын нэр..."
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:border-red-600 transition-all"
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-2 sm:pl-11.5 flex-wrap">
-                        <select
-                          value={q.type}
-                          onChange={(e) => handleQuestionChange(q.id, 'type', e.target.value)}
-                          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-red-600 cursor-pointer"
-                        >
-                          <option value="text">Текст</option>
-                          <option value="number">Тоо</option>
-                          <option value="select">Сонголт</option>
-                        </select>
-
-                        <select
-                          value={q.maps_to ?? ''}
-                          onChange={(e) => handleQuestionChange(q.id, 'maps_to', e.target.value)}
-                          title="Хариултыг харилцагчийн бүртгэлийн аль талбарт хадгалах"
-                          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-red-600 cursor-pointer"
-                        >
-                          {CUSTOMER_FIELD_OPTIONS.map((o) => (
-                            <option key={o.value} value={o.value}>
-                              {o.value ? `Харилцагч: ${o.label}` : o.label}
-                            </option>
-                          ))}
-                        </select>
-
-                        <button
-                          type="button"
-                          onClick={() => handleQuestionChange(q.id, 'required', !q.required)}
-                          className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                            q.required
-                              ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
-                              : 'bg-slate-200/60 dark:bg-slate-700 text-slate-500 dark:text-slate-300'
-                          }`}
-                        >
-                          {q.required ? 'Заавал' : 'Заавал биш'}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteQuestion(q.id)}
-                          disabled={questions.length <= 1}
-                          title={questions.length <= 1 ? 'Анкетад дор хаяж нэг асуулт байна' : 'Асуулт устгах'}
-                          className="p-2.5 text-slate-400 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                    {q.type === 'select' && (
-                      <div className="pt-1">
-                        <input
-                          type="text"
-                          defaultValue={Array.isArray(q.options) ? q.options.join(', ') : ''}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            const optionsArray = val ? val.split(',').map((s) => s.trim()).filter(Boolean) : [];
-                            handleQuestionChange(q.id, 'options', optionsArray);
-                          }}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:border-red-600"
-                          placeholder="Сонголтууд (таслалаар тусгаарлах, жнь: Авто угаалга, Тос солих)"
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={addQuestion}
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-300 hover:border-red-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
+            >
+              <Plus size={18} /> Асуулт нэмэх
+            </button>
           </div>
 
-          {/* QR & Public Link */}
-          <div className="space-y-6">
-            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs text-center space-y-6 sticky top-24">
-              <div className="text-left pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <div>
-                  <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">QR Код</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Камераар уншуулж бөглөх</p>
-                </div>
+          {/* Баруун багана: хуваалцах, харилцагчийн бүртгэл */}
+          <aside className="space-y-4 lg:sticky lg:top-24 self-start">
+            <section className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-sm text-slate-900 dark:text-white">Хуваалцах</h2>
                 {clientFormUrl && (
                   <a
                     href={clientFormUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 bg-slate-50 dark:bg-slate-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-xl transition-all"
-                    title="Шинэ цонхоор нээх"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400 hover:underline"
                   >
-                    <ExternalLink size={16} />
+                    Нээх <ExternalLink size={13} />
                   </a>
                 )}
               </div>
-
               {isNew ? (
-                <div className="bg-slate-50/80 dark:bg-slate-800/50 p-6 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center gap-3 text-center">
-                  <QrCode size={40} className="text-slate-300 dark:text-slate-600" />
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Анкетыг үүсгэсний дараа QR код болон хуваалцах холбоос энд гарна.
-                  </p>
+                <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-5 flex flex-col items-center gap-2 text-center">
+                  <QrCode size={36} className="text-slate-300 dark:text-slate-600" />
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Анкетыг үүсгэсний дараа QR код, холбоос энд гарна.</p>
                 </div>
               ) : (
                 <>
-                  <div className="bg-slate-50/80 dark:bg-slate-800/50 p-6 rounded-3xl border border-slate-200/60 dark:border-slate-700 flex flex-col items-center justify-center space-y-4">
-                    <div className="w-44 h-44 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shadow-2xs relative">
-                      {qrCodeImageUrl && (
-                        <Image
-                          src={qrCodeImageUrl}
-                          alt="Анкетын QR код"
-                          width={176}
-                          height={176}
-                          className="w-full h-full object-contain rounded-lg"
-                          unoptimized
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 rounded-2xl">
-                      <input
-                        type="text"
-                        readOnly
-                        value={clientFormUrl}
-                        className="w-full bg-transparent text-xs font-semibold text-slate-600 dark:text-slate-300 focus:outline-none truncate"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleCopyLink}
-                        title="Холбоос хуулах"
-                        className="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
-                      >
-                        <Copy size={15} />
-                      </button>
-                    </div>
-                    {copied && <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Линк хуулагдлаа!</p>}
-                    {!isActive && (
-                      <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
-                        Анкет идэвхгүй тул одоогоор хариулт хүлээн авахгүй. Жагсаалтаас идэвхжүүлнэ.
-                      </p>
+                  <div className="w-40 h-40 mx-auto bg-white p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                    {qrCodeImageUrl && (
+                      <Image src={qrCodeImageUrl} alt="Анкетын QR код" width={160} height={160} className="w-full h-full object-contain" unoptimized />
                     )}
                   </div>
+                  <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-3 pr-1.5 py-1.5 rounded-xl">
+                    <input readOnly value={clientFormUrl} className="w-full bg-transparent text-xs font-semibold text-slate-600 dark:text-slate-300 focus:outline-none truncate" />
+                    <button
+                      type="button"
+                      onClick={handleCopyLink}
+                      className="shrink-0 inline-flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
+                    >
+                      <Copy size={13} /> {copied ? 'Хуулсан' : 'Хуулах'}
+                    </button>
+                  </div>
+                  {!isActive && (
+                    <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">Идэвхгүй тул хариулт хүлээн авахгүй. Жагсаалтаас идэвхжүүлнэ.</p>
+                  )}
                 </>
               )}
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Preview Mode */
-        <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 p-8 sm:p-12 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-8">
-          <div className="text-center space-y-2 pb-6 border-b border-slate-100 dark:border-slate-800">
-            <span className="bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 text-xs font-bold px-3.5 py-1 rounded-full uppercase">Урьдчилан харах</span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">{formTitle}</h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{formDescription}</p>
-          </div>
+            </section>
 
-          <div className="space-y-5">
-            {questions.map((q, idx) => (
-              <div key={q.id} className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                  {idx + 1}. {q.label} {q.required && <span className="text-rose-500 dark:text-rose-400">*</span>}
-                </label>
-                {q.type === 'select' ? (
-                  <select className="w-full px-4.5 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600 cursor-pointer">
-                    <option value="">Сонгох...</option>
-                    {(Array.isArray(q.options) ? q.options : []).map((o, i) => (
-                      <option key={i} value={o}>
-                        {o}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type={q.type}
-                    placeholder="Бөглөх хэсэг..."
-                    className="w-full px-4.5 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600"
-                  />
-                )}
-              </div>
-            ))}
-            <button
-              type="button"
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all mt-6 text-sm cursor-pointer shadow-md shadow-red-500/20"
-            >
-              Илгээх
-            </button>
-          </div>
+          </aside>
         </div>
       )}
+    </div>
+  );
+}
+
+const inputClass =
+  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-red-500/10 transition-colors';
+
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <label className="block space-y-1.5">
+      <span className="block text-xs font-bold text-slate-600 dark:text-slate-300">{label}</span>
+      {children}
+      {hint && <span className="block text-xs text-slate-400">{hint}</span>}
+    </label>
+  );
+}
+
+function QuestionEditor({
+  question: q,
+  index,
+  count,
+  autoFocus,
+  onChange,
+  onMove,
+  onDuplicate,
+  onRemove,
+}: {
+  question: TemplateQuestion;
+  index: number;
+  count: number;
+  autoFocus: boolean;
+  onChange: (patch: Partial<TemplateQuestion>) => void;
+  onMove: (direction: -1 | 1) => void;
+  onDuplicate: () => void;
+  onRemove: () => void;
+}) {
+  const labelRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (autoFocus) {
+      labelRef.current?.focus();
+      labelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [autoFocus]);
+
+  const changeType = (type: QuestionType) => {
+    const patch: Partial<TemplateQuestion> = { type };
+    if (hasOptions(type) && !(q.options && q.options.length)) patch.options = ['Сонголт 1', 'Сонголт 2'];
+    onChange(patch);
+  };
+
+  const iconButton =
+    'p-2 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed';
+
+  return (
+    <section className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs p-4 sm:p-5 space-y-4">
+      {/* Утсанд товчууд дараагийн мөрөнд шилжиж, асуултын текст бүтэн өргөнөө авна */}
+      <div className="flex flex-wrap items-start gap-x-3 gap-y-1">
+        <span className="mt-1 w-8 h-8 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs font-black">
+          {index + 1}
+        </span>
+        <input
+          ref={labelRef}
+          type="text"
+          value={q.label}
+          maxLength={300}
+          onChange={(e) => onChange({ label: e.target.value })}
+          placeholder="Асуултаа бичнэ үү"
+          aria-label={`${index + 1}-р асуулт`}
+          className={`${inputClass} flex-1 basis-48 min-w-0 text-base font-semibold ${!q.label.trim() ? 'border-rose-300 dark:border-rose-800' : ''}`}
+        />
+        <div className="flex items-center shrink-0 ml-auto">
+          <button type="button" title="Дээш зөөх" onClick={() => onMove(-1)} disabled={index === 0} className={iconButton}>
+            <ArrowUp size={16} />
+          </button>
+          <button type="button" title="Доош зөөх" onClick={() => onMove(1)} disabled={index === count - 1} className={iconButton}>
+            <ArrowDown size={16} />
+          </button>
+          <button type="button" title="Хуулбарлах" onClick={onDuplicate} className={iconButton}>
+            <CopyPlus size={16} />
+          </button>
+          <button
+            type="button"
+            title={count <= 1 ? 'Анкетад дор хаяж нэг асуулт байна' : 'Устгах'}
+            onClick={onRemove}
+            disabled={count <= 1}
+            className={`${iconButton} hover:text-rose-600! dark:hover:text-rose-400! hover:bg-rose-50! dark:hover:bg-rose-950/40!`}
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </div>
+
+      <div className="sm:pl-11 grid sm:grid-cols-[1fr_auto] gap-3 items-end">
+        <Field label="Хариултын төрөл">
+          <select value={q.type} onChange={(e) => changeType(e.target.value as QuestionType)} className={`${inputClass} cursor-pointer`}>
+            {QUESTION_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {QUESTION_TYPE_INFO[t].label} — {QUESTION_TYPE_INFO[t].hint}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={q.required}
+          onClick={() => onChange({ required: !q.required })}
+          className="inline-flex items-center gap-2 h-[42px] px-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer"
+        >
+          <span className={`relative w-9 h-5 rounded-full transition-colors ${q.required ? 'bg-red-600' : 'bg-slate-300 dark:bg-slate-700'}`}>
+            <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${q.required ? 'translate-x-4' : ''}`} />
+          </span>
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">Заавал</span>
+        </button>
+      </div>
+
+      {hasOptions(q.type) && (
+        <div className="sm:pl-11 space-y-3">
+          <OptionsEditor type={q.type} options={q.options ?? []} onChange={(options) => onChange({ options })} />
+          {q.type === 'select' && looksLikeRating(q.options) && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-200 rounded-xl px-3 py-2.5">
+              <span>Сонголтууд оноо шиг байна. «Үнэлгээ» төрөл болговол нэг мөрөнд 1, 2, 3... гэж харагдана.</span>
+              <button
+                type="button"
+                onClick={() => onChange({ type: 'rating' })}
+                className="shrink-0 font-bold text-sky-700 dark:text-sky-300 hover:underline cursor-pointer"
+              >
+                Үнэлгээ болгох
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// Сонголт бүр тусдаа мөр: Enter — дараагийн сонголт, хоосон мөрөнд Backspace — устгах,
+// олон мөр paste хийвэл мөр бүр тусдаа сонголт болно. Сонголтын текстэд таслал байж болно.
+function OptionsEditor({ type, options, onChange }: { type: QuestionType; options: string[]; onChange: (options: string[]) => void }) {
+  const multi = type === 'multiselect';
+  const refs = useRef<(HTMLInputElement | null)[]>([]);
+  const [focusIndex, setFocusIndex] = useState<number | null>(null);
+  useEffect(() => {
+    if (focusIndex !== null) {
+      refs.current[focusIndex]?.focus();
+      setFocusIndex(null);
+    }
+  }, [focusIndex, options.length]);
+
+  const set = (i: number, value: string) => onChange(options.map((o, j) => (j === i ? value : o)));
+  const insertAfter = (i: number, values: string[] = ['']) => {
+    onChange([...options.slice(0, i + 1), ...values, ...options.slice(i + 1)]);
+    setFocusIndex(i + values.length);
+  };
+  const remove = (i: number) => {
+    onChange(options.filter((_, j) => j !== i));
+    setFocusIndex(Math.max(0, i - 1));
+  };
+
+  return (
+    <div className="space-y-2">
+      <span className="block text-xs font-bold text-slate-600 dark:text-slate-300">
+        Сонголтууд{' '}
+        <span className="font-normal text-slate-400">
+          ·{' '}
+          {type === 'rating'
+            ? 'нэг мөрөнд оноо мэт харагдана; «1 - Маш муу» гэж бичвэл товчин дээр 1, тайлбар нь доор гарна'
+            : multi
+              ? 'хэд хэдийг сонгож болно'
+              : 'нэгийг сонгоно'}
+        </span>
+      </span>
+      {options.map((o, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span className={`shrink-0 w-4 h-4 border-2 border-slate-300 dark:border-slate-600 ${multi ? 'rounded' : 'rounded-full'}`} />
+          <input
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
+            value={o}
+            maxLength={200}
+            onChange={(e) => set(i, e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                insertAfter(i);
+              } else if (e.key === 'Backspace' && !o && options.length > 1) {
+                e.preventDefault();
+                remove(i);
+              }
+            }}
+            onPaste={(e) => {
+              const lines = e.clipboardData.getData('text').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+              if (lines.length > 1) {
+                e.preventDefault();
+                const next = [...options];
+                next[i] = o ? o : lines[0];
+                onChange([...next.slice(0, i + 1), ...(o ? lines : lines.slice(1)), ...next.slice(i + 1)]);
+              }
+            }}
+            placeholder={`Сонголт ${i + 1}`}
+            className={`${inputClass} ${!o.trim() ? 'border-rose-300 dark:border-rose-800' : ''}`}
+          />
+          <button
+            type="button"
+            title="Сонголт устгах"
+            onClick={() => remove(i)}
+            disabled={options.length <= 1}
+            className="shrink-0 p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <X size={15} />
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => insertAfter(options.length - 1)}
+        className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer pl-6"
+      >
+        <Plus size={14} /> Сонголт нэмэх
+      </button>
     </div>
   );
 }

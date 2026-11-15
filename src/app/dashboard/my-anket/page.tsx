@@ -13,7 +13,7 @@ import {
   QrCode,
   Copy,
   Check,
-  Star,
+  MessageSquareText,
   Trash2,
   ExternalLink,
   X,
@@ -27,7 +27,6 @@ interface TemplateRow {
   title: string;
   description: string | null;
   is_active: boolean;
-  is_default: boolean;
   question_count: number;
   submission_count: number;
   last_submitted_at: string | null;
@@ -72,7 +71,7 @@ export default function MyAnketListPage() {
     loadTemplates();
   }, [loadTemplates]);
 
-  const urlFor = (t: TemplateRow) => (companyId && baseUrl ? anketFormUrl(baseUrl, companyId, t.id, t.is_default) : '');
+  const urlFor = (t: TemplateRow) => (companyId && baseUrl ? anketFormUrl(baseUrl, companyId, t.id) : '');
 
   // QR модалын зургийг браузер дотор үүсгэнэ
   useEffect(() => {
@@ -81,7 +80,7 @@ export default function MyAnketListPage() {
       return;
     }
     let cancelled = false;
-    QRCode.toDataURL(anketFormUrl(baseUrl, companyId, qrTemplate.id, qrTemplate.is_default), { width: 480, margin: 1 })
+    QRCode.toDataURL(anketFormUrl(baseUrl, companyId, qrTemplate.id), { width: 480, margin: 1 })
       .then((url) => !cancelled && setQrImage(url))
       .catch((err) => console.error('QR code generation failed:', err));
     return () => {
@@ -139,6 +138,67 @@ export default function MyAnketListPage() {
   const iconButton =
     'p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed';
 
+  // Төлөв солих товч, үйлдлийн товчууд: хүснэгт (компьютер) болон карт (утас) хоёуланд ашиглана
+  const renderSwitch = (t: TemplateRow, busy: boolean) => (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={t.is_active}
+      disabled={busy}
+      onClick={() => updateTemplate(t, { is_active: !t.is_active })}
+      title={t.is_active ? 'Хариулт хүлээн авч байна. Дарж идэвхгүй болгоно.' : 'Хариулт хүлээн авахгүй. Дарж идэвхжүүлнэ.'}
+      className="inline-flex items-center gap-2 cursor-pointer disabled:cursor-wait"
+    >
+      <span
+        className={`relative w-9 h-5 rounded-full transition-colors ${
+          t.is_active ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+            t.is_active ? 'translate-x-4' : ''
+          }`}
+        />
+      </span>
+      <span
+        className={`text-xs font-bold whitespace-nowrap ${
+          t.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'
+        }`}
+      >
+        {t.is_active ? 'Идэвхтэй' : 'Идэвхгүй'}
+      </span>
+    </button>
+  );
+  const renderActions = (t: TemplateRow, busy: boolean) => (
+    <div className="flex items-center justify-end gap-0.5">
+      <Link
+        href={`/dashboard/my-anket/${t.id}/responses`}
+        className="mr-1.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors whitespace-nowrap"
+      >
+        <MessageSquareText size={14} /> Хариу
+      </Link>
+      <Link href={`/dashboard/my-anket/${t.id}`} title="Засах" className={iconButton}>
+        <Pencil size={16} />
+      </Link>
+      <button type="button" title="QR код" onClick={() => setQrTemplate(t)} className={iconButton}>
+        <QrCode size={16} />
+      </button>
+      <button type="button" title="Холбоос хуулах" onClick={() => handleCopy(t)} className={iconButton}>
+        {copiedId === t.id ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
+      </button>
+      <button
+        type="button"
+        title="Устгах"
+        disabled={busy}
+        onClick={() => setDeleteTemplate(t)}
+        className={`${iconButton} hover:text-rose-600! dark:hover:text-rose-400! hover:bg-rose-50! dark:hover:bg-rose-950/40!`}
+      >
+        <Trash2 size={16} />
+      </button>
+    </div>
+  );
+
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pb-20 font-sans antialiased text-slate-800 dark:text-slate-100">
       {/* Header: баруун дээд буланд "Анкет нэмэх" */}
@@ -149,7 +209,7 @@ export default function MyAnketListPage() {
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Үйлчлүүлэгчийн анкетууд</h1>
           <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
-            Үүсгэсэн анкетууд, тэдгээрийн QR код, ирсэн хариултын тоо. Үндсэн анкет нь анкетын ID-гүй холбоосоор нээгдэнэ.
+            Үүсгэсэн анкетууд, тэдгээрийн QR код, ирсэн хариулт.
           </p>
         </div>
 
@@ -175,7 +235,7 @@ export default function MyAnketListPage() {
           <div className="space-y-1">
             <p className="font-black text-slate-900 dark:text-white">Анкет үүсгээгүй байна</p>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Анкет үүсгээд QR кодыг нь байршуулбал үйлчлүүлэгчид утсаараа бөглөж, харилцагчийн бүртгэлд автоматаар нэмэгдэнэ.
+              Анкет үүсгээд QR код эсвэл холбоосыг нь хуваалцахад хүмүүс утсаараа бөглөж, хариултууд энд цуглана.
             </p>
           </div>
           <Link
@@ -186,11 +246,39 @@ export default function MyAnketListPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs overflow-hidden">
+        <>
+        {/* Утас: карт хэлбэр (хүснэгтийн багана дэлгэцэнд багтахгүй) */}
+        <ul className="md:hidden space-y-3">
+          {templates.map((t) => {
+            const busy = busyId === t.id;
+            return (
+              <li
+                key={t.id}
+                className={`bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs p-4 space-y-3 ${busy ? 'opacity-60' : ''}`}
+              >
+                <div>
+                  <Link href={`/dashboard/my-anket/${t.id}`} className="font-bold text-slate-900 dark:text-white hover:text-red-600 dark:hover:text-red-400">
+                    {t.title}
+                  </Link>
+                  {t.description && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{t.description}</p>}
+                </div>
+                <div className="flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+                  <span>
+                    <b className="text-slate-900 dark:text-white tabular-nums">{t.question_count}</b> асуулт ·{' '}
+                    <b className="text-slate-900 dark:text-white tabular-nums">{t.submission_count}</b> хариулт
+                  </span>
+                  {renderSwitch(t, busy)}
+                </div>
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">{renderActions(t, busy)}</div>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="hidden md:block bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800">
+                <tr className="text-left text-[length:max(11px,0.75rem)] uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800">
                   <th className="px-5 sm:px-6 py-4 font-extrabold">Анкет</th>
                   <th className="px-4 py-4 font-extrabold text-center">Асуулт</th>
                   <th className="px-4 py-4 font-extrabold text-center">Хариулт</th>
@@ -212,14 +300,6 @@ export default function MyAnketListPage() {
                           >
                             {t.title}
                           </Link>
-                          {t.is_default && (
-                            <span
-                              title="Анкетын ID-гүй холбоос, өмнө хэвлэсэн QR код энэ анкетыг нээнэ"
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 text-[11px] font-bold"
-                            >
-                              <Star size={11} /> Үндсэн
-                            </span>
-                          )}
                         </div>
                         {t.description && (
                           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1 max-w-md">{t.description}</p>
@@ -227,76 +307,24 @@ export default function MyAnketListPage() {
                       </td>
                       <td className="px-4 py-4 text-center font-bold tabular-nums">{t.question_count}</td>
                       <td className="px-4 py-4 text-center">
-                        <p className="font-bold tabular-nums">{t.submission_count}</p>
+                        <Link
+                          href={`/dashboard/my-anket/${t.id}/responses`}
+                          className="font-bold tabular-nums hover:text-red-600 dark:hover:text-red-400 hover:underline"
+                        >
+                          {t.submission_count}
+                        </Link>
                         {t.last_submitted_at && (
-                          <p className="text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap">сүүлд {formatDate(t.last_submitted_at)}</p>
+                          <p className="text-[length:max(11px,0.75rem)] text-slate-400 dark:text-slate-500 whitespace-nowrap">сүүлд {formatDate(t.last_submitted_at)}</p>
                         )}
                       </td>
                       <td className="px-4 py-4">
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-checked={t.is_active}
-                          disabled={busy}
-                          onClick={() => updateTemplate(t, { is_active: !t.is_active })}
-                          title={t.is_active ? 'Хариулт хүлээн авч байна. Дарж идэвхгүй болгоно.' : 'Хариулт хүлээн авахгүй. Дарж идэвхжүүлнэ.'}
-                          className="inline-flex items-center gap-2 cursor-pointer disabled:cursor-wait"
-                        >
-                          <span
-                            className={`relative w-9 h-5 rounded-full transition-colors ${
-                              t.is_active ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
-                            }`}
-                          >
-                            <span
-                              className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                                t.is_active ? 'translate-x-4' : ''
-                              }`}
-                            />
-                          </span>
-                          <span
-                            className={`text-xs font-bold whitespace-nowrap ${
-                              t.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'
-                            }`}
-                          >
-                            {t.is_active ? 'Идэвхтэй' : 'Идэвхгүй'}
-                          </span>
-                        </button>
+                        {renderSwitch(t, busy)}
                       </td>
                       <td className="px-4 py-4 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
                         {formatDate(t.updated_at ?? t.created_at)}
                       </td>
                       <td className="px-5 sm:px-6 py-4">
-                        <div className="flex items-center justify-end gap-0.5">
-                          <Link href={`/dashboard/my-anket/${t.id}`} title="Засах" className={iconButton}>
-                            <Pencil size={16} />
-                          </Link>
-                          <button type="button" title="QR код" onClick={() => setQrTemplate(t)} className={iconButton}>
-                            <QrCode size={16} />
-                          </button>
-                          <button type="button" title="Холбоос хуулах" onClick={() => handleCopy(t)} className={iconButton}>
-                            {copiedId === t.id ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
-                          </button>
-                          {!t.is_default && (
-                            <button
-                              type="button"
-                              title="Үндсэн анкет болгох"
-                              disabled={busy}
-                              onClick={() => updateTemplate(t, { is_default: true })}
-                              className={iconButton}
-                            >
-                              <Star size={16} />
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            title="Устгах"
-                            disabled={busy}
-                            onClick={() => setDeleteTemplate(t)}
-                            className={`${iconButton} hover:text-rose-600! dark:hover:text-rose-400! hover:bg-rose-50! dark:hover:bg-rose-950/40!`}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
+                        {renderActions(t, busy)}
                       </td>
                     </tr>
                   );
@@ -305,6 +333,7 @@ export default function MyAnketListPage() {
             </table>
           </div>
         </div>
+        </>
       )}
 
       {/* QR кодын модал */}
@@ -379,9 +408,8 @@ export default function MyAnketListPage() {
             <div className="space-y-1">
               <h3 className="font-black text-slate-900 dark:text-white">“{deleteTemplate.title}” анкетыг устгах уу?</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Анкетын холбоос, QR код ажиллахаа болино. Ирсэн {deleteTemplate.submission_count} хариулт харилцагч, өгөгдлийн
-                хэсэгт хадгалагдсаар үлдэнэ.
-                {deleteTemplate.is_default && ' Энэ нь үндсэн анкет тул өөр анкет үндсэн болно.'}
+                Анкетын холбоос, QR код ажиллахаа болино. Ирсэн {deleteTemplate.submission_count} хариулт «Өгөгдөл» хэсэгт
+                хадгалагдсаар үлдэнэ.
               </p>
             </div>
             <div className="flex gap-2 pt-2">

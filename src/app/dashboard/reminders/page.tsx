@@ -268,7 +268,7 @@ export default function RemindersPage() {
                       >
                         {STATUS_STYLE[log.status].label}
                       </span>
-                      {log.error && <span className="block text-[11px] text-slate-400 mt-1">{log.error}</span>}
+                      {log.error && <span className="block text-[length:max(11px,0.75rem)] text-slate-400 mt-1">{log.error}</span>}
                     </td>
                   </tr>
                 ))}
@@ -344,7 +344,7 @@ function ReminderCard({
                 type="button"
                 onClick={() => onTemplate(`${template}{${p.key}}`)}
                 title={p.label}
-                className="text-[11px] font-bold px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-red-50 hover:text-red-600 cursor-pointer"
+                className="text-[length:max(11px,0.75rem)] font-bold px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-red-50 hover:text-red-600 cursor-pointer"
               >
                 {`{${p.key}}`} {p.label}
               </button>
@@ -352,7 +352,7 @@ function ReminderCard({
           </div>
         </div>
         <div className="bg-red-50/60 dark:bg-red-950/30 border border-red-100 dark:border-red-900/60 rounded-2xl px-4 py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1">Жишээ</p>
+          <p className="text-[length:max(11px,0.75rem)] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1">Жишээ</p>
           <p className="text-sm text-slate-700 dark:text-slate-200">{renderReminderTemplate(template, SAMPLE_VALUES)}</p>
         </div>
       </div>

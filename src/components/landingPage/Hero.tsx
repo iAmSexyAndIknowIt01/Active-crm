@@ -15,12 +15,12 @@ export default function Hero() {
             <div className="animate-float bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-100 dark:border-slate-800 p-5 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none relative">
               
               {/* Floating Badge */}
-              <div className="absolute -top-3 -right-2 sm:-top-4 sm:-right-4 bg-linear-to-r from-red-600 to-red-500 text-white text-[10px] sm:text-xs font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl shadow-lg flex items-center gap-1.5">
+              <div className="absolute -top-3 -right-2 sm:-top-4 sm:-right-4 bg-linear-to-r from-red-600 to-red-500 text-white text-[length:max(10px,0.7rem)] sm:text-xs font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl shadow-lg flex items-center gap-1.5">
                 <Sparkles size={14} /> Live Preview
               </div>
 
               <div className="mb-5 sm:mb-6">
-                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 px-3 py-1 rounded-full inline-block">
+                <span className="text-[length:max(11px,0.75rem)] sm:text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 px-3 py-1 rounded-full inline-block">
                   Active CRM Удирдлага
                 </span>
                 <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white mt-2">
@@ -36,7 +36,7 @@ export default function Hero() {
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">QR Анкетын бүртгэл</h4>
-                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Үйлчлүүлэгч утсаараа шууд мэдээллээ үлдээнэ</p>
+                    <p className="text-[length:max(11px,0.75rem)] sm:text-xs text-slate-500 dark:text-slate-400">Үйлчлүүлэгч утсаараа шууд мэдээллээ үлдээнэ</p>
                   </div>
                 </div>
 
@@ -46,7 +46,7 @@ export default function Hero() {
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">Оочер зохицуулагч</h4>
-                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Автоматаар эрт захиалга авах сануулга</p>
+                    <p className="text-[length:max(11px,0.75rem)] sm:text-xs text-slate-500 dark:text-slate-400">Автоматаар эрт захиалга авах сануулга</p>
                   </div>
                 </div>
 
@@ -56,13 +56,13 @@ export default function Hero() {
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">Байнгын харилцагчдын сан</h4>
-                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Үсчин, авто засвар, дэлгүүрийн бүх дата нэг дор</p>
+                    <p className="text-[length:max(11px,0.75rem)] sm:text-xs text-slate-500 dark:text-slate-400">Үсчин, авто засвар, дэлгүүрийн бүх дата нэг дор</p>
                   </div>
                 </div>
               </div>
 
               {/* Bottom mini status */}
-              <div className="mt-5 sm:mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
+              <div className="mt-5 sm:mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[length:max(11px,0.75rem)] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
                 <span>Сануулга: <strong className="text-red-600 dark:text-red-400">SMS · Имэйл</strong></span>
                 <span className="text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1.5">
                   <span className="relative flex w-2 h-2">

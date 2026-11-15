@@ -19,7 +19,7 @@ export default function Loading({ text = 'Ачаалж байна...', fullScree
         {/* Голд нь байрлах Active CRM бичвэр болон дүрс */}
         <div className="flex flex-col items-center justify-center text-center z-10 p-2 space-y-0.5">
           <BrandMark className="w-6 h-6 animate-pulse" />
-          <span className="text-[11px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-100">
+          <span className="text-[length:max(11px,0.75rem)] font-black uppercase tracking-widest text-slate-800 dark:text-slate-100">
             Active CRM
           </span>
         </div>

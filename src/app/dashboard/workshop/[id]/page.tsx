@@ -148,13 +148,13 @@ export default function WorkDetailPage({ params }: { params: Promise<{ id: strin
             <h1 className="text-base sm:text-xl font-black text-slate-900 dark:text-white">
               {canEdit ? 'Ажлын дэлгэрэнгүй & Засварлах' : 'Ажлын дэлгэрэнгүй'}
             </h1>
-            <p className="text-[11px] sm:text-xs text-slate-400 dark:text-slate-400">
+            <p className="text-[length:max(11px,0.75rem)] sm:text-xs text-slate-400 dark:text-slate-400">
               {canEdit ? 'Мэдээллийг өөрчлөөд хадгалах товчийг дарна уу' : 'Зөвхөн харах горим'}
             </p>
             {reservation && (
               <Link
                 href={`/dashboard/reservations?from=${reservation.date}&to=${reservation.date}`}
-                className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 hover:underline"
+                className="mt-1.5 inline-flex items-center gap-1 text-[length:max(11px,0.75rem)] font-bold px-2 py-1 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 hover:underline"
                 title="Ажил дуусвал захиалга автоматаар Үйлчлүүлсэн болно"
               >
                 <CalendarCheck size={12} aria-hidden /> Захиалгаас үүссэн: {reservation.date.replaceAll('-', '.')} {reservation.start} →

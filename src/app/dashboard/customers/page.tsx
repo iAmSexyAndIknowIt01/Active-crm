@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, Suspense } from 'react';
+import { useMobileCardView } from '@/src/lib/use-mobile-card-view';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Building2, User, Plus, Search, Mail, Phone, MapPin,
@@ -66,6 +67,7 @@ function CustomersContent() {
   });
   const itemsPerPage = 9;
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  useMobileCardView(setViewMode);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [genderMissing, setGenderMissing] = useState(false);
@@ -279,7 +281,7 @@ function CustomersContent() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-[11px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">
+                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-[length:max(11px,0.75rem)] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">
                   <th className="py-4 px-6">Харилцагч</th>
                   <th className="py-4 px-6">
                     <span className="inline-flex items-center gap-1">Төрөл / ТТД <InfoTip size={12} text="Төрөл: хувь хүн эсвэл байгууллага. ТТД: татвар төлөгчийн дугаар (байгууллагын регистр)." /></span>
@@ -317,7 +319,7 @@ function CustomersContent() {
                         <div className="font-bold text-slate-800 dark:text-slate-200">
                           {customer.customer_type === 'company' ? 'Байгууллага' : 'Хувь хүн'}
                         </div>
-                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase">
+                        <div className="text-[length:max(10px,0.7rem)] text-slate-400 dark:text-slate-500 font-extrabold uppercase">
                           {customer.customer_type === 'company'
                             ? `ТТД: ${customer.tax_number || 'Байхгүй'}`
                             : individualSummary(customer) || '-'}
@@ -340,7 +342,7 @@ function CustomersContent() {
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                        <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                           <CheckCircle2 size={12} /> Идэвхтэй
                         </span>
                       </td>
@@ -375,14 +377,14 @@ function CustomersContent() {
                     </div>
                     <div>
                       <h3 className="font-black text-sm text-slate-900 dark:text-white">{displayName}</h3>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">
+                      <p className="text-[length:max(10px,0.7rem)] text-slate-400 dark:text-slate-500 font-bold uppercase">
                         {customer.customer_type === 'company'
                           ? `ТТД: ${customer.tax_number || 'Байхгүй'}`
                           : ['Хувь хүн', individualSummary(customer)].filter(Boolean).join(' · ')}
                       </p>
                     </div>
                   </div>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                  <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                     <CheckCircle2 size={12} /> Идэвхтэй
                   </span>
                 </div>
@@ -445,7 +447,7 @@ function CustomersContent() {
       {/* Шинэ харилцагч нэмэх модал цонх */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-lg w-full shadow-xl border border-slate-100 dark:border-slate-800 space-y-6 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-lg w-full shadow-xl border border-slate-100 dark:border-slate-800 space-y-6 max-h-[90dvh] overflow-y-auto animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
               <h2 className="text-lg font-black text-slate-900 dark:text-white">Шинэ харилцагч нэмэх</h2>
               <button 
@@ -565,7 +567,7 @@ function CustomersContent() {
                         ))}
                       </div>
                       {genderMissing && (
-                        <p className="mt-1 text-[11px] font-bold text-red-500">Хүйсээ сонгоно уу.</p>
+                        <p className="mt-1 text-[length:max(11px,0.75rem)] font-bold text-red-500">Хүйсээ сонгоно уу.</p>
                       )}
                     </div>
                     <div>

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef, Suspense } from 'react';
+import { useMobileCardView } from '@/src/lib/use-mobile-card-view';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Briefcase, Plus, Search, DollarSign, Clock,
@@ -23,11 +24,11 @@ interface Service {
 
 function StatusBadge({ status }: { status: string | null }) {
   return status === 'inactive' ? (
-    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+    <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
       <XCircle size={12} /> Идэвхгүй
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40">
+    <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40">
       <CheckCircle2 size={12} /> Идэвхтэй
     </span>
   );
@@ -42,6 +43,7 @@ function ServicesContent() {
   // Шүүлтүүр болон хуудасны төлөвийг URL-аас эхлүүлнэ (дэлгэрэнгүй хуудаснаас буцахад хадгалагдана)
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
   const [viewMode, setViewMode] = useState<'list' | 'grid'>(() => (searchParams.get('view') === 'grid' ? 'grid' : 'list'));
+  useMobileCardView(setViewMode, searchParams.get('view') !== null);
   const [currentPage, setCurrentPage] = useState(() => {
     const pageParam = searchParams.get('page');
     return pageParam ? parseInt(pageParam, 10) || 1 : 1;
@@ -200,7 +202,7 @@ function ServicesContent() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-[11px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">
+                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-[length:max(11px,0.75rem)] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">
                   <th className="py-4 px-6">Үйлчилгээний нэр</th>
                   <th className="py-4 px-6">Ангилал</th>
                   <th className="py-4 px-6">
@@ -226,12 +228,12 @@ function ServicesContent() {
                         </div>
                         <div>
                           <span className="font-bold text-slate-900 dark:text-white block">{service.name}</span>
-                          <span className="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-xs block">{service.description || 'Тайлбар байхгүй'}</span>
+                          <span className="text-[length:max(10px,0.7rem)] text-slate-400 dark:text-slate-500 truncate max-w-xs block">{service.description || 'Тайлбар байхгүй'}</span>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                         <Tag size={12} /> {service.category || 'Ангилалгүй'}
                       </span>
                     </td>
@@ -269,7 +271,7 @@ function ServicesContent() {
                   </div>
                   <div>
                     <h3 className="font-black text-sm text-slate-900 dark:text-white">{service.name}</h3>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 mt-1">
+                    <span className="inline-flex items-center gap-1 text-[length:max(10px,0.7rem)] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 mt-1">
                       <Tag size={10} /> {service.category || 'Ангилалгүй'}
                     </span>
                   </div>
@@ -330,7 +332,7 @@ function ServicesContent() {
       {/* Add Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 max-w-lg w-full rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+          <div className="bg-white dark:bg-slate-900 max-w-lg w-full max-h-[90dvh] overflow-y-auto rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <h3 className="font-black text-base text-slate-900 dark:text-white">Шинэ үйлчилгээ бүртгэх</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl cursor-pointer">

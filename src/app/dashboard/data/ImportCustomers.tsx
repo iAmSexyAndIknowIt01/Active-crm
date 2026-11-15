@@ -222,7 +222,7 @@ export default function ImportCustomers({ onClose, onImported }: { onClose: () =
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {fields.map((field) => (
                 <div key={field.key}>
-                  <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">
+                  <label className="block text-[length:max(11px,0.75rem)] font-bold text-slate-500 dark:text-slate-400 mb-1">
                     {field.label} {field.required && <span className="text-rose-500">*</span>}
                   </label>
                   <select

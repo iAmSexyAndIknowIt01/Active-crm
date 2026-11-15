@@ -236,7 +236,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
                       />
                     </div>
                   )}
-                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full ${
+                  <span className={`text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full ${
                     user.is_active !== false 
                       ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' 
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
@@ -267,7 +267,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
               <Mail size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div className="w-full">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Имэйл хаяг</p>
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Имэйл хаяг</p>
                 {!isEditing ? (
                   <p className="font-bold text-slate-800 dark:text-slate-200">{user.email}</p>
                 ) : (
@@ -284,7 +284,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
               <Phone size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div className="w-full">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Утасны дугаар</p>
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Утасны дугаар</p>
                 {!isEditing ? (
                   <p className="font-bold text-slate-800 dark:text-slate-200">{user.phone || 'Байхгүй'}</p>
                 ) : (
@@ -301,7 +301,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
               <MapPin size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div className="w-full">
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Хаяг</p>
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Хаяг</p>
                 {!isEditing ? (
                   <p className="font-bold text-slate-800 dark:text-slate-200">{user.address || 'Байхгүй'}</p>
                 ) : (
@@ -318,7 +318,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
             <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
               <Calendar size={18} className="text-red-600 dark:text-red-400 shrink-0" />
               <div>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Үүсгэсэн огноо</p>
+                <p className="text-[length:max(10px,0.7rem)] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Үүсгэсэн огноо</p>
                 <p className="font-bold text-slate-800 dark:text-slate-200">
                   {user.create_date ? new Date(user.create_date).toLocaleDateString() : 'Тодорхойгүй'}
                 </p>
@@ -334,7 +334,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
               <h3 className="font-black text-base text-slate-900 dark:text-white">mt_user хүснэгтийн бүрэн мэдээлэл</h3>
               <p className="text-xs text-slate-400 dark:text-slate-400">Өгөгдлийн санд хадгалагдсан бүх талбарууд</p>
             </div>
-            <span className="text-[10px] font-black px-2.5 py-1 bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 rounded-lg uppercase border border-red-100 dark:border-red-900">
+            <span className="text-[length:max(10px,0.7rem)] font-black px-2.5 py-1 bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 rounded-lg uppercase border border-red-100 dark:border-red-900">
               Database Table Data
             </span>
           </div>
@@ -342,7 +342,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ userI
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
+                <tr className="border-b border-slate-100 dark:border-slate-800 text-[length:max(11px,0.75rem)] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
                   <th className="py-3 px-4">Талбар (Column)</th>
                   <th className="py-3 px-4">Утга (Value)</th>
                 </tr>

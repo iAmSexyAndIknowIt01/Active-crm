@@ -297,7 +297,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="animate-in fade-in slide-in-from-top-2 duration-200 xl:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 space-y-1 shadow-xl z-50 max-h-[80vh] overflow-y-auto">
+          <div className="animate-in fade-in slide-in-from-top-2 duration-200 xl:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 space-y-1 shadow-xl z-50 max-h-[80dvh] overflow-y-auto">
             {navItems.map((item) => (
               <Link
                 key={item.href}

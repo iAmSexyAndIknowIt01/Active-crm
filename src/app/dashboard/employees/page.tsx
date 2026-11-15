@@ -237,7 +237,7 @@ function EmployeesContent() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800 text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                <tr className="bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800 text-[length:max(11px,0.75rem)] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">
                   <th className="py-4 px-6">Хэрэглэгч</th>
                   <th className="py-4 px-6">
                     <span className="inline-flex items-center gap-1">Эрх / Албан тушаал <InfoTip size={12} text="Админ: бүх цэсийг харж, бүх ажлыг засна. Ажилтан: зөвхөн “Ажил” цэсийг харж, өөрт хуваарилсан ажлаа засна." /></span>
@@ -282,7 +282,7 @@ function EmployeesContent() {
                         <p className="text-slate-400 dark:text-slate-500">{u.phone || '-'}</p>
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full inline-block ${
+                        <span className={`text-[length:max(10px,0.7rem)] font-extrabold px-2.5 py-1 rounded-full inline-block ${
                           u.is_active !== false 
                             ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' 
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
@@ -348,7 +348,7 @@ function EmployeesContent() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 sm:p-8 space-y-6 relative animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xl max-w-lg w-full max-h-[90dvh] overflow-y-auto p-6 sm:p-8 space-y-6 relative animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="space-y-0.5">
                 <h3 className="font-black text-lg text-slate-900 dark:text-white">Шинэ хэрэглэгч нэмэх</h3>

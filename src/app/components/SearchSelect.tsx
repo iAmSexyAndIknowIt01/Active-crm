@@ -164,7 +164,7 @@ export default function SearchSelect({
           <button
             type="button"
             onClick={() => onChange('')}
-            className="p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer shrink-0"
+            className="relative p-0.5 before:absolute before:-inset-2 before:content-[''] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer shrink-0"
             aria-label="Сонголтыг арилгах"
           >
             <X size={14} />
@@ -216,14 +216,14 @@ export default function SearchSelect({
               >
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{o.label}</p>
-                  {o.sub && <p className="text-[11px] text-slate-400 truncate">{o.sub}</p>}
+                  {o.sub && <p className="text-[length:max(11px,0.75rem)] text-slate-400 truncate">{o.sub}</p>}
                 </div>
                 {o.value === value && <Check size={14} className="text-red-600 dark:text-red-400 shrink-0" />}
               </li>
             ))
           )}
           {!query && options.length > MAX_RESULTS && (
-            <li className="px-3.5 py-2 text-[11px] text-slate-400 border-t border-slate-100 dark:border-slate-800">
+            <li className="px-3.5 py-2 text-[length:max(11px,0.75rem)] text-slate-400 border-t border-slate-100 dark:border-slate-800">
               Эхний {MAX_RESULTS}-г харуулж байна. Бичиж хайна уу.
             </li>
           )}

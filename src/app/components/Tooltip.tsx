@@ -48,7 +48,7 @@ export default function Tooltip({ text, children, className = '' }: { text: Reac
             id={id}
             role="tooltip"
             style={{ position: 'fixed', left: pos.x, top: pos.y, transform: `translate(-50%, ${pos.below ? '0' : '-100%'})` }}
-            className="z-100 pointer-events-none w-max max-w-64 text-[11px] font-medium leading-relaxed bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl px-3 py-2 shadow-lg"
+            className="z-100 pointer-events-none w-max max-w-64 text-[length:max(11px,0.75rem)] font-medium leading-relaxed bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl px-3 py-2 shadow-lg"
           >
             {text}
           </span>,
