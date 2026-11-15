@@ -23,6 +23,9 @@ interface PendingPayment {
   amount: string;
   reference: string;
   created_at: string;
+  // review: компани "Төлбөр хийсэн" гэж мэдэгдсэн (reported_at)
+  status: 'pending' | 'review';
+  reported_at: string | null;
 }
 
 interface Content {
@@ -131,7 +134,7 @@ function Companies({ onError, onMessage }: { onError: (m: string) => void; onMes
       <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-3">
         <h2 className="font-bold text-slate-900 dark:text-white">Баталгаажуулах банкны шилжүүлэг ({data.pendingPayments.length})</h2>
         {data.pendingPayments.length === 0 ? (
-          <p className="text-sm text-slate-400">Хүлээгдэж буй шилжүүлэг алга.</p>
+          <p className="text-sm text-slate-400">Баталгаажуулах шилжүүлэг алга.</p>
         ) : (
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {data.pendingPayments.map((p) => (
@@ -140,7 +143,18 @@ function Companies({ onError, onMessage }: { onError: (m: string) => void; onMes
                 <span className="font-semibold flex-1">
                   {p.company_name} — {PLAN_INFO[p.plan].name}, {p.months} сар, {money(p.amount)}
                 </span>
-                <span className="text-xs text-slate-400">{new Date(p.created_at).toLocaleString()}</span>
+                {p.status === 'review' ? (
+                  <span
+                    title="Компани шилжүүлэг хийсэн гэж мэдэгдсэн. Орлогыг шалгаад баталгаажуулна уу."
+                    className="text-xs font-bold whitespace-nowrap px-2 py-0.5 rounded-full text-sky-700 bg-sky-50 dark:text-sky-300 dark:bg-sky-950/50"
+                  >
+                    Төлбөр хийсэн · {new Date(p.reported_at ?? p.created_at).toLocaleString()}
+                  </span>
+                ) : (
+                  <span className="text-xs text-slate-400 whitespace-nowrap">
+                    Мэдэгдээгүй · {new Date(p.created_at).toLocaleString()}
+                  </span>
+                )}
                 <div className="flex gap-2">
                   <button
                     type="button"

@@ -5,7 +5,8 @@ import { activatePayment } from '@/src/lib/billing';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Банкны шилжүүлгийг баталгаажуулах (багцыг сунгана) эсвэл цуцлах. Body: { action: 'confirm' | 'cancel' }
+// Банкны шилжүүлгийг (хүлээгдэж буй эсвэл компани "Төлбөр хийсэн" гэж мэдэгдсэн — review)
+// баталгаажуулах (багцыг сунгана) эсвэл цуцлах. Body: { action: 'confirm' | 'cancel' }
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { session, error } = await requirePlatformAdmin();
@@ -21,7 +22,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
     if (body?.action === 'cancel') {
       const { rowCount } = await pool.query(
-        `UPDATE mt_payment SET status = 'cancelled', confirmed_by = $2 WHERE id = $1 AND status = 'pending'`,
+        `UPDATE mt_payment SET status = 'cancelled', confirmed_by = $2 WHERE id = $1 AND status IN ('pending', 'review')`,
         [id, session.email]
       );
       if (!rowCount) return NextResponse.json({ success: false, error: 'Төлбөр олдсонгүй эсвэл аль хэдийн шийдвэрлэгдсэн.' }, { status: 409 });

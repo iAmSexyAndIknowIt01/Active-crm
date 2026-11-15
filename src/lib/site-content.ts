@@ -19,6 +19,20 @@ export const SITE_CONTENT_DEFAULTS: SiteContent = {
   bank: { bank_name: '', account_number: '', account_holder: '', note: '' },
 };
 
+// Платформын админ жинхэнэ данс оруулах хүртэл төлбөрийн хуудсанд харагдах жишээ данс.
+// Дугаар нь санаатайгаар хүчингүй (бүгд 0) тул хэн нэгэн рүү мөнгө шилжихгүй.
+export const DEMO_BANK_ACCOUNT: SiteContent['bank'] = {
+  bank_name: 'Жишээ банк',
+  account_number: '0000 0000 0000',
+  account_holder: 'Актив СРМ ХХК',
+  note: 'Энэ нь туршилтын жишээ данс.',
+};
+
+// Төлбөрийн хуудсанд харуулах данс: жинхэнэ данс оруулаагүй бол жишээ данс (is_demo: true)
+export function billingBankAccount(content: SiteContent): SiteContent['bank'] & { is_demo: boolean } {
+  return content.bank.account_number ? { ...content.bank, is_demo: false } : { ...DEMO_BANK_ACCOUNT, is_demo: true };
+}
+
 export type SiteContentKey = keyof SiteContent;
 export const SITE_CONTENT_KEYS = Object.keys(SITE_CONTENT_DEFAULTS) as SiteContentKey[];
 

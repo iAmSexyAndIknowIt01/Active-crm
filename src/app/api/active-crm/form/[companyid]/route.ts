@@ -26,21 +26,26 @@ export async function GET(
     const resolvedParams = await params;
     const companyid = resolvedParams.companyid;
 
-    if (!UUID_RE.test(companyid)) {
+    // ?t=<анкетын id> — тухайн анкет. Байхгүй бол (хуучин холбоос, QR) компанийн үндсэн анкет,
+    // үндсэн анкет идэвхгүй бол хамгийн сүүлд үүссэн идэвхтэй анкет.
+    const requested = new URL(request.url).searchParams.get('t');
+    if (!UUID_RE.test(companyid) || (requested !== null && !UUID_RE.test(requested))) {
       return NextResponse.json({ success: false, error: 'Анкет олдсонгүй.' }, { status: 404 });
     }
 
     const query = `
       SELECT id, company_id, title, description, questions
       FROM mt_templates
-      WHERE company_id = $1 AND is_active = true
+      WHERE company_id = $1 AND is_active = true AND deleted_at IS NULL
+        AND ($2::uuid IS NULL OR id = $2::uuid)
+      ORDER BY is_default DESC, created_at DESC
       LIMIT 1
     `;
-    const result = await pool.query(query, [companyid]);
+    const result = await pool.query(query, [companyid, requested]);
 
     if (result.rows.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Анкет олдсонгүй.' },
+        { success: false, error: 'Анкет олдсонгүй эсвэл одоогоор хариулт хүлээн авахгүй байна.' },
         { status: 404 }
       );
     }
@@ -129,7 +134,7 @@ export async function POST(
 
     // Загвар нь энэ компанийх бөгөөд идэвхтэй байх ёстой
     const templateResult = await pool.query(
-      `SELECT questions FROM mt_templates WHERE id = $1 AND company_id = $2 AND is_active = true`,
+      `SELECT questions FROM mt_templates WHERE id = $1 AND company_id = $2 AND is_active = true AND deleted_at IS NULL`,
       [templateId, companyid]
     );
     if (templateResult.rows.length === 0) {
