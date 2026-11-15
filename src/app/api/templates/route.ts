@@ -1,127 +1,75 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/src/lib/session';
-import { pool } from '../../../lib/db'; // Төслийн замын дагуу тохируулна уу
+import { pool } from '@/src/lib/db';
+import { parseTemplateInput } from '@/src/lib/form-templates';
+import { withTransaction } from '@/src/lib/reservations';
 
-// 1. Тухайн компанийн идэвхтэй (is_active = true) анкетын тохиргоог авах GET метод
+// Анкетын жагсаалт ба шинэ анкет үүсгэх (зөвхөн админ).
+// Анкет бүр /active-crm/form/<company_id>?t=<анкетын id> холбоостой. ID-гүй холбоос үндсэн анкетыг нээнэ.
+
+// GET: устгаагүй бүх анкет, асуулт болон ирсэн хариултын тоотой
 export async function GET() {
   try {
-    const { session: authSession, error: authError } = await requireAuth();
-    if (authError) return authError;
-    const session = authSession;
-    const userId = session?.userId;
+    const { session, error } = await requireAuth({ admin: true });
+    if (error) return error;
+    const { companyId } = session;
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: 'Нэвтрээгүй байна.' },
-        { status: 401 }
-      );
-    }
-
-    // Хэрэглэгчийн харъяалагдах company_id-г mt_user хүснэгтээс олно
-    const userQuery = 'SELECT company_id FROM mt_user WHERE user_id = $1';
-    const userResult = await pool.query(userQuery, [userId]);
-
-    if (userResult.rows.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Хэрэглэгч олдсонгүй.' },
-        { status: 404 }
-      );
-    }
-
-    const companyId = userResult.rows[0].company_id;
-
-    // Тухайн компанийн идэвхтэй байгаа mt_templates дэх анкетын мэдээллийг татах
-    const templateQuery = `
-      SELECT id, company_id, title, description, questions, is_active, created_at, updated_at
-      FROM mt_templates
-      WHERE company_id = $1 AND is_active = true
-      LIMIT 1
-    `;
-    const templateResult = await pool.query(templateQuery, [companyId]);
-
-    // Хэрэглэгч ямар нэг идэвхтэй анкетгүй бол null буцаана
-    if (templateResult.rows.length === 0) {
-      return NextResponse.json({
-        success: true,
-        data: null,
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: templateResult.rows[0],
-    });
-
-  } catch (error) {
-    console.error('Template Fetch Error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Серверт алдаа гарлаа.' },
-      { status: 500 }
+    const { rows } = await pool.query(
+      `
+        SELECT t.id, t.title, t.description, t.is_active, t.is_default, t.created_at, t.updated_at,
+               CASE WHEN jsonb_typeof(t.questions) = 'array' THEN jsonb_array_length(t.questions) ELSE 0 END AS question_count,
+               COALESCE(s.submission_count, 0)::int AS submission_count,
+               s.last_submitted_at
+        FROM mt_templates t
+        LEFT JOIN LATERAL (
+          -- Хуучин хувилбаруудад (superseded_by = энэ анкет) ирсэн хариултыг хамт тоолно
+          SELECT count(*) AS submission_count, max(fs.submitted_at) AS last_submitted_at
+          FROM form_submissions fs
+          WHERE fs.form_template_id = t.id
+             OR fs.form_template_id IN (SELECT v.id FROM mt_templates v WHERE v.superseded_by = t.id)
+        ) s ON true
+        WHERE t.company_id = $1 AND t.deleted_at IS NULL
+        ORDER BY t.is_default DESC, t.created_at DESC
+      `,
+      [companyId]
     );
+
+    return NextResponse.json({ success: true, data: { companyId, templates: rows } });
+  } catch (error) {
+    console.error('Template List Error:', error);
+    return NextResponse.json({ success: false, error: 'Серверт алдаа гарлаа.' }, { status: 500 });
   }
 }
 
-// 2. Анкетын шинэ хувилбар үүсгэх POST метод (Өмнөх хувилбаруудыг is_active = false болгоно)
+// POST: шинэ анкет. Компанийн анхны анкет бол үндсэн анкет болно.
 export async function POST(request: Request) {
   try {
-    // Нийтийн анкетын асуултыг зөвхөн админ өөрчилнө
     const { session, error: authError } = await requireAuth({ admin: true });
     if (authError) return authError;
     const { companyId } = session;
 
-    const body = await request.json();
-    const { title, description, questions } = body;
+    const parsed = parseTemplateInput(await request.json().catch(() => null));
+    if (!parsed.ok) return NextResponse.json({ success: false, error: parsed.error }, { status: 400 });
+    const { title, description, questions } = parsed.value;
 
-    if (!title || typeof title !== 'string') {
-      return NextResponse.json(
-        { success: false, error: 'Анкетын гарчиг заавал шаардлагатай.' },
-        { status: 400 }
+    const id = await withTransaction(async (client) => {
+      // Зэрэг үүсгэсэн хоёр анкет хоёулаа үндсэн болохоос сэргийлнэ
+      await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`templates:${companyId}`]);
+      const { rows } = await client.query(
+        `
+          INSERT INTO mt_templates (company_id, title, description, questions, is_active, is_default)
+          VALUES ($1, $2, $3, $4::jsonb, true,
+                  NOT EXISTS (SELECT 1 FROM mt_templates WHERE company_id = $1 AND is_default AND deleted_at IS NULL))
+          RETURNING id
+        `,
+        [companyId, title, description, JSON.stringify(questions)]
       );
-    }
-    if (!Array.isArray(questions) || questions.length > 100) {
-      return NextResponse.json(
-        { success: false, error: 'Асуултын жагсаалт буруу байна (хамгийн ихдээ 100 асуулт).' },
-        { status: 400 }
-      );
-    }
-
-    // Бүх шалгалтын дараа л transaction-д холболт авна (холболтыг эрт эзэлбэл pool дуусч апп гацна)
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
-      // Өмнө нь идэвхтэй байсан бүх анкетын is_active утгыг false болгож өөрчлөх
-      await client.query(
-        `UPDATE mt_templates
-         SET is_active = false, updated_at = CURRENT_TIMESTAMP
-         WHERE company_id = $1 AND is_active = true`,
-        [companyId]
-      );
-
-      // Шинэ хувилбарыг is_active = true байдлаар шинээр INSERT хийх
-      await client.query(
-        `INSERT INTO mt_templates (company_id, title, description, questions, is_active)
-         VALUES ($1, $2, $3, $4::jsonb, true)`,
-        [companyId, title.slice(0, 200), typeof description === 'string' ? description.slice(0, 2000) : null, JSON.stringify(questions)]
-      );
-
-      await client.query('COMMIT');
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Анкетын шинэ загвар амжилттай хадгалагдлаа.',
+      return rows[0].id as string;
     });
+
+    return NextResponse.json({ success: true, message: 'Анкет амжилттай үүслээ.', data: { id } }, { status: 201 });
   } catch (error) {
-    console.error('Template Save Error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Серверт алдаа гарлаа.' },
-      { status: 500 }
-    );
+    console.error('Template Create Error:', error);
+    return NextResponse.json({ success: false, error: 'Серверт алдаа гарлаа.' }, { status: 500 });
   }
 }

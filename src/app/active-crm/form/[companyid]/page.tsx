@@ -12,9 +12,18 @@ interface Question {
   options?: string[];
 }
 
-export default function PublicAnketPage({ params }: { params: Promise<{ companyid: string }> }) {
+export default function PublicAnketPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ companyid: string }>;
+  searchParams: Promise<{ t?: string | string[] }>;
+}) {
   const resolvedParams = use(params);
   const companyId = resolvedParams.companyid;
+  // ?t=<анкетын id>: компанийн олон анкетаас аль нь болохыг заана. Байхгүй бол үндсэн анкет.
+  const requestedTemplate = use(searchParams).t;
+  const templateQuery = typeof requestedTemplate === 'string' && requestedTemplate ? `?t=${encodeURIComponent(requestedTemplate)}` : '';
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -34,7 +43,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
   useEffect(() => {
     async function fetchPublicTemplate() {
       try {
-        const res = await fetch(`/api/active-crm/form/${companyId}`);
+        const res = await fetch(`/api/active-crm/form/${companyId}${templateQuery}`);
         const json = await res.json();
 
         if (json.success && json.data) {
@@ -57,7 +66,7 @@ export default function PublicAnketPage({ params }: { params: Promise<{ companyi
     if (companyId) {
       fetchPublicTemplate();
     }
-  }, [companyId]);
+  }, [companyId, templateQuery]);
 
   const handleInputChange = (questionId: string, value: string) => {
     setAnswers((prev) => ({

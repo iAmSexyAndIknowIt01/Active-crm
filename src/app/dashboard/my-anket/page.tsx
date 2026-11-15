@@ -1,22 +1,40 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, CheckCircle2, Copy, Eye, Settings2, Sparkles, ExternalLink, UserPlus, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import QRCode from 'qrcode';
+import {
+  Plus,
+  Sparkles,
+  FileText,
+  Pencil,
+  QrCode,
+  Copy,
+  Check,
+  Star,
+  Trash2,
+  ExternalLink,
+  UserPlus,
+  Loader2,
+  X,
+  AlertTriangle,
+} from 'lucide-react';
 import LoadingComponent from '@/src/app/components/loading';
-import { CUSTOMER_FIELD_OPTIONS, inferCustomerField } from '@/src/lib/form-customer';
+import { anketFormUrl } from './form-url';
 
-interface Question {
+interface TemplateRow {
   id: string;
-  label: string;
-  type: 'text' | 'number' | 'select';
-  required: boolean;
-  options?: string[];
-  default?: boolean;
-  // Хариултыг харилцагчийн аль талбарт хадгалах ('' = холбохгүй)
-  maps_to?: string;
+  title: string;
+  description: string | null;
+  is_active: boolean;
+  is_default: boolean;
+  question_count: number;
+  submission_count: number;
+  last_submitted_at: string | null;
+  created_at: string;
+  updated_at: string | null;
 }
 
 interface SyncResult {
@@ -26,115 +44,102 @@ interface SyncResult {
   skipped: number;
 }
 
-export default function MyAnketPage() {
-  const [formTitle, setFormTitle] = useState('Үйлчлүүлэгчийн бүртгэлийн анкет');
-  const [formDescription, setFormDescription] = useState('Та манай үйлчилгээг сонгосонд баярлалаа. Доорх мэдээллийг үнэн зөв бөглөнө үү.');
-  
-  const [questions, setQuestions] = useState<Question[]>([
-    { id: '1', label: 'Овог, Нэр', type: 'text', required: true, maps_to: 'full_name' },
-    { id: '2', label: 'Утасны дугаар', type: 'number', required: true, maps_to: 'phone' },
-    { id: '3', label: 'Имэйл хаяг', type: 'text', required: false, maps_to: 'email' },
-    { id: '4', label: 'Үйлчилгээний төрөл', type: 'select', required: true, maps_to: '', options: ['Авто угаалга', 'Тос солих', 'Засвар үйлчилгээ', 'Бусад'] },
-  ]);
+function formatDate(value: string | null) {
+  if (!value) return '—';
+  return new Date(value).toLocaleDateString('en-CA'); // YYYY-MM-DD
+}
 
+// Компанийн бүх QR анкетын жагсаалт. Анкет нэмэх, засах, идэвхжүүлэх, үндсэн болгох, устгах.
+export default function MyAnketListPage() {
+  const [templates, setTemplates] = useState<TemplateRow[]>([]);
   const [companyId, setCompanyId] = useState('');
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [savedSuccess, setSavedSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [copied, setCopied] = useState(false);
   const [baseUrl, setBaseUrl] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [qrTemplate, setQrTemplate] = useState<TemplateRow | null>(null);
+  const [qrImage, setQrImage] = useState('');
+  const [deleteTemplate, setDeleteTemplate] = useState<TemplateRow | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
 
-  // 1. Хуудас ачаалагдахад серверээс өгөгдлийг татаж авах
-  useEffect(() => {
-    setBaseUrl(window.location.origin); // Одоогийн домэйн URL-г авах
-
-    async function fetchTemplate() {
-      try {
-        const res = await fetch('/api/templates');
-        const json = await res.json();
-
-        if (json.success && json.data) {
-          setFormTitle(json.data.title || '');
-          setFormDescription(json.data.description || '');
-          if (Array.isArray(json.data.questions)) {
-            // Хуучин загварт maps_to байхгүй бол асуултын нэрээс таамаглаж харуулна (хадгалахад тодорхой болно)
-            setQuestions(
-              json.data.questions.map((q: Question) => ({
-                ...q,
-                maps_to: q.maps_to ?? inferCustomerField(q.label ?? '') ?? '',
-              }))
-            );
-          }
-          if (json.data.company_id) {
-            setCompanyId(json.data.company_id);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load template:', err);
-      } finally {
-        setLoading(false);
-      }
+  const loadTemplates = useCallback(async () => {
+    try {
+      const res = await fetch('/api/templates');
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || 'Анкетуудыг ачаалахад алдаа гарлаа.');
+      setTemplates(json.data.templates);
+      setCompanyId(json.data.companyId);
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Сүлжээний алдаа гарлаа.');
+    } finally {
+      setLoading(false);
     }
-    fetchTemplate();
   }, []);
 
-  const handleAddQuestion = () => {
-    const newQ: Question = {
-      id: Date.now().toString(),
-      label: 'Шинэ асуулт',
-      type: 'text',
-      required: false,
-      maps_to: '',
+  useEffect(() => {
+    setBaseUrl(window.location.origin);
+    loadTemplates();
+  }, [loadTemplates]);
+
+  const urlFor = (t: TemplateRow) => (companyId && baseUrl ? anketFormUrl(baseUrl, companyId, t.id, t.is_default) : '');
+
+  // QR модалын зургийг браузер дотор үүсгэнэ
+  useEffect(() => {
+    if (!qrTemplate) {
+      setQrImage('');
+      return;
+    }
+    let cancelled = false;
+    QRCode.toDataURL(anketFormUrl(baseUrl, companyId, qrTemplate.id, qrTemplate.is_default), { width: 480, margin: 1 })
+      .then((url) => !cancelled && setQrImage(url))
+      .catch((err) => console.error('QR code generation failed:', err));
+    return () => {
+      cancelled = true;
     };
-    setQuestions([...questions, newQ]);
+  }, [qrTemplate, baseUrl, companyId]);
+
+  const handleCopy = (t: TemplateRow) => {
+    navigator.clipboard.writeText(urlFor(t));
+    setCopiedId(t.id);
+    setTimeout(() => setCopiedId((current) => (current === t.id ? null : current)), 2000);
   };
 
-  const handleDeleteQuestion = (id: string) => {
-    setQuestions(questions.filter((q) => q.id !== id));
-  };
-
-  const handleQuestionChange = (id: string, field: keyof Question, value: unknown) => {
-    setQuestions(
-      questions.map((q) => (q.id === id ? { ...q, [field]: value } : q))
-    );
-  };
-
-  // 2. Өөрчлөлтийг хадгалах
-  const handleSave = async () => {
-    setSaving(true);
-    setSavedSuccess(false);
+  const updateTemplate = async (t: TemplateRow, body: Record<string, unknown>) => {
+    setBusyId(t.id);
     setErrorMessage('');
-
     try {
-      const response = await fetch('/api/templates', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: formTitle,
-          description: formDescription,
-          questions: questions,
-        }),
+      const res = await fetch(`/api/templates/${t.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
       });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Хадгалахад алдаа гарлаа.');
-      }
-
-      setSavedSuccess(true);
-      setTimeout(() => setSavedSuccess(false), 3000);
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Сүлжээний алдаа гарлаа.';
-      setErrorMessage(errorMsg);
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || 'Хадгалахад алдаа гарлаа.');
+      await loadTemplates();
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Сүлжээний алдаа гарлаа.');
     } finally {
-      setSaving(false);
+      setBusyId(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTemplate) return;
+    const t = deleteTemplate;
+    setDeleteTemplate(null);
+    setBusyId(t.id);
+    setErrorMessage('');
+    try {
+      const res = await fetch(`/api/templates/${t.id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || 'Устгахад алдаа гарлаа.');
+      await loadTemplates();
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Сүлжээний алдаа гарлаа.');
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -168,366 +173,301 @@ export default function MyAnketPage() {
     }
   };
 
-  const clientFormUrl = companyId 
-  ? `${baseUrl}/active-crm/form/${companyId}`
-  : `${baseUrl}/active-crm/form/`;
-  
-  // QR кодыг браузер дотор үүсгэнэ (анкетын холбоосыг гуравдагч сервис рүү илгээхгүй)
-  const [qrCodeImageUrl, setQrCodeImageUrl] = useState('');
-  useEffect(() => {
-    if (!companyId || !baseUrl) return;
-    let cancelled = false;
-    QRCode.toDataURL(clientFormUrl, { width: 352, margin: 1 })
-      .then((url) => !cancelled && setQrCodeImageUrl(url))
-      .catch((err) => console.error('QR code generation failed:', err));
-    return () => {
-      cancelled = true;
-    };
-  }, [clientFormUrl, companyId, baseUrl]);
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(clientFormUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  // Өгөгдөл анх татаж байх үед харуулах лоадер
   if (loading) {
-    return <LoadingComponent text="Анкетын мэдээллийг ачаалж байна..." />;
+    return <LoadingComponent text="Анкетуудыг ачаалж байна..." />;
   }
 
-  return (
-    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pb-20 font-sans antialiased text-slate-800 dark:text-slate-100 relative">
-      
-      {/* Хадгалж байх үед гарч ирэх бүтэн дэлгэцийн лоадер */}
-      {saving && <LoadingComponent text="Өөрчлөлтийг хадгалж байна..." />}
+  const iconButton =
+    'p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed';
 
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs">
+  return (
+    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pb-20 font-sans antialiased text-slate-800 dark:text-slate-100">
+      {/* Header: баруун дээд буланд "Анкет нэмэх" */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 text-xs font-bold tracking-wide uppercase border border-red-100 dark:border-red-900">
-            <Sparkles size={12} /> Анкет тохиргоо
+            <Sparkles size={12} /> Анкет
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Үйлчлүүлэгчийн анкет загвар</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Үйлчлүүлэгчдэд зориулсан асуулга болон бүртгэлийн хуудсаа удирдах.</p>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Үйлчлүүлэгчийн анкетууд</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
+            Үүсгэсэн анкетууд, тэдгээрийн QR код, ирсэн хариултын тоо. Үндсэн анкет нь анкетын ID-гүй холбоосоор нээгдэнэ.
+          </p>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="bg-slate-100/80 dark:bg-slate-800 p-1.5 rounded-2xl flex items-center gap-1 border border-slate-200/60 dark:border-slate-700">
-            <button
-              type="button"
-              onClick={() => setActiveTab('editor')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'editor' 
-                  ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-sm border border-slate-200/50 dark:border-slate-700' 
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Settings2 size={15} /> Засварлах
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('preview')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'preview' 
-                  ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-sm border border-slate-200/50 dark:border-slate-700' 
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Eye size={15} /> Урьдчилан харах
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 active:scale-98 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-md shadow-red-500/20 cursor-pointer disabled:opacity-50"
-          >
-            <Save size={16} />
-            Өөрчлөлтийг хадгалах
-          </button>
-        </div>
+        <Link
+          href="/dashboard/my-anket/new"
+          className="self-start sm:self-auto inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-2xl font-bold text-sm transition-all shadow-md shadow-red-500/20 shrink-0"
+        >
+          <Plus size={18} /> Анкет нэмэх
+        </Link>
       </div>
 
-      {savedSuccess && (
-        <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 px-5 py-4 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-bold shadow-2xs">
-          <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400 shrink-0" /> 
-          Анкетын мэдээлэл бааз руу амжилттай хадгалагдлаа!
-        </div>
-      )}
-
       {errorMessage && (
-        <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 px-5 py-4 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-bold shadow-2xs">
+        <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 px-5 py-4 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-bold animate-in fade-in slide-in-from-top-2">
           <span className="text-rose-600 dark:text-rose-400 font-bold">Алдаа:</span> {errorMessage}
         </div>
       )}
 
-      {activeTab === 'editor' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            
-            {/* Form Details */}
-            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-5">
-              <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-500 ring-4 ring-red-50 dark:ring-red-950"></span> Ерөнхий мэдээлэл
-              </h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Анкетын гарчиг</label>
-                  <input
-                    type="text"
-                    value={formTitle}
-                    onChange={(e) => setFormTitle(e.target.value)}
-                    className="w-full px-4.5 py-3.5 bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm font-semibold focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-red-500/10 transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Тайлбар текст</label>
-                  <textarea
-                    rows={2}
-                    value={formDescription}
-                    onChange={(e) => setFormDescription(e.target.value)}
-                    className="w-full px-4.5 py-3.5 bg-slate-50/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm font-medium leading-relaxed focus:outline-none focus:border-red-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-red-500/10 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Questions Section */}
-            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
-                <div>
-                  <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-500 ring-4 ring-red-50 dark:ring-red-950"></span> Асуултуудын жагсаалт
-                  </h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-                    Үйлчлүүлэгчээс асуух талбаруудыг удирдах. «Харилцагч: …» гэж холбосон хариултаар анкет бөглөсөн хүн
-                    харилцагчийн жагсаалтад автоматаар нэмэгдэнэ (утас эсвэл имэйлээр нь өмнөх бүртгэлтэй тулгана).
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleAddQuestion}
-                  className="flex items-center gap-2 text-xs font-bold bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-900 px-4 py-2.5 rounded-xl transition-all cursor-pointer"
-                >
-                  <Plus size={16} /> Асуулт нэмэх
-                </button>
-              </div>
-
-              <div className="space-y-4">
-              {questions.map((q, index) => (
-                <div key={q.id} className="p-5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/40 hover:bg-slate-50/80 dark:hover:bg-slate-800/85 transition-all space-y-4">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-3.5 flex-1">
-                      <span className="w-8 h-8 rounded-xl bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center text-xs font-black shrink-0">
-                        {index + 1}
-                      </span>
-                      <input
-                        type="text"
-                        value={q.label}
-                        onChange={(e) => handleQuestionChange(q.id, 'label', e.target.value)}
-                        placeholder="Асуултын нэр..."
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:border-red-600 transition-all"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2 sm:pl-11.5 flex-wrap">
-                      <select
-                        value={q.type}
-                        onChange={(e) => handleQuestionChange(q.id, 'type', e.target.value)}
-                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-red-600 cursor-pointer"
-                      >
-                        <option value="text">Текст</option>
-                        <option value="number">Тоо</option>
-                        <option value="select">Сонголт</option>
-                      </select>
-
-                      <select
-                        value={q.maps_to ?? ''}
-                        onChange={(e) => handleQuestionChange(q.id, 'maps_to', e.target.value)}
-                        title="Хариултыг харилцагчийн бүртгэлийн аль талбарт хадгалах"
-                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-red-600 cursor-pointer"
-                      >
-                        {CUSTOMER_FIELD_OPTIONS.map((o) => (
-                          <option key={o.value} value={o.value}>
-                            {o.value ? `Харилцагч: ${o.label}` : o.label}
-                          </option>
-                        ))}
-                      </select>
-
-                      <button
-                        type="button"
-                        onClick={() => handleQuestionChange(q.id, 'required', !q.required)}
-                        className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          q.required 
-                            ? 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800' 
-                            : 'bg-slate-200/60 dark:bg-slate-700 text-slate-500 dark:text-slate-300'
-                        }`}
-                      >
-                        {q.required ? 'Заавал' : 'Заавал биш'}
-                      </button>
-
-                      {!q.default && (
+      {templates.length === 0 ? (
+        <div className="bg-white dark:bg-slate-900 p-10 sm:p-14 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 text-center space-y-4">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center">
+            <FileText size={26} />
+          </div>
+          <div className="space-y-1">
+            <p className="font-black text-slate-900 dark:text-white">Анкет үүсгээгүй байна</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Анкет үүсгээд QR кодыг нь байршуулбал үйлчлүүлэгчид утсаараа бөглөж, харилцагчийн бүртгэлд автоматаар нэмэгдэнэ.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/my-anket/new"
+            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-2xl font-bold text-sm transition-all"
+          >
+            <Plus size={18} /> Анкет нэмэх
+          </Link>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800">
+                  <th className="px-5 sm:px-6 py-4 font-extrabold">Анкет</th>
+                  <th className="px-4 py-4 font-extrabold text-center">Асуулт</th>
+                  <th className="px-4 py-4 font-extrabold text-center">Хариулт</th>
+                  <th className="px-4 py-4 font-extrabold">Төлөв</th>
+                  <th className="px-4 py-4 font-extrabold">Шинэчилсэн</th>
+                  <th className="px-5 sm:px-6 py-4 font-extrabold text-right">Үйлдэл</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {templates.map((t) => {
+                  const busy = busyId === t.id;
+                  return (
+                    <tr key={t.id} className={`hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors ${busy ? 'opacity-60' : ''}`}>
+                      <td className="px-5 sm:px-6 py-4 min-w-60">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Link
+                            href={`/dashboard/my-anket/${t.id}`}
+                            className="font-bold text-slate-900 dark:text-white hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                          >
+                            {t.title}
+                          </Link>
+                          {t.is_default && (
+                            <span
+                              title="Анкетын ID-гүй холбоос, өмнө хэвлэсэн QR код энэ анкетыг нээнэ"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 text-[11px] font-bold"
+                            >
+                              <Star size={11} /> Үндсэн
+                            </span>
+                          )}
+                        </div>
+                        {t.description && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1 max-w-md">{t.description}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-center font-bold tabular-nums">{t.question_count}</td>
+                      <td className="px-4 py-4 text-center">
+                        <p className="font-bold tabular-nums">{t.submission_count}</p>
+                        {t.last_submitted_at && (
+                          <p className="text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap">сүүлд {formatDate(t.last_submitted_at)}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
                         <button
                           type="button"
-                          onClick={() => handleDeleteQuestion(q.id)}
-                          className="p-2.5 text-slate-400 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
+                          role="switch"
+                          aria-checked={t.is_active}
+                          disabled={busy}
+                          onClick={() => updateTemplate(t, { is_active: !t.is_active })}
+                          title={t.is_active ? 'Хариулт хүлээн авч байна. Дарж идэвхгүй болгоно.' : 'Хариулт хүлээн авахгүй. Дарж идэвхжүүлнэ.'}
+                          className="inline-flex items-center gap-2 cursor-pointer disabled:cursor-wait"
                         >
-                          <Trash2 size={16} />
+                          <span
+                            className={`relative w-9 h-5 rounded-full transition-colors ${
+                              t.is_active ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
+                            }`}
+                          >
+                            <span
+                              className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                                t.is_active ? 'translate-x-4' : ''
+                              }`}
+                            />
+                          </span>
+                          <span
+                            className={`text-xs font-bold whitespace-nowrap ${
+                              t.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'
+                            }`}
+                          >
+                            {t.is_active ? 'Идэвхтэй' : 'Идэвхгүй'}
+                          </span>
                         </button>
-                      )}
-                    </div>
-                  </div>
-                  {q.type === 'select' && (
-                    <div className="pt-1">
-                      <input
-                        type="text"
-                        value={
-                          Array.isArray(q.options) 
-                            ? q.options.join(', ') 
-                            : (typeof q.options === 'string' ? q.options : '')
-                        }
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const optionsArray = val ? val.split(',').map(s => s.trim()).filter(Boolean) : [];
-                          handleQuestionChange(q.id, 'options', optionsArray);
-                        }}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:border-red-600"
-                        placeholder="Сонголтууд (таслалаар тусгаарлах, жнь: Авто угаалга, Тос солих)"
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-              </div>
-            </div>
+                      </td>
+                      <td className="px-4 py-4 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                        {formatDate(t.updated_at ?? t.created_at)}
+                      </td>
+                      <td className="px-5 sm:px-6 py-4">
+                        <div className="flex items-center justify-end gap-0.5">
+                          <Link href={`/dashboard/my-anket/${t.id}`} title="Засах" className={iconButton}>
+                            <Pencil size={16} />
+                          </Link>
+                          <button type="button" title="QR код" onClick={() => setQrTemplate(t)} className={iconButton}>
+                            <QrCode size={16} />
+                          </button>
+                          <button type="button" title="Холбоос хуулах" onClick={() => handleCopy(t)} className={iconButton}>
+                            {copiedId === t.id ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
+                          </button>
+                          {!t.is_default && (
+                            <button
+                              type="button"
+                              title="Үндсэн анкет болгох"
+                              disabled={busy}
+                              onClick={() => updateTemplate(t, { is_default: true })}
+                              className={iconButton}
+                            >
+                              <Star size={16} />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            title="Устгах"
+                            disabled={busy}
+                            onClick={() => setDeleteTemplate(t)}
+                            className={`${iconButton} hover:text-rose-600! dark:hover:text-rose-400! hover:bg-rose-50! dark:hover:bg-rose-950/40!`}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
+        </div>
+      )}
 
-          {/* QR & Public Link */}
-          <div className="space-y-6">
-            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs text-center space-y-6 sticky top-6">
-              <div className="text-left pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <div>
-                  <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">QR Код</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Камераар уншуулж бөглөх</p>
-                </div>
-                <a
-                  href={clientFormUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 bg-slate-50 dark:bg-slate-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-xl transition-all"
-                  title="Шинэ цонхоор нээх"
-                >
-                  <ExternalLink size={16} />
-                </a>
-              </div>
+      {/* Өмнөх анкетуудыг харилцагч болгох */}
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="font-bold text-sm text-slate-900 dark:text-white">Хуучин анкетууд</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+            Өмнө ирсэн, харилцагчтай холбогдоогүй анкетуудыг утас эсвэл имэйлээр нь харилцагч болгоно.
+          </p>
+          {syncResult && (
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 leading-relaxed mt-2">
+              {syncResult.processed === 0
+                ? 'Холбох шаардлагатай анкет алга.'
+                : `${syncResult.linked} анкет холбогдлоо (${syncResult.created} шинэ харилцагч).` +
+                  (syncResult.skipped > 0 ? ` ${syncResult.skipped} анкетад нэр, утас эсвэл имэйл дутуу тул алгаслаа.` : '')}
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={handleSyncCustomers}
+          disabled={syncing}
+          className="shrink-0 flex items-center justify-center gap-2 text-xs font-bold bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-900 px-4 py-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-60"
+        >
+          {syncing ? <Loader2 size={15} className="animate-spin" /> : <UserPlus size={15} />}
+          Хуучин анкетуудыг харилцагч болгох
+        </button>
+      </div>
 
-              <div className="bg-slate-50/80 dark:bg-slate-800/50 p-6 rounded-3xl border border-slate-200/60 dark:border-slate-700 flex flex-col items-center justify-center space-y-4">
-                <div className="w-44 h-44 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shadow-2xs relative">
-                  {qrCodeImageUrl && <Image
-                    src={qrCodeImageUrl}
-                    alt="Client Form QR Code"
-                    width={176}
-                    height={176}
-                    className="w-full h-full object-contain rounded-lg"
-                    unoptimized
-                  />}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2.5 rounded-2xl">
-                  <input
-                    type="text"
-                    readOnly
-                    value={clientFormUrl}
-                    className="w-full bg-transparent text-xs font-semibold text-slate-600 dark:text-slate-300 focus:outline-none truncate"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleCopyLink}
-                    className="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
-                  >
-                    <Copy size={15} />
-                  </button>
-                </div>
-                {copied && <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Линк хуулагдлаа!</p>}
-              </div>
-
-              <div className="text-left pt-5 border-t border-slate-100 dark:border-slate-800 space-y-3">
-                <div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Хуучин анкетууд</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-                    Өмнө ирсэн, харилцагчтай холбогдоогүй анкетуудыг харилцагч болгоно.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleSyncCustomers}
-                  disabled={syncing}
-                  className="w-full flex items-center justify-center gap-2 text-xs font-bold bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-900 px-4 py-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-60"
-                >
-                  {syncing ? <Loader2 size={15} className="animate-spin" /> : <UserPlus size={15} />}
-                  Хуучин анкетуудыг харилцагч болгох
-                </button>
-                {syncResult && (
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
-                    {syncResult.processed === 0
-                      ? 'Холбох шаардлагатай анкет алга.'
-                      : `${syncResult.linked} анкет холбогдлоо (${syncResult.created} шинэ харилцагч).` +
-                        (syncResult.skipped > 0
-                          ? ` ${syncResult.skipped} анкетад нэр, утас эсвэл имэйл дутуу тул алгаслаа.`
-                          : '')}
-                  </p>
-                )}
-              </div>
+      {/* QR кодын модал */}
+      {qrTemplate && (
+        <div
+          className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setQrTemplate(null);
+          }}
+        >
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-5 relative animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+            <button
+              type="button"
+              onClick={() => setQrTemplate(null)}
+              aria-label="Хаах"
+              className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+            <div className="pr-8">
+              <h3 className="font-black text-slate-900 dark:text-white">{qrTemplate.title}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Камераар уншуулж бөглөнө</p>
+            </div>
+            <div className="bg-white p-3 rounded-2xl border border-slate-200 dark:border-slate-700 w-60 h-60 mx-auto flex items-center justify-center">
+              {qrImage && <Image src={qrImage} alt="Анкетын QR код" width={240} height={240} className="w-full h-full object-contain" unoptimized />}
+            </div>
+            {!qrTemplate.is_active && (
+              <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 text-center">
+                Анкет идэвхгүй тул одоогоор хариулт хүлээн авахгүй.
+              </p>
+            )}
+            <div className="grid grid-cols-3 gap-2">
+              <a
+                href={qrImage || undefined}
+                download={`anket-qr-${qrTemplate.id.slice(0, 8)}.png`}
+                className="col-span-1 flex items-center justify-center text-xs font-bold bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl transition-all"
+              >
+                Татах
+              </a>
+              <button
+                type="button"
+                onClick={() => handleCopy(qrTemplate)}
+                className="flex items-center justify-center gap-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-2.5 rounded-xl transition-all cursor-pointer"
+              >
+                {copiedId === qrTemplate.id ? <Check size={14} /> : <Copy size={14} />} Хуулах
+              </button>
+              <a
+                href={urlFor(qrTemplate)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-2.5 rounded-xl transition-all"
+              >
+                <ExternalLink size={14} /> Нээх
+              </a>
             </div>
           </div>
         </div>
-      ) : (
-        /* Preview Mode */
-        <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 p-8 sm:p-12 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-2xs space-y-8">
-          <div className="text-center space-y-2 pb-6 border-b border-slate-100 dark:border-slate-800">
-            <span className="bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900 text-xs font-bold px-3.5 py-1 rounded-full uppercase">Урьдчилан харах</span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">{formTitle}</h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{formDescription}</p>
-          </div>
+      )}
 
-          <div className="space-y-5">
-            {questions.map((q, idx) => (
-              <div key={q.id} className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                  {idx + 1}. {q.label} {q.required && <span className="text-rose-500 dark:text-rose-400">*</span>}
-                </label>
-                {q.type === 'select' ? (
-                  <select className="w-full px-4.5 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600 cursor-pointer">
-                    <option value="">Сонгох...</option>
-                    {(() => {
-                      let opts: string[] = [];
-                      if (Array.isArray(q.options)) {
-                        opts = q.options;
-                      } else if (typeof q.options === 'string') {
-                        opts = (q.options as string).split(',').map(s => s.trim()).filter(Boolean);
-                      }
-                      
-                      return opts.map((o, i) => (
-                        <option key={i} value={o}>
-                          {o}
-                        </option>
-                      ));
-                    })()}
-                  </select>
-                ) : (
-                  <input type={q.type} placeholder="Бөглөх хэсэг..." className="w-full px-4.5 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-red-600" />
-                )}
-              </div>
-            ))}
-            <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all mt-6 text-sm cursor-pointer shadow-md shadow-red-500/20">
-              Илгээх
-            </button>
+      {/* Устгах баталгаажуулалт */}
+      {deleteTemplate && (
+        <div
+          className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setDeleteTemplate(null);
+          }}
+        >
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-4 text-center animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+            <div className="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400">
+              <AlertTriangle size={24} />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-black text-slate-900 dark:text-white">“{deleteTemplate.title}” анкетыг устгах уу?</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Анкетын холбоос, QR код ажиллахаа болино. Ирсэн {deleteTemplate.submission_count} хариулт харилцагч, өгөгдлийн
+                хэсэгт хадгалагдсаар үлдэнэ.
+                {deleteTemplate.is_default && ' Энэ нь үндсэн анкет тул өөр анкет үндсэн болно.'}
+              </p>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteTemplate(null)}
+                className="flex-1 py-3 rounded-2xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
+              >
+                Болих
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="flex-1 py-3 rounded-2xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all cursor-pointer"
+              >
+                Устгах
+              </button>
+            </div>
           </div>
         </div>
       )}
