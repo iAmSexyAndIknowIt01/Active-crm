@@ -52,10 +52,6 @@ body {
   from { opacity: 0; transform: translateX(-20px); }
   to { opacity: 1; transform: none; }
 }
-@keyframes grow-x {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
 
 /* Хуудас ачаалахад шууд гарч ирэх (hero) — style={{ animationDelay }}-аар дараалуулна */
 .animate-fade-up { animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -87,13 +83,14 @@ body {
 .reveal.reveal-zoom { transform: scale(0.94); }
 .reveal.is-visible { opacity: 1; transform: none; }
 
-/* Хуудас scroll хийх явцыг харуулах шугам (scroll-driven animation дэмждэг хөтөчид) */
-.scroll-progress { transform: scaleX(0); transform-origin: left; }
-@supports (animation-timeline: scroll()) {
-  .scroll-progress {
-    animation: grow-x linear both;
-    animation-timeline: scroll(root);
-  }
+/* Хуудасны үндсэн scroll bar-ыг нуух (гүйлгэх боломж хэвээр).
+   Хуудасны аль хэсэгт явааг дээд талын шугам харуулна (components/ScrollProgress.tsx). */
+html {
+  scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Edge, Safari */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -101,8 +98,7 @@ body {
   .animate-slide-in,
   .animate-float,
   .animate-drift,
-  .text-shimmer,
-  .scroll-progress {
+  .text-shimmer {
     animation: none !important;
   }
   .reveal {

@@ -4,6 +4,7 @@ import Footer from "@/src/components/landingPage/Footer";
 import { ThemeProvider } from "@/src/components/ThemeProvider";
 import ValidationMessages from "@/src/components/ValidationMessages";
 import ScrollToTop from "@/src/components/ScrollToTop";
+import ScrollProgress from "@/src/components/ScrollProgress";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,6 +34,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* Формын шалгалтын мессежийг браузерын хэлээс үл хамааран монголоор харуулна */}
           <ValidationMessages />
+          {/* Scroll bar нуугдсан тул хуудасны аль хэсэгт явааг дээд талд шугамаар харуулна */}
+          <ScrollProgress />
           {/* Үндсэн контент */}
           <div className="flex-1 flex flex-col">
             {children}
